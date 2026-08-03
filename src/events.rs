@@ -13,16 +13,20 @@ impl App {
                 KeyCode::Esc => match &mut self.state {
                     AppState::EditingText(None) => self.exit(),
                     AppState::EditingText(Some(_cipher)) => {
-                        self.state = AppState::EditingText(None)
+                        self.state = AppState::EditingText(None);
+                        self.text.selected = None;
                     }
                     AppState::CurrentlyEditingCiphers(indx) => {
+                        self.text.selected = Some(*indx);
                         self.state = AppState::EditingText(Some(
                             self.text.ciphers.get_mut(*indx).unwrap().clone(),
                         ));
+                        
                     }
                 },
                 KeyCode::Enter => match &mut self.state {
                     AppState::EditingText(None) => {
+                        self.text.selected = Some(self.text.ciphers.len());
                         self.state = AppState::EditingText(Some(CipherType::Caeser(0)))
                     }
                     AppState::EditingText(Some(cipher)) => {
@@ -61,6 +65,7 @@ impl App {
                     AppState::EditingText(None) => {}
                     AppState::EditingText(Some(_cipher)) => {
                         self.text.ciphers.pop();
+                        self.state = AppState::EditingText(None);
                     }
                     AppState::CurrentlyEditingCiphers(indx) => {
                         let cipher = self.text.ciphers.get(*indx).unwrap().clone();

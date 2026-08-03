@@ -19,6 +19,7 @@ pub struct CipherText {
     pub text: String,
     pub ciphers: Vec<CipherType>,
     pub ciphered: String,
+    pub selected : Option<usize>
 }
 
 impl CipherText {
@@ -27,6 +28,7 @@ impl CipherText {
             text: "EXAMPLETEXT".to_string(),
             ciphers: Vec::new(),
             ciphered: String::from("EXAMPLETEXT"),
+            selected : None
         }
     }
 
@@ -87,8 +89,14 @@ impl CipherText {
 
 impl CipherText {
     pub fn next(&self, cipher: &CipherType) -> CipherType {
-        let disc = discriminant(&cipher.next());
-        if let Some(index) = self.ciphers.iter().rposition(|c| discriminant(c) == disc) {
+        if let Some(index) = self
+            .ciphers
+            .iter()
+            .enumerate()
+            .filter(|&(_, val)| discriminant(val) == discriminant(&cipher.next()))
+            .nth_back(0)
+            .map(|(indx, _)| indx)
+        {
             self.ciphers.get(index).unwrap().clone()
         } else {
             cipher.next()
