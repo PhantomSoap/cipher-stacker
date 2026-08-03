@@ -1,8 +1,9 @@
+
 use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 use crossterm::event::{self, Event, KeyCode};
 use std::io;
-use std::mem::discriminant;
+
 impl App {
     pub fn handle_key_events(&mut self) -> io::Result<()> {
         if let Event::Key(key) = event::read()? {
@@ -114,9 +115,9 @@ impl App {
                         }
                     }
                 },
-                KeyCode::Right => match self.state {
+                KeyCode::Right => match &mut self.state {
                     AppState::CurrentlyEditingCiphers(indx) => {
-                        let cipher = self.text.ciphers.get_mut(indx).unwrap();
+                        let cipher = self.text.ciphers.get_mut(*indx).unwrap();
                         match cipher {
                             CipherType::Caeser(shift) => {
                                 *shift = ((*shift + 1) % 26 + 26) % 26;
@@ -136,12 +137,20 @@ impl App {
                             _ => {}
                         }
                     },
+                    AppState::EditingText(Some(_cipher)) => {
+                        if let Some(index) = self.text.selected {
+                            if self.text.ciphers.get(index+1).is_some() {
+                                self.state = AppState::EditingText(Some(self.text.ciphers.get(index+1).unwrap().clone()));
+                                self.text.selected = Some(index + 1);
+                            }
+                        }
+                    }
                     _ => {},
                     
                 },
-                KeyCode::Left => match self.state {
+                KeyCode::Left => match &mut self.state {
                     AppState::CurrentlyEditingCiphers(indx) => {
-                        let cipher = self.text.ciphers.get_mut(indx).unwrap();
+                        let cipher = self.text.ciphers.get_mut(*indx).unwrap();
                         match cipher {
                             CipherType::Caeser(shift) => {
                                 *shift = ((*shift - 1) % 26 + 26) % 26;
@@ -159,6 +168,14 @@ impl App {
                             }
 
                             _ => {}
+                        }
+                    },
+                    AppState::EditingText(Some(_cipher)) => {
+                        if let Some(index) = self.text.selected {
+                            if !(index == 0) && self.text.ciphers.get(index-1).is_some() {
+                                self.state = AppState::EditingText(Some(self.text.ciphers.get(index-1).unwrap().clone()));
+                                self.text.selected = Some(index - 1);
+                            }
                         }
                     }
                     _ => {}
@@ -193,7 +210,7 @@ impl App {
                             _ => {}
                         }
                     }
-                    AppState::EditingText(Some(cipher)) => {
+                    AppState::EditingText(Some(_cipher)) => {
                     }
                     _ => {}
                 },

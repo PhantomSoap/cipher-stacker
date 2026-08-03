@@ -4,6 +4,7 @@ pub mod ciphermod;
 pub mod events;
 pub mod ui;
 
+
 use app::App;
 
 fn main() -> io::Result<()> {
