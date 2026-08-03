@@ -105,6 +105,8 @@ impl CipherType {
             CipherType::Affine(_, _) => CipherType::Caeser(0),
         }
     }
+
+    
 }
 
 impl fmt::Display for CipherType {

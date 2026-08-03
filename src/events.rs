@@ -99,8 +99,18 @@ impl App {
                         match cipher {
                             CipherType::Caeser(shift) => {
                                 *shift = ((*shift + 1) % 26 + 26) % 26;
-                            },
-                            CipherType::Affine(a,_) => {},
+                            }
+                            CipherType::Affine(a, _) => {
+                                let mut shift = *a;
+                                while !(*a == 26) && !(shift == 26) {
+                                    if !((shift + 1) % 2 == 0) && !((shift + 1) % 13 == 0) {
+                                        *a = shift + 1;
+                                        break;
+                                    } else {
+                                        shift += 1;
+                                    }
+                                }
+                            }
 
                             _ => {}
                         }
@@ -112,8 +122,18 @@ impl App {
                         match cipher {
                             CipherType::Caeser(shift) => {
                                 *shift = ((*shift - 1) % 26 + 26) % 26;
-                            },
-                            CipherType::Affine(a,_) => {},
+                            }
+                            CipherType::Affine(a, _) => {
+                                let mut shift = *a;
+                                while !(*a == 0) && !(shift == 0) {
+                                    if !((shift - 1) % 2 == 0) && !((shift - 1) % 13 == 0) {
+                                        *a = shift - 1;
+                                        break;
+                                    } else {
+                                        shift -= 1;
+                                    }
+                                }
+                            }
 
                             _ => {}
                         }
@@ -127,8 +147,9 @@ impl App {
                                 if !(*key == self.text.ciphered.len() as i32) {
                                     *key += 1
                                 }
-                            },
-                            CipherType::Affine(_,b) => {},
+                            }
+                            CipherType::Affine(_, b) if !(*b == 25) => *b += 1,
+
                             _ => {}
                         }
                     }
@@ -138,11 +159,11 @@ impl App {
                         let cipher = self.text.ciphers.get_mut(indx).unwrap();
                         match cipher {
                             CipherType::RailFence(key) => {
-                                if !(*key <= 2 as i32) {
+                                if !(*key <= 2) {
                                     *key -= 1
                                 }
-                            },
-                            CipherType::Affine(_,b) => {},
+                            }
+                            CipherType::Affine(_, b) if !(*b == 0) => *b -= 1,
 
                             _ => {}
                         }

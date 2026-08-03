@@ -9,6 +9,7 @@ use ratatui::{
     text::{Line, Text},
     widgets::{Block, Paragraph, Widget},
 };
+
 pub fn render_affine(shift: &u8, multiplyer: &u8, area: Rect, buf: &mut Buffer) {
     Paragraph::new(format!("Shift: {} | multiplyer: {}", shift, multiplyer))
         .centered()
@@ -21,15 +22,10 @@ pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
             Constraint::Length(1),
             Constraint::Length(1),
             Constraint::Length(1),
-            Constraint::Length(1),
-            Constraint::Length(1),
-            Constraint::Length(1),
-            Constraint::Length(1),
-            Constraint::Length(1),
+            Constraint::Length(5), // Shifter
         ])
         .split(area);
 
-    let boxed_alphabet = "| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |";
     let ciphered_alphabet = Caesar::new(26 - *shift as u8)
         .encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         .unwrap();
@@ -41,23 +37,19 @@ pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
         ciphered_boxed_alphabet.push(' ');
         ciphered_boxed_alphabet.push('|');
     }
-    let caesar_shifter = String::new();
-    
-    Paragraph::new(Text::from("-".repeat(105)))
+
+    let caesar_shifter = format!(
+        "{}\n{}\n{}\n{}\n{}",
+        "-".repeat(105),
+        "| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |",
+        "| ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |",
+        ciphered_boxed_alphabet,
+        "-".repeat(105),
+    );
+
+    Paragraph::new(caesar_shifter)
         .centered()
         .render(layouts[3], buf);
-    Paragraph::new(Text::from(boxed_alphabet))
-        .centered()
-        .render(layouts[4], buf);
-    Paragraph::new(Text::from("| ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |"))
-            .centered()
-            .render(layouts[5], buf);
-    Paragraph::new(Text::from(ciphered_boxed_alphabet))
-        .centered()
-        .render(layouts[6], buf);
-    Paragraph::new(Text::from("-".repeat(105)))
-        .centered()
-        .render(layouts[7], buf);
 
     Paragraph::new(Text::from(vec![Line::from(vec![
         "Shift: ".into(),
@@ -78,7 +70,9 @@ pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
     ])]))
     .centered()
     .render(layouts[0], buf);
-    Paragraph::new("Caeser Cipher").centered().render(layouts[0],buf);
+    Paragraph::new("Caeser Cipher")
+        .centered()
+        .render(layouts[0], buf);
 }
 
 pub fn render_cipher_list(cipher_list: &Vec<CipherType>, area: Rect, buf: &mut Buffer) {
@@ -191,7 +185,7 @@ impl Widget for &App {
                 format!("{} | (Editing)", self.text.ciphers.get(*indx).unwrap())
             }
         };
-        Paragraph::new(format!("{}", state_string))
+        Paragraph::new(state_string)
             .centered()
             .render(layouts[8], buf)
     }
