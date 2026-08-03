@@ -5,7 +5,7 @@ use std::{
 
 use ciphers::{Affine, Atbash, Caesar, Cipher, RailFence, Vigenere};
 
-#[derive(Debug, Clone,PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum CipherType {
     Caeser(i32),
     Vigenere(String),
@@ -105,8 +105,6 @@ impl CipherType {
             CipherType::Affine(_, _) => CipherType::Caeser(0),
         }
     }
-
-    
 }
 
 impl fmt::Display for CipherType {

@@ -3,7 +3,6 @@ use crate::ciphermod::CipherType;
 use crossterm::event::{self, Event, KeyCode};
 use std::io;
 
-
 impl App {
     pub fn handle_key_events(&mut self) -> io::Result<()> {
         if let Event::Key(key) = event::read()? {
@@ -31,9 +30,9 @@ impl App {
                             .text
                             .ciphers
                             .iter()
-                            .rposition(|c| c == cipher) 
+                            .rposition(|c| c == cipher)
                         {
-                            
+
 
                             self.state = AppState::CurrentlyEditingCiphers(index)
                         } else {
@@ -60,7 +59,9 @@ impl App {
                 },
                 KeyCode::Char('-') => match &mut self.state {
                     AppState::EditingText(None) => {}
-                    AppState::EditingText(Some(_cipher)) => {self.text.ciphers.pop();}
+                    AppState::EditingText(Some(_cipher)) => {
+                        self.text.ciphers.pop();
+                    }
                     AppState::CurrentlyEditingCiphers(indx) => {
                         let cipher = self.text.ciphers.get(*indx).unwrap().clone();
                         self.text.ciphers.remove(*indx);
@@ -97,8 +98,8 @@ impl App {
                         }
                     }
                 },
-                KeyCode::Right => {
-                    if let AppState::CurrentlyEditingCiphers(indx) = self.state {
+                KeyCode::Right => match self.state {
+                    AppState::CurrentlyEditingCiphers(indx) => {
                         let cipher = self.text.ciphers.get_mut(indx).unwrap();
                         match cipher {
                             CipherType::Caeser(shift) => {
@@ -119,9 +120,10 @@ impl App {
                             _ => {}
                         }
                     }
-                }
-                KeyCode::Left => {
-                    if let AppState::CurrentlyEditingCiphers(indx) = self.state {
+                    _ => {}
+                },
+                KeyCode::Left => match self.state {
+                    AppState::CurrentlyEditingCiphers(indx) => {
                         let cipher = self.text.ciphers.get_mut(indx).unwrap();
                         match cipher {
                             CipherType::Caeser(shift) => {
@@ -142,9 +144,10 @@ impl App {
                             _ => {}
                         }
                     }
-                }
-                KeyCode::Up => {
-                    if let AppState::CurrentlyEditingCiphers(indx) = self.state {
+                    _ => {}
+                },
+                KeyCode::Up => match self.state {
+                    AppState::CurrentlyEditingCiphers(indx) => {
                         let cipher = self.text.ciphers.get_mut(indx).unwrap();
                         match cipher {
                             CipherType::RailFence(key) => {
@@ -157,9 +160,10 @@ impl App {
                             _ => {}
                         }
                     }
-                }
-                KeyCode::Down => {
-                    if let AppState::CurrentlyEditingCiphers(indx) = self.state {
+                    _ => {}
+                },
+                KeyCode::Down => match self.state {
+                    AppState::CurrentlyEditingCiphers(indx) => {
                         let cipher = self.text.ciphers.get_mut(indx).unwrap();
                         match cipher {
                             CipherType::RailFence(key) => {
@@ -172,7 +176,8 @@ impl App {
                             _ => {}
                         }
                     }
-                }
+                    _ => {}
+                },
                 _ => {}
             }
         }
