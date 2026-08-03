@@ -88,7 +88,7 @@ impl CipherText {
 }
 
 impl CipherText {
-    pub fn next(&self, cipher: &CipherType) -> CipherType {
+    pub fn next(&self, cipher: &CipherType) -> (CipherType,usize) {
         if let Some(index) = self
             .ciphers
             .iter()
@@ -97,9 +97,14 @@ impl CipherText {
             .nth_back(0)
             .map(|(indx, _)| indx)
         {
-            self.ciphers.get(index).unwrap().clone()
+            (self.ciphers.get(index).unwrap().clone(),index)
+            
         } else {
-            cipher.next()
+            if !(self.ciphers.len() == 0) {
+                (cipher.next(),self.ciphers.len()-1) 
+            } else {
+                (cipher.next(),0)
+            }
         }
     }
 }

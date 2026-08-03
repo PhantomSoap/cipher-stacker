@@ -45,20 +45,31 @@ impl App {
                         }
                         */
                         self.text.ciphers.push(cipher.default());
+                        self.text.selected = Some(self.text.ciphers.len() - 1);
                         self.state = AppState::CurrentlyEditingCiphers(self.text.ciphers.len() - 1);
                     }
                     AppState::CurrentlyEditingCiphers(_indx) => {}
                 },
                 KeyCode::Tab => match &mut self.state {
                     AppState::EditingText(None) => {
-                        self.state = AppState::EditingText(Some(CipherType::Caeser(0)))
+                        self.state = AppState::EditingText(Some(CipherType::Caeser(0)));
+                        if !(self.text.ciphers.len() == 0) {
+                            self.text.selected = Some(self.text.ciphers.len() - 1);
+                        } {
+                            self.text.selected = Some(0);
+                        }
                     }
                     AppState::EditingText(Some(cipher)) => {
-                        self.state = AppState::EditingText(Some(self.text.next(cipher)))
+                        let tuple = self.text.next(cipher);
+                        self.state = AppState::EditingText(Some(tuple.0));
+                        self.text.selected = Some(tuple.1)
                     }
                     AppState::CurrentlyEditingCiphers(indx) => {
                         let cipher = self.text.ciphers.get(*indx).unwrap();
-                        self.state = AppState::EditingText(Some(self.text.next(cipher)))
+                        self.text.selected = Some(*indx);
+                        self.state = AppState::EditingText(Some(self.text.next(cipher).0));
+                        
+                        
                     }
                 },
                 KeyCode::Char('-') => match &mut self.state {
@@ -182,7 +193,7 @@ impl App {
                         }
                     }
                     AppState::EditingText(Some(cipher)) => {
-                        if let Some(index) = self
+                        if let Some(_index) = self
                             .text
                             .ciphers
                             .iter()

@@ -76,6 +76,7 @@ pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
 }
 
 pub fn render_cipher_list(cipher_list: &Vec<CipherType>, area: Rect, buf: &mut Buffer) {
+    
     Paragraph::new(format!("{:?}", cipher_list))
         .centered()
         .render(area, buf);
