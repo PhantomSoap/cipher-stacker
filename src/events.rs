@@ -135,8 +135,9 @@ impl App {
 
                             _ => {}
                         }
-                    }
-                    _ => {}
+                    },
+                    _ => {},
+                    
                 },
                 KeyCode::Left => match self.state {
                     AppState::CurrentlyEditingCiphers(indx) => {
@@ -193,15 +194,6 @@ impl App {
                         }
                     }
                     AppState::EditingText(Some(cipher)) => {
-                        if let Some(_index) = self
-                            .text
-                            .ciphers
-                            .iter()
-                            .enumerate()
-                            .filter(|&(_, val)| discriminant(val) == discriminant(&cipher))
-                            .nth_back(0)
-                            .map(|(indx, _)| indx)
-                        {}
                     }
                     _ => {}
                 },

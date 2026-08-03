@@ -26,7 +26,7 @@ pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
         ])
         .split(area);
 
-    let ciphered_alphabet = Caesar::new(26 - *shift as u8)
+    let ciphered_alphabet = Caesar::new(*shift as u8)
         .encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         .unwrap();
     let mut ciphered_boxed_alphabet = String::with_capacity(107);
@@ -76,7 +76,6 @@ pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
 }
 
 pub fn render_cipher_list(cipher_list: &Vec<CipherType>, area: Rect, buf: &mut Buffer) {
-    
     Paragraph::new(format!("{:?}", cipher_list))
         .centered()
         .render(area, buf);
@@ -188,6 +187,9 @@ impl Widget for &App {
         };
         Paragraph::new(state_string)
             .centered()
-            .render(layouts[8], buf)
+            .render(layouts[8], buf);
+        Paragraph::new(format!("{}",self.text.selected.unwrap_or(0000)))
+            .centered()
+            .render(layouts[9],buf);
     }
 }
