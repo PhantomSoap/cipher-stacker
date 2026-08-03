@@ -2,7 +2,7 @@ use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 use crossterm::event::{self, Event, KeyCode};
 use std::io;
-
+use std::mem::discriminant;
 impl App {
     pub fn handle_key_events(&mut self) -> io::Result<()> {
         if let Event::Key(key) = event::read()? {
@@ -162,9 +162,9 @@ impl App {
                     }
                     _ => {}
                 },
-                KeyCode::Down => match self.state {
+                KeyCode::Down => match &mut self.state {
                     AppState::CurrentlyEditingCiphers(indx) => {
-                        let cipher = self.text.ciphers.get_mut(indx).unwrap();
+                        let cipher = self.text.ciphers.get_mut(*indx).unwrap();
                         match cipher {
                             CipherType::RailFence(key) => {
                                 if !(*key <= 2) {
@@ -175,6 +175,17 @@ impl App {
 
                             _ => {}
                         }
+                    }
+                    AppState::EditingText(Some(cipher)) => {
+                        if let Some(index) = self
+                            .text
+                            .ciphers
+                            .iter()
+                            .enumerate()
+                            .filter(|&(_, val)| discriminant(val) == discriminant(&cipher))
+                            .nth_back(0)
+                            .map(|(indx, _)| indx)
+                        {}
                     }
                     _ => {}
                 },
