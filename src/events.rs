@@ -2,7 +2,7 @@ use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 use crossterm::event::{self, Event, KeyCode};
 use std::io;
-use std::mem::discriminant;
+
 
 impl App {
     pub fn handle_key_events(&mut self) -> io::Result<()> {
@@ -27,18 +27,22 @@ impl App {
                         self.state = AppState::EditingText(Some(CipherType::Caeser(0)))
                     }
                     AppState::EditingText(Some(cipher)) => {
-                        if let Some(index) = self
+                        /*if let Some(index) = self
                             .text
                             .ciphers
                             .iter()
-                            .rposition(|c| discriminant(c) == discriminant(cipher))
+                            .rposition(|c| c == cipher) 
                         {
+                            
+
                             self.state = AppState::CurrentlyEditingCiphers(index)
                         } else {
                             self.text.ciphers.push(cipher.clone());
-                            self.state =
-                                AppState::CurrentlyEditingCiphers(self.text.ciphers.len() - 1);
+                            self.state = AppState::CurrentlyEditingCiphers(self.text.ciphers.len() - 1);
                         }
+                        */
+                        self.text.ciphers.push(cipher.clone());
+                        self.state = AppState::CurrentlyEditingCiphers(self.text.ciphers.len() - 1);
                     }
                     AppState::CurrentlyEditingCiphers(_indx) => {}
                 },
@@ -47,7 +51,7 @@ impl App {
                         self.state = AppState::EditingText(Some(CipherType::Caeser(0)))
                     }
                     AppState::EditingText(Some(cipher)) => {
-                        self.state = AppState::EditingText(Some(cipher.next()))
+                        self.state = AppState::EditingText(Some(self.text.next(cipher)))
                     }
                     AppState::CurrentlyEditingCiphers(indx) => {
                         let cipher = self.text.ciphers.get(*indx).unwrap();
@@ -56,7 +60,7 @@ impl App {
                 },
                 KeyCode::Char('-') => match &mut self.state {
                     AppState::EditingText(None) => {}
-                    AppState::EditingText(Some(_cipher)) => {}
+                    AppState::EditingText(Some(_cipher)) => {self.text.ciphers.pop();}
                     AppState::CurrentlyEditingCiphers(indx) => {
                         let cipher = self.text.ciphers.get(*indx).unwrap().clone();
                         self.text.ciphers.remove(*indx);

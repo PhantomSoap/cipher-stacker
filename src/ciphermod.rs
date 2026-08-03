@@ -5,7 +5,7 @@ use std::{
 
 use ciphers::{Affine, Atbash, Caesar, Cipher, RailFence, Vigenere};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone,PartialEq)]
 pub enum CipherType {
     Caeser(i32),
     Vigenere(String),
