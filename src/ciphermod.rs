@@ -105,6 +105,17 @@ impl CipherType {
             CipherType::Affine(_, _) => CipherType::Caeser(0),
         }
     }
+
+    pub fn default(&self) -> CipherType {
+        match self {
+            CipherType::Caeser(_) => CipherType::Caeser(0),
+            CipherType::Vigenere(_) => CipherType::Vigenere("".to_string()),
+            CipherType::RailFence(_) => CipherType::RailFence(2),
+            CipherType::Atbash => CipherType::Atbash,
+            CipherType::Affine(_, _) => CipherType::Affine(1, 0),
+        }
+    
+    }
 }
 
 impl fmt::Display for CipherType {

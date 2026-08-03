@@ -40,7 +40,7 @@ impl App {
                             self.state = AppState::CurrentlyEditingCiphers(self.text.ciphers.len() - 1);
                         }
                         */
-                        self.text.ciphers.push(cipher.clone());
+                        self.text.ciphers.push(cipher.default());
                         self.state = AppState::CurrentlyEditingCiphers(self.text.ciphers.len() - 1);
                     }
                     AppState::CurrentlyEditingCiphers(_indx) => {}
