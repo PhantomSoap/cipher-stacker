@@ -19,7 +19,7 @@ pub struct CipherText {
     pub text: String,
     pub ciphers: Vec<CipherType>,
     pub ciphered: String,
-    pub selected : Option<usize>
+    pub selected: Option<usize>,
 }
 
 impl CipherText {
@@ -28,7 +28,7 @@ impl CipherText {
             text: "EXAMPLETEXT".to_string(),
             ciphers: Vec::new(),
             ciphered: String::from("EXAMPLETEXT"),
-            selected : None
+            selected: None,
         }
     }
 
@@ -88,7 +88,7 @@ impl CipherText {
 }
 
 impl CipherText {
-    pub fn next(&self, cipher: &CipherType) -> (CipherType,usize) {
+    pub fn next(&self, cipher: &CipherType) -> (CipherType, usize) {
         if let Some(index) = self
             .ciphers
             .iter()
@@ -97,13 +97,12 @@ impl CipherText {
             .nth_back(0)
             .map(|(indx, _)| indx)
         {
-            (self.ciphers.get(index).unwrap().clone(),index)
-            
+            (self.ciphers.get(index).unwrap().clone(), index)
         } else {
             if !(self.ciphers.len() == 0) {
-                (cipher.next(),self.ciphers.len()-1) 
+                (cipher.next(), self.ciphers.len() - 1)
             } else {
-                (cipher.next(),0)
+                (cipher.next(), 0)
             }
         }
     }
@@ -127,7 +126,6 @@ impl CipherType {
             CipherType::Atbash => CipherType::Atbash,
             CipherType::Affine(_, _) => CipherType::Affine(1, 0),
         }
-    
     }
 }
 

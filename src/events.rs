@@ -1,4 +1,3 @@
-
 use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 use crossterm::event::{self, Event, KeyCode};
@@ -22,7 +21,6 @@ impl App {
                         self.state = AppState::EditingText(Some(
                             self.text.ciphers.get_mut(*indx).unwrap().clone(),
                         ));
-                        
                     }
                 },
                 KeyCode::Enter => match &mut self.state {
@@ -56,7 +54,8 @@ impl App {
                         self.state = AppState::EditingText(Some(CipherType::Caeser(0)));
                         if !(self.text.ciphers.len() == 0) {
                             self.text.selected = Some(self.text.ciphers.len() - 1);
-                        } {
+                        }
+                        {
                             self.text.selected = Some(0);
                         }
                     }
@@ -69,8 +68,6 @@ impl App {
                         let cipher = self.text.ciphers.get(*indx).unwrap();
                         self.text.selected = Some(*indx);
                         self.state = AppState::EditingText(Some(self.text.next(cipher).0));
-                        
-                        
                     }
                 },
                 KeyCode::Char('-') => match &mut self.state {
@@ -136,17 +133,18 @@ impl App {
 
                             _ => {}
                         }
-                    },
+                    }
                     AppState::EditingText(Some(_cipher)) => {
                         if let Some(index) = self.text.selected {
-                            if self.text.ciphers.get(index+1).is_some() {
-                                self.state = AppState::EditingText(Some(self.text.ciphers.get(index+1).unwrap().clone()));
+                            if self.text.ciphers.get(index + 1).is_some() {
+                                self.state = AppState::EditingText(Some(
+                                    self.text.ciphers.get(index + 1).unwrap().clone(),
+                                ));
                                 self.text.selected = Some(index + 1);
                             }
                         }
                     }
-                    _ => {},
-                    
+                    _ => {}
                 },
                 KeyCode::Left => match &mut self.state {
                     AppState::CurrentlyEditingCiphers(indx) => {
@@ -169,11 +167,13 @@ impl App {
 
                             _ => {}
                         }
-                    },
+                    }
                     AppState::EditingText(Some(_cipher)) => {
                         if let Some(index) = self.text.selected {
-                            if !(index == 0) && self.text.ciphers.get(index-1).is_some() {
-                                self.state = AppState::EditingText(Some(self.text.ciphers.get(index-1).unwrap().clone()));
+                            if !(index == 0) && self.text.ciphers.get(index - 1).is_some() {
+                                self.state = AppState::EditingText(Some(
+                                    self.text.ciphers.get(index - 1).unwrap().clone(),
+                                ));
                                 self.text.selected = Some(index - 1);
                             }
                         }
@@ -210,8 +210,7 @@ impl App {
                             _ => {}
                         }
                     }
-                    AppState::EditingText(Some(_cipher)) => {
-                    }
+                    AppState::EditingText(Some(_cipher)) => {}
                     _ => {}
                 },
                 _ => {}
