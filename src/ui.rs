@@ -16,15 +16,7 @@ pub fn render_affine(shift: &u8, multiplyer: &u8, area: Rect, buf: &mut Buffer) 
         .render(area, buf);
 }
 pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
-    let layouts = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Length(1),
-            Constraint::Length(1),
-            Constraint::Length(1),
-            Constraint::Length(5), // Shifter
-        ])
-        .split(area);
+   
 
     let ciphered_alphabet = Caesar::new(*shift as u8)
         .encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -37,26 +29,24 @@ pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
         ciphered_boxed_alphabet.push(' ');
         ciphered_boxed_alphabet.push('|');
     }
-
+    
     let caesar_shifter = format!(
-        "{}\n{}\n{}\n{}\n{}",
+        "Caesar Shifter\n
+        {}\n
+        | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |\n
+        | ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |\n
+        {ciphered_boxed_alphabet}\n
+        {}\n
+        Shift: {shift}\n",
+
         "-".repeat(105),
-        "| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |",
-        "| ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |",
-        ciphered_boxed_alphabet,
-        "-".repeat(105),
+        "-".repeat(105),  
     );
 
     Paragraph::new(caesar_shifter)
         .centered()
-        .render(layouts[3], buf);
+        .render(area, buf);
 
-    Paragraph::new(Text::from(vec![Line::from(vec![
-        "Shift: ".into(),
-        shift.to_string().into(),
-    ])]))
-    .centered()
-    .render(layouts[1], buf);
 }
 
 pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
