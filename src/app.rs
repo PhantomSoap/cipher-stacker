@@ -1,6 +1,6 @@
 use crate::ciphermod::{CipherText, CipherType};
 
-use ratatui::{DefaultTerminal, Frame};
+use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
 use std::io;
 
 #[derive(Debug)]
@@ -44,5 +44,10 @@ impl App {
 
     pub fn exit(&mut self) {
         self.exit = true;
+    }
+}
+impl Widget for &App {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        crate::ui::render(self, area, buf);
     }
 }

@@ -88,7 +88,7 @@ impl CipherText {
 }
 
 impl CipherText {
-    pub fn next(&self, cipher: &CipherType) -> (CipherType, usize) {
+    pub fn next(&self, cipher: &CipherType) -> (CipherType, Option<usize>) {
         if let Some(index) = self
             .ciphers
             .iter()
@@ -97,13 +97,9 @@ impl CipherText {
             .nth_back(0)
             .map(|(indx, _)| indx)
         {
-            (self.ciphers.get(index).unwrap().clone(), index)
+            (self.ciphers.get(index).unwrap().clone(), Some(index))
         } else {
-            if !(self.ciphers.len() == 0) {
-                (cipher.next(), self.ciphers.len() - 1)
-            } else {
-                (cipher.next(), 0)
-            }
+            (cipher.next(),None)
         }
     }
 }
@@ -125,6 +121,16 @@ impl CipherType {
             CipherType::RailFence(_) => CipherType::RailFence(2),
             CipherType::Atbash => CipherType::Atbash,
             CipherType::Affine(_, _) => CipherType::Affine(1, 0),
+        }
+    }
+
+    pub fn instructions(&self) -> String{
+        match self {
+            CipherType::Caeser(_) => String::from("<- Shift ->"),
+            CipherType::Vigenere(_) => String::from("Type a Keyword"),
+            CipherType::RailFence(_) => String::from("<Up> Increment Key <Down> Decrement Key"),
+            CipherType::Atbash => String::from(""),
+            CipherType::Affine(_, _) => String::from("<- Shift -> | <Up> Increment Multiplyer <Down Decrement Multiplyer>"),
         }
     }
 }
