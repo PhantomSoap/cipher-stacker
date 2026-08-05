@@ -130,7 +130,12 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
     let state_string = match &app.state {
         AppState::EditingText(None) => String::from("Welcome to Cipher Stacker\n\n<Tab> Next Cipher"),
         AppState::EditingText(Some(cipher)) => {
-            format!("{} | (Read Only)\r\n\n| <Enter> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->", cipher)
+            if let Some(index) = app.text.selected {
+                format!("{} ({index})\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->", cipher)
+            } else {
+                format!("{}\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->", cipher.name())
+
+            }
         }
         AppState::CurrentlyEditingCiphers(indx) => {
             let cipher = app.text.ciphers.get(*indx).unwrap();

@@ -133,6 +133,16 @@ impl CipherType {
             CipherType::Affine(_, _) => String::from("<- Shift -> | <Up> Increment Multiplyer <Down Decrement Multiplyer>"),
         }
     }
+
+    pub fn name(&self) -> String {
+        match self {
+            CipherType::Caeser(_) => String::from("Caesar Cipher"),
+            CipherType::Vigenere(_) => String::from("Vigenere Cipher"),
+            CipherType::RailFence(_) => String::from("RailFence Cipher"),
+            CipherType::Atbash => String::from("Atbash Cipher"),
+            CipherType::Affine(_, _) => String::from("Affine Cipher"),
+        }
+    }
 }
 
 impl fmt::Display for CipherType {
