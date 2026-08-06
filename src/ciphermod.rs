@@ -23,6 +23,9 @@ pub struct CipherText {
 }
 
 impl CipherText {
+    pub fn default() -> CipherText {
+        Self::new()
+    }
     pub fn new() -> CipherText {
         CipherText {
             text: "EXAMPLETEXT".to_string(),
@@ -99,7 +102,7 @@ impl CipherText {
         {
             (self.ciphers.get(index).unwrap().clone(), Some(index))
         } else {
-            (cipher.next(),None)
+            (cipher.next(), None)
         }
     }
 }
@@ -124,13 +127,15 @@ impl CipherType {
         }
     }
 
-    pub fn instructions(&self) -> String{
+    pub fn instructions(&self) -> String {
         match self {
             CipherType::Caeser(_) => String::from("<- Shift ->"),
             CipherType::Vigenere(_) => String::from("Type a Keyword"),
             CipherType::RailFence(_) => String::from("<Up> Increment Key <Down> Decrement Key"),
             CipherType::Atbash => String::from(""),
-            CipherType::Affine(_, _) => String::from("<- Shift -> | <Up> Increment Multiplyer <Down Decrement Multiplyer>"),
+            CipherType::Affine(_, _) => {
+                String::from("<- Shift -> | <Up> Increment Multiplyer <Down Decrement Multiplyer>")
+            }
         }
     }
 

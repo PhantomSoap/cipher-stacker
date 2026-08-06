@@ -11,12 +11,10 @@ use ratatui::{
     text::Line,
     widgets::{Block, Paragraph, Widget},
 };
-fn render_atbash(area : Rect,buf : &mut Buffer) {
-    Paragraph::new("Atbash Cipher")
-        .centered()
-        .render(area, buf);
+fn render_atbash(area: Rect, buf: &mut Buffer) {
+    Paragraph::new("Atbash Cipher").centered().render(area, buf);
 }
- fn render_affine(shift: &u8, multiplyer: &u8, area: Rect, buf: &mut Buffer) {
+fn render_affine(shift: &u8, multiplyer: &u8, area: Rect, buf: &mut Buffer) {
     Paragraph::new(format!(
         "Affine Cipher\nShift: {} | multiplyer: {}",
         shift, multiplyer
@@ -55,9 +53,7 @@ pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
 
 pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
     let vigenere_grid = format!("Vigenere Cipher\nCode: '{}'\n", code);
-    Paragraph::new(vigenere_grid)
-        .centered()
-        .render(area, buf);
+    Paragraph::new(vigenere_grid).centered().render(area, buf);
 }
 
 pub fn render_rail_fence(key: &i32, area: Rect, buf: &mut Buffer) {
@@ -79,7 +75,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             Constraint::Length(1),  // Border
             Constraint::Length(1),  //Cipher Title
             Constraint::Length(28), // cipher visualization
-            Constraint::Length(9),  // plaintext 
+            Constraint::Length(9),  // plaintext
         ])
         .split(area);
     let middles = Layout::default()
@@ -120,7 +116,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             CipherType::RailFence(key) => {
                 render_rail_fence(key, middles[1], buf);
             }
-            CipherType::Atbash => {render_atbash(middles[1],buf)}
+            CipherType::Atbash => render_atbash(middles[1], buf),
             CipherType::Affine(shift, multiplyer) => {
                 render_affine(shift, multiplyer, middles[1], buf);
             }
@@ -128,18 +124,26 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
     }
 
     let state_string = match &app.state {
-        AppState::EditingText(None) => String::from("Welcome to Cipher Stacker\n\n<Tab> Next Cipher"),
-        AppState::EditingText(Some(cipher)) => {
-            if let Some(index) = app.text.selected {
-                format!("{} ({index})\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->", cipher)
-            } else {
-                format!("{}\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->", cipher.name())
-
-            }
+        AppState::EditingText(None) => {
+            String::from("Welcome to Cipher Stacker\n\n<Tab> Next Cipher")
         }
+        AppState::EditingText(Some(cipher)) if let Some(index) = app.text.selected => {
+            format!(
+                "{} ({index})\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->",
+                cipher
+            )
+        },
+        AppState::EditingText(Some(cipher)) => format!(
+            "{}\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->",
+            cipher.name()
+        ),
         AppState::CurrentlyEditingCiphers(indx) => {
             let cipher = app.text.ciphers.get(*indx).unwrap();
-            format!("{} | (Editing) \n\n<Tab> Next Cipher\n{}", cipher,cipher.instructions())
+            format!(
+                "{} | (Editing) \n\n<Tab> Next Cipher\n{}",
+                cipher,
+                cipher.instructions()
+            )
         }
     };
     render_footer(
@@ -151,15 +155,12 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         layouts[3],
         buf,
     );
-    render_block(
-        area,
-        buf,
-    );
+    render_block(area, buf);
 }
 
 fn render_footer(
     state: String,
-    history: &Vec<String>,
+    history: &[String],
     plain_text: &String,
     cipher_text: &String,
     cipher_list: &Vec<CipherType>,
@@ -180,9 +181,9 @@ fn render_footer(
     footer.push_str(&format!("CipherText: {}\n\n", cipher_text));
     footer.push_str(&format!("{}\n", state));
 
-    let mut history_string = String::from(format!(
+    let mut history_string = format!(
         "History:\nPlainttext -> {}\n",
-        history.get(0).unwrap_or(&String::from(""))
+        history.first().unwrap_or(&String::from("")
     ));
     for (index, cipher) in cipher_list.iter().enumerate() {
         history_string.push_str(&format!(

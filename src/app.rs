@@ -46,6 +46,12 @@ impl App {
         self.exit = true;
     }
 }
+
+impl Default for App {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
         crate::ui::render(self, area, buf);

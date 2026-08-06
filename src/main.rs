@@ -5,9 +5,10 @@ pub mod events;
 pub mod ui;
 
 use app::App;
+use ratatui::run;
 
 fn main() -> io::Result<()> {
-    ratatui::run(|terminal| {
+    run(|terminal| {
         let mut app = App::new();
         app.run(terminal)
     })
