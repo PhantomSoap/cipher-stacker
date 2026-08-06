@@ -2,6 +2,7 @@ use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 use ciphers::{Caesar, Cipher};
 
+use ratatui::text::{Span, Text};
 use ratatui::widgets::Wrap;
 use ratatui::{
     buffer::Buffer,
@@ -132,7 +133,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 "{} ({index})\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->",
                 cipher
             )
-        },
+        }
         AppState::EditingText(Some(cipher)) => format!(
             "{}\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->",
             cipher.name()
@@ -152,6 +153,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         &app.text.text,
         &app.text.ciphered,
         &app.text.ciphers,
+        app.text.selected,
         layouts[3],
         buf,
     );
@@ -164,6 +166,7 @@ fn render_footer(
     plain_text: &String,
     cipher_text: &String,
     cipher_list: &Vec<CipherType>,
+    selected_index: Option<usize>,
     area: Rect,
     buf: &mut Buffer,
 ) {
@@ -175,28 +178,56 @@ fn render_footer(
             Constraint::Percentage(40),
         ])
         .split(area);
-    let mut footer = String::new();
-    footer.push_str(&format!("PlainText: {}\n", plain_text));
-    footer.push_str(&format!("{:?}\n", cipher_list));
-    footer.push_str(&format!("CipherText: {}\n\n", cipher_text));
-    footer.push_str(&format!("{}\n", state));
 
-    let mut history_string = format!(
-        "History:\nPlainttext -> {}\n",
-        history.first().unwrap_or(&String::from("")
-    ));
-    for (index, cipher) in cipher_list.iter().enumerate() {
-        history_string.push_str(&format!(
-            "{:?} -> {}\n",
-            cipher,
-            history.get(index + 1).unwrap()
-        ));
+    let mut footer_text = Text::default();
+    
+    footer_text.push_line(Line::from(format!("PlainText: {}", plain_text)));
+
+    if let Some(index) = selected_index {
+        let mut cipher_line = Vec::new();
+        cipher_line.push(Span::raw("["));
+        
+        for (indx, cipher) in cipher_list.iter().enumerate() {
+            
+            if index == indx {
+                // Apply the blue styling directly to the Span
+                cipher_line.push(Span::raw(format!("{:?}", cipher)).blue());
+            } else {
+                cipher_line.push(Span::raw(format!("{:?}", cipher)));
+            }
+            
+            if indx != cipher_list.len() - 1 {
+                cipher_line.push(Span::raw(", "));
+            }
+        }
+        cipher_line.push(Span::raw("]"));
+        footer_text.push_line(Line::from(cipher_line));
+    } else {
+        footer_text.push_line(Line::from(format!("{:?}", cipher_list)));
     }
-    Paragraph::new(footer)
+
+    footer_text.push_line(Line::from(format!("CipherText: {}", cipher_text)));
+    footer_text.push_line(Line::from("")); // Empty line spacer
+    footer_text.push_line(Line::from(state));
+
+    // 2. Build the history text block
+    let mut history_text = Text::default();
+    history_text.push_line(Line::from("History:"));
+    history_text.push_line(Line::from(format!("Plainttext -> {}", history.first().unwrap_or(&String::from("")))));
+
+    for (index, cipher) in cipher_list.iter().enumerate() {
+        if let Some(hist_item) = history.get(index + 1) {
+            history_text.push_line(Line::from(format!("{:?} -> {}", cipher, hist_item)));
+        }
+    }
+
+    // 3. Render using the structured Text objects
+    Paragraph::new(footer_text)
         .centered()
         .wrap(Wrap { trim: true })
         .render(footer_area[1], buf);
-    Paragraph::new(history_string)
+
+    Paragraph::new(history_text)
         .centered()
         .wrap(Wrap { trim: true })
         .render(footer_area[2], buf);

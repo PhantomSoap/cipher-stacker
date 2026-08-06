@@ -54,19 +54,24 @@ impl App {
                             self.state = AppState::CurrentlyEditingCiphers(index);
                         }
                     }
-                    KeyCode::Left if let Some(index) = self.text.selected => if !(index == 0) && self.text.ciphers.get(index - 1).is_some() {
-                                self.text.selected = Some(index - 1);
-                                self.state = AppState::EditingText(Some(
-                                    self.text.ciphers.get(index - 1).unwrap().clone(),
-                                ));
-                            }
+                    KeyCode::Left if let Some(index) = self.text.selected => {
+                        if !(index == 0) && self.text.ciphers.get(index - 1).is_some() {
+                            self.text.selected = Some(index - 1);
+                            self.state = AppState::EditingText(Some(
+                                self.text.ciphers.get(index - 1).unwrap().clone(),
+                            ));
+                        }
+                    }
                     KeyCode::Left => {}
-                    KeyCode::Right if let Some(index) = self.text.selected && self.text.ciphers.get(index + 1).is_some() => {
-                                self.text.selected = Some(index + 1);
-                                self.state = AppState::EditingText(Some(
-                                    self.text.ciphers.get(index + 1).unwrap().clone(),
-                                ));
-                            }
+                    KeyCode::Right
+                        if let Some(index) = self.text.selected
+                            && self.text.ciphers.get(index + 1).is_some() =>
+                    {
+                        self.text.selected = Some(index + 1);
+                        self.state = AppState::EditingText(Some(
+                            self.text.ciphers.get(index + 1).unwrap().clone(),
+                        ));
+                    }
 
                     _ => {}
                 },
@@ -128,7 +133,9 @@ impl App {
                         CipherType::RailFence(ckey) => match key.code {
                             KeyCode::Down if !(*ckey <= 2) => *ckey -= 1,
                             KeyCode::Down => {}
-                            KeyCode::Up if !(*ckey == self.text.ciphered.len() as i32) => *ckey += 1,
+                            KeyCode::Up if !(*ckey == self.text.ciphered.len() as i32) => {
+                                *ckey += 1
+                            }
                             _ => {}
                         },
                         CipherType::Atbash => {}
