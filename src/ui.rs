@@ -24,7 +24,7 @@ fn render_affine(shift: &u8, multiplyer: &u8, area: Rect, buf: &mut Buffer) {
     .render(area, buf);
 }
 pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
-    let ciphered_alphabet = Caesar::new(*shift as u8)
+    let ciphered_alphabet = Caesar::new(*shift as u8)   
         .encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         .unwrap();
     let mut ciphered_boxed_alphabet = String::with_capacity(107);
@@ -49,7 +49,7 @@ pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
         "-".repeat(105),  
     );
 
-    Paragraph::new(caesar_shifter).centered().render(area, buf);
+    Paragraph::new(Text::from(caesar_shifter)).centered().render(area, buf);
 }
 
 pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
@@ -83,7 +83,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         .direction(Direction::Horizontal)
         .constraints([
             Constraint::Percentage(20),
-            Constraint::Percentage(60),
+            Constraint::Length(115),
             Constraint::Percentage(20),
         ])
         .split(layouts[2]);
@@ -124,31 +124,46 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         }
     }
 
-    let state_string = match &app.state {
+    let state_text : Text<'_> = match &app.state {
         AppState::EditingText(None) => {
-            String::from("Welcome to Cipher Stacker\n\n<Tab> Next Cipher")
+            Text::from(vec![Line::from("Welcome to Cipher Stacker"),Line::from(""),Line::from("<Tab> Next Cipher")])
         }
         AppState::EditingText(Some(cipher)) if let Some(index) = app.text.selected => {
-            format!(
-                "{} ({index})\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->",
-                cipher
-            )
+            Text::from(vec![
+                Line::from(format!("{cipher} ({index})")),
+                Line::from(""),
+                Line::from("<+> to Add Cipher"),
+                Line::from("<'-'> to Delete Selected Cipher"),
+                Line::from("<Tab> Next Cipher"),
+                Line::from("<- Access Cipher in List ->"),
+                ])
+            
         }
-        AppState::EditingText(Some(cipher)) => format!(
-            "{}\n\n| <+> to Add Cipher | <Tab> Next Cipher | \n<-  Access Cipher in list ->",
-            cipher.name()
-        ),
+        AppState::EditingText(Some(cipher)) => {
+            Text::from(vec![
+                Line::from(cipher.name()),
+                Line::from(""),
+                Line::from("<+> to Add Cipher"),
+                Line::from("<'-'> to Delete Cipher"),
+                Line::from("<Tab> Next Cipher"),
+                Line::from("<Access Cipher in List>"),
+            ])
+        },
         AppState::CurrentlyEditingCiphers(indx) => {
             let cipher = app.text.ciphers.get(*indx).unwrap();
-            format!(
-                "{} | (Editing) \n\n<Tab> Next Cipher\n{}",
-                cipher,
-                cipher.instructions()
-            )
+            
+            let mut text = Text::from(vec![
+                Line::from(format!("{cipher} | (Editing)")),
+                Line::from(""),
+                Line::from("<Tab> Next Cipher"),
+                Line::from("<Enter> to return"),
+            ]);
+            text.lines.extend(Text::from(cipher.instructions()).lines);
+            text
         }
     };
     render_footer(
-        state_string,
+        state_text,
         &app.history,
         &app.text.text,
         &app.text.ciphered,
@@ -161,7 +176,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
 }
 
 fn render_footer(
-    state: String,
+    state: Text<'_>,
     history: &[String],
     plain_text: &String,
     cipher_text: &String,
@@ -190,7 +205,6 @@ fn render_footer(
         for (indx, cipher) in cipher_list.iter().enumerate() {
             
             if index == indx {
-                // Apply the blue styling directly to the Span
                 cipher_line.push(Span::raw(format!("{:?}", cipher)).blue());
             } else {
                 cipher_line.push(Span::raw(format!("{:?}", cipher)));
@@ -207,10 +221,9 @@ fn render_footer(
     }
 
     footer_text.push_line(Line::from(format!("CipherText: {}", cipher_text)));
-    footer_text.push_line(Line::from("")); // Empty line spacer
-    footer_text.push_line(Line::from(state));
+    footer_text.push_line(Line::from("")); 
+    footer_text.lines.extend(state);
 
-    // 2. Build the history text block
     let mut history_text = Text::default();
     history_text.push_line(Line::from("History:"));
     history_text.push_line(Line::from(format!("Plainttext -> {}", history.first().unwrap_or(&String::from("")))));
@@ -221,7 +234,6 @@ fn render_footer(
         }
     }
 
-    // 3. Render using the structured Text objects
     Paragraph::new(footer_text)
         .centered()
         .wrap(Wrap { trim: true })
