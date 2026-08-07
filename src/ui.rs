@@ -13,7 +13,19 @@ use ratatui::{
     widgets::{Block, Paragraph, Widget},
 };
 fn render_atbash(area: Rect, buf: &mut Buffer) {
-    Paragraph::new("Atbash Cipher").centered().render(area, buf);
+    let atbasher = format!(
+        "Atbash Cipher
+        {}
+        | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |
+        | ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |
+        | Z | Y | X | W | V | U | T | S | R | Q | P | O | N | M | L | K | J | I | H | G | F | E | D | C | B | A |
+        {}
+        ",
+
+        "_".repeat(105),
+        "‾".repeat(105),  
+    );
+    Paragraph::new(Text::from(atbasher)).centered().render(area, buf);
 }
 fn render_affine(shift: &u8, multiplyer: &u8, area: Rect, buf: &mut Buffer) {
     Paragraph::new(format!(
@@ -45,8 +57,8 @@ pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
         {}
         Shift: {shift}",
 
-        "-".repeat(105),
-        "-".repeat(105),  
+        "_".repeat(105),
+        "‾".repeat(105),  
     );
 
     Paragraph::new(Text::from(caesar_shifter)).centered().render(area, buf);
@@ -57,10 +69,24 @@ pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
     Paragraph::new(vigenere_grid).centered().render(area, buf);
 }
 
-pub fn render_rail_fence(key: &i32, area: Rect, buf: &mut Buffer) {
-    Paragraph::new(format!("RailFence Cipher\nKey: {}", key))
+pub fn render_rail_fence(text : &String,key: &i32, area: Rect, buf: &mut Buffer) {
+    let rails = *key;
+    let fences = text.len();
+    let mut railfence = format!("RailFence Cipher\nKey: {}\n", key);
+    railfence.push_str(&"_".repeat(fences * 2 + 1));
+    railfence.push('\n');
+    for _ in 0..rails {
+        railfence.push('|');
+        railfence.push_str(&" |".repeat(fences));
+        railfence.push('\n');
+    }
+    railfence.push_str(&"‾".repeat(fences * 2 + 1));
+    Paragraph::new(Text::from(railfence))
         .centered()
         .render(area, buf);
+
+
+
 }
 pub fn render_block(area: Rect, buf: &mut Buffer) {
     let block = Block::bordered()
@@ -89,6 +115,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         .split(layouts[2]);
 
     if let AppState::CurrentlyEditingCiphers(indx) = app.state {
+        let text= app.history.get(indx+1).unwrap_or(app.history.first().unwrap());
         match app.text.ciphers.get(indx).unwrap() {
             CipherType::Caeser(shift) => {
                 render_caesar(shift, middles[1], buf);
@@ -97,9 +124,9 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 render_vigenere(code, middles[1], buf);
             }
             CipherType::RailFence(key) => {
-                render_rail_fence(key, middles[1], buf);
+                render_rail_fence(text,key, middles[1], buf);
             }
-            CipherType::Atbash => {}
+            CipherType::Atbash => render_atbash(middles[1], buf),
             CipherType::Affine(shift, multiplyer) => {
                 render_affine(shift, multiplyer, middles[1], buf);
             }
@@ -107,6 +134,11 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
     }
 
     if let AppState::EditingText(Some(cipher)) = &app.state {
+        let text = if let Some(index) = app.text.selected {
+            app.history.get(index+1).unwrap() 
+        }  else {
+            app.history.first().unwrap()
+        };
         match cipher {
             CipherType::Caeser(shift) => {
                 render_caesar(shift, middles[1], buf);
@@ -115,7 +147,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 render_vigenere(code, middles[1], buf);
             }
             CipherType::RailFence(key) => {
-                render_rail_fence(key, middles[1], buf);
+                render_rail_fence(text,key, middles[1], buf);
             }
             CipherType::Atbash => render_atbash(middles[1], buf),
             CipherType::Affine(shift, multiplyer) => {
@@ -164,11 +196,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
     };
     render_footer(
         state_text,
-        &app.history,
-        &app.text.text,
-        &app.text.ciphered,
-        &app.text.ciphers,
-        app.text.selected,
+        app,
         layouts[3],
         buf,
     );
@@ -177,11 +205,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
 
 fn render_footer(
     state: Text<'_>,
-    history: &[String],
-    plain_text: &String,
-    cipher_text: &String,
-    cipher_list: &Vec<CipherType>,
-    selected_index: Option<usize>,
+    app : &App,
     area: Rect,
     buf: &mut Buffer,
 ) {
@@ -196,13 +220,13 @@ fn render_footer(
 
     let mut footer_text = Text::default();
     
-    footer_text.push_line(Line::from(format!("PlainText: {}", plain_text)));
+    footer_text.push_line(Line::from(format!("PlainText: {}", app.text.text)));
 
-    if let Some(index) = selected_index {
+    if let Some(index) = app.text.selected {
         let mut cipher_line = Vec::new();
         cipher_line.push(Span::raw("["));
         
-        for (indx, cipher) in cipher_list.iter().enumerate() {
+        for (indx, cipher) in app.text.ciphers.iter().enumerate() {
             
             if index == indx {
                 cipher_line.push(Span::raw(format!("{:?}", cipher)).blue());
@@ -210,26 +234,26 @@ fn render_footer(
                 cipher_line.push(Span::raw(format!("{:?}", cipher)));
             }
             
-            if indx != cipher_list.len() - 1 {
+            if indx != app.text.ciphers.len() - 1 {
                 cipher_line.push(Span::raw(", "));
             }
         }
         cipher_line.push(Span::raw("]"));
         footer_text.push_line(Line::from(cipher_line));
     } else {
-        footer_text.push_line(Line::from(format!("{:?}", cipher_list)));
+        footer_text.push_line(Line::from(format!("{:?}", app.text.ciphers)));
     }
 
-    footer_text.push_line(Line::from(format!("CipherText: {}", cipher_text)));
+    footer_text.push_line(Line::from(format!("CipherText: {}", app.text.ciphered)));
     footer_text.push_line(Line::from("")); 
     footer_text.lines.extend(state);
 
     let mut history_text = Text::default();
     history_text.push_line(Line::from("History:"));
-    history_text.push_line(Line::from(format!("Plainttext -> {}", history.first().unwrap_or(&String::from("")))));
+    history_text.push_line(Line::from(format!("Plainttext -> {}", app.history.first().unwrap_or(&String::from("")))));
 
-    for (index, cipher) in cipher_list.iter().enumerate() {
-        if let Some(hist_item) = history.get(index + 1) {
+    for (index, cipher) in app.text.ciphers.iter().enumerate() {
+        if let Some(hist_item) = app.history.get(index + 1) {
             history_text.push_line(Line::from(format!("{:?} -> {}", cipher, hist_item)));
         }
     }
