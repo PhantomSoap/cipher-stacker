@@ -70,17 +70,40 @@ pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
 }
 
 pub fn render_rail_fence(text : &String,key: &i32, area: Rect, buf: &mut Buffer) {
-    let rails = *key;
-    let fences = text.len();
+    let rails = *key as usize; //2
+    let fences = text.len(); //11
     let mut railfence = format!("RailFence Cipher\nKey: {}\n", key);
-    railfence.push_str(&"_".repeat(fences * 2 + 1));
+    railfence.push_str(&"_".repeat(fences * 4 + 1));
     railfence.push('\n');
-    for _ in 0..rails {
-        railfence.push('|');
-        railfence.push_str(&" |".repeat(fences));
-        railfence.push('\n');
+    let mut fenced_rails : Vec<char> = vec![' '; rails * fences ];
+    let letters : Vec<char> = text.chars().collect();
+    let mut rows = 0;
+    let mut down = false;
+    for (index,&chr) in letters.iter().enumerate() {
+        if rows == rails-1 || rows == 0 {
+            down = !down;
+        }
+        fenced_rails[(fences*(rows))+index] = chr;
+        if !(rails == 1) {
+        if down {
+            rows+=1;
+        } else {
+            rows-=1;
+        }
+        }
     }
-    railfence.push_str(&"‾".repeat(fences * 2 + 1));
+    //0,1,2,1,0
+    for i in 0..rails {
+        railfence.push('|');
+        for chr in &fenced_rails[(fences*i)..fences*(i+1)] {
+            railfence.push_str(&format!(" {} |",chr));
+        }
+        railfence.push('\n');
+        
+    }
+
+
+    railfence.push_str(&"‾".repeat(fences * 4 + 1));
     Paragraph::new(Text::from(railfence))
         .centered()
         .render(area, buf);
@@ -102,7 +125,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             Constraint::Length(1),  // Border
             Constraint::Length(1),  //Cipher Title
             Constraint::Length(28), // cipher visualization
-            Constraint::Length(9),  // plaintext
+            Constraint::Length(12),  
         ])
         .split(area);
     let middles = Layout::default()
@@ -115,7 +138,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         .split(layouts[2]);
 
     if let AppState::CurrentlyEditingCiphers(indx) = app.state {
-        let text= app.history.get(indx+1).unwrap_or(app.history.first().unwrap());
+        let text= app.history.get(indx).unwrap_or(app.history.first().unwrap());
         match app.text.ciphers.get(indx).unwrap() {
             CipherType::Caeser(shift) => {
                 render_caesar(shift, middles[1], buf);
@@ -127,15 +150,15 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 render_rail_fence(text,key, middles[1], buf);
             }
             CipherType::Atbash => render_atbash(middles[1], buf),
-            CipherType::Affine(shift, multiplyer) => {
-                render_affine(shift, multiplyer, middles[1], buf);
+            CipherType::Affine(a, b) => {
+                render_affine(b, a, middles[1], buf);
             }
         }
     }
 
     if let AppState::EditingText(Some(cipher)) = &app.state {
         let text = if let Some(index) = app.text.selected {
-            app.history.get(index+1).unwrap() 
+            app.history.get(index+1).unwrap_or(app.history.first().unwrap()) 
         }  else {
             app.history.first().unwrap()
         };
@@ -150,8 +173,8 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 render_rail_fence(text,key, middles[1], buf);
             }
             CipherType::Atbash => render_atbash(middles[1], buf),
-            CipherType::Affine(shift, multiplyer) => {
-                render_affine(shift, multiplyer, middles[1], buf);
+            CipherType::Affine(a, b) => {
+                render_affine(b, a, middles[1], buf);
             }
         }
     }
@@ -165,6 +188,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 Line::from(format!("{cipher} ({index})")),
                 Line::from(""),
                 Line::from("<+> to Add Cipher"),
+                Line::from("<Enter> to Edit selected Cipher"),
                 Line::from("<'-'> to Delete Selected Cipher"),
                 Line::from("<Tab> Next Cipher"),
                 Line::from("<- Access Cipher in List ->"),
@@ -178,7 +202,6 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 Line::from("<+> to Add Cipher"),
                 Line::from("<'-'> to Delete Cipher"),
                 Line::from("<Tab> Next Cipher"),
-                Line::from("<Access Cipher in List>"),
             ])
         },
         AppState::CurrentlyEditingCiphers(indx) => {

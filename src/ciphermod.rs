@@ -69,8 +69,9 @@ impl CipherText {
                             .encipher(&working_cipher)
                             .unwrap()
                             .to_string();
-                        history.push(working_cipher.clone());
+                        
                     };
+                    history.push(working_cipher.clone());
                 }
                 CipherType::Atbash => {
                     working_cipher = Atbash::new().encipher(&working_cipher).unwrap().to_string();
@@ -105,15 +106,39 @@ impl CipherText {
             (cipher.next(), None)
         }
     }
+
+    pub fn previous(&self,cipher: &CipherType) -> (CipherType, Option<usize>) {
+        if let Some(index) = self
+            .ciphers
+            .iter()
+            .enumerate()
+            .filter(|&(_, val)| discriminant(val) == discriminant(&cipher.previous()))
+            .nth_back(0)
+            .map(|(indx, _)| indx)
+        {
+            (self.ciphers.get(index).unwrap().clone(), Some(index))
+        } else {
+            (cipher.previous(), None)
+        }
+    }
 }
 impl CipherType {
     pub fn next(&self) -> CipherType {
         match self {
             CipherType::Caeser(_) => CipherType::Vigenere("".to_string()),
-            CipherType::Vigenere(_) => CipherType::RailFence(2),
+            CipherType::Vigenere(_) => CipherType::RailFence(1),
             CipherType::RailFence(_) => CipherType::Atbash,
             CipherType::Atbash => CipherType::Affine(1, 0),
             CipherType::Affine(_, _) => CipherType::Caeser(0),
+        }
+    }
+    pub fn previous(&self) -> CipherType {
+        match self {
+            CipherType::Caeser(_) => CipherType::Affine(1, 0),
+            CipherType::Vigenere(_) => CipherType::Caeser(0),
+            CipherType::RailFence(_) => CipherType::Vigenere("".to_string()),
+            CipherType::Atbash => CipherType::RailFence(1),
+            CipherType::Affine(_, _) => CipherType::Atbash,
         }
     }
 
@@ -121,7 +146,7 @@ impl CipherType {
         match self {
             CipherType::Caeser(_) => CipherType::Caeser(0),
             CipherType::Vigenere(_) => CipherType::Vigenere("".to_string()),
-            CipherType::RailFence(_) => CipherType::RailFence(2),
+            CipherType::RailFence(_) => CipherType::RailFence(1),
             CipherType::Atbash => CipherType::Atbash,
             CipherType::Affine(_, _) => CipherType::Affine(1, 0),
         }

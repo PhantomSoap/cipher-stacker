@@ -49,6 +49,11 @@ impl App {
                         self.state = AppState::EditingText(Some(cipher));
                         self.text.selected = selected_opt;
                     }
+                    KeyCode::BackTab => {
+                        let (cipher, selected_opt) = self.text.previous(cipher);
+                        self.state = AppState::EditingText(Some(cipher));
+                        self.text.selected = selected_opt;
+                    }
                     KeyCode::Enter => {
                         if let Some(index) = self.text.selected {
                             self.state = AppState::CurrentlyEditingCiphers(index);
@@ -87,7 +92,16 @@ impl App {
                             self.state = AppState::EditingText(Some(self.text.next(cipher).0));
                             return Ok(());
                         }
-                        KeyCode::BackTab => {}
+                        KeyCode::BackTab => {
+                            let cipher = self
+                                .text
+                                .ciphers
+                                .get(*index)
+                                .expect("Index in state is invalid: {index}");
+                            self.text.selected = Some(*index);
+                            self.state = AppState::EditingText(Some(self.text.previous(cipher).0));
+                            return Ok(());
+                        }
                         KeyCode::Char('-') => {
                             let removed = self.text.ciphers.remove(*index);
                             self.state = AppState::EditingText(Some(removed.default()));
@@ -131,7 +145,7 @@ impl App {
                             _ => {}
                         },
                         CipherType::RailFence(ckey) => match key.code {
-                            KeyCode::Down if !(*ckey <= 2) => *ckey -= 1,
+                            KeyCode::Down if !(*ckey <= 1) => *ckey -= 1,
                             KeyCode::Down => {}
                             KeyCode::Up if !(*ckey == self.text.ciphered.len() as i32) => {
                                 *ckey += 1
@@ -140,7 +154,7 @@ impl App {
                         },
                         CipherType::Atbash => {}
                         CipherType::Affine(a, b) => match key.code {
-                            KeyCode::Right => {
+                            KeyCode::Up => {
                                 let mut shift = *a;
                                 while !(*a == 26) && !(shift == 26) {
                                     if !((shift + 1) % 2 == 0) && !((shift + 1) % 13 == 0) {
@@ -151,7 +165,7 @@ impl App {
                                     }
                                 }
                             }
-                            KeyCode::Left => {
+                            KeyCode::Down => {
                                 let mut shift = *a;
                                 while !(*a == 0) && !(shift == 0) {
                                     if !((shift - 1) % 2 == 0) && !((shift - 1) % 13 == 0) {
@@ -162,11 +176,11 @@ impl App {
                                     }
                                 }
                             }
-                            KeyCode::Down if !(*b == 0) => {
-                                *b += 1;
+                            KeyCode::Left if !(*b == 0) => {
+                                *b -= 1;
                             }
-                            KeyCode::Down => {}
-                            KeyCode::Up if !(*b == 26) => {
+                            KeyCode::Left => {}
+                            KeyCode::Right if !(*b == 25) => {
                                 *b += 1;
                             }
                             _ => {}
