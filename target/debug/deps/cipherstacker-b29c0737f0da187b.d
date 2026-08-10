@@ -1,6 +1,6 @@
-/Users/hamadhanver/cipherrust/target/debug/deps/cipherstacker-b29c0737f0da187b.d: src/main.rs src/app.rs src/ciphermod.rs src/events.rs src/ui.rs
+/Users/hamadhanver/cipherstacker/target/debug/deps/cipherstacker-b29c0737f0da187b.d: src/main.rs src/app.rs src/ciphermod.rs src/events.rs src/ui.rs
 
-/Users/hamadhanver/cipherrust/target/debug/deps/libcipherstacker-b29c0737f0da187b.rmeta: src/main.rs src/app.rs src/ciphermod.rs src/events.rs src/ui.rs
+/Users/hamadhanver/cipherstacker/target/debug/deps/libcipherstacker-b29c0737f0da187b.rmeta: src/main.rs src/app.rs src/ciphermod.rs src/events.rs src/ui.rs
 
 src/main.rs:
 src/app.rs:

@@ -27,11 +27,34 @@ fn render_atbash(area: Rect, buf: &mut Buffer) {
     );
     Paragraph::new(Text::from(atbasher)).centered().render(area, buf);
 }
-fn render_affine(shift: &u8, multiplyer: &u8, area: Rect, buf: &mut Buffer) {
-    Paragraph::new(format!(
-        "Affine Cipher\nShift: {} | multiplyer: {}",
+fn render_affine(text : &str,shift: &u8, multiplyer: &u8, area: Rect, buf: &mut Buffer) {
+    let mut affine_table = Text::from(format!(
+        "Affine Cipher\nShift: {} | multiplyer: {}\n\n({multiplyer})(x) + {shift} Mod 26\n\n",
         shift, multiplyer
-    ))
+    ));
+
+    for chr in text.chars() {
+        let num = chr as u32 - 'A' as u32;
+        let mut letter_line :Vec<Span> = Vec::new();
+        letter_line.push(Span::raw("| "));
+        letter_line.push(Span::raw(format!("{}",chr)).yellow());
+        letter_line.push(Span::raw(" |"));
+        letter_line.push(
+            Span::raw(format!(
+                "| {num:02} | ({multiplyer})({num:02}) + {shift:02} Mod 26 | {:02} | ",
+                (num * *multiplyer as u32 + *shift as u32) % 26),
+            )
+        );
+        letter_line.push(
+            Span::raw(format!(
+                "{}"
+                ,(((num as u32 * *multiplyer as u32 + *shift as u32) % 26 + b'a' as u32) as u8 as char).to_uppercase())
+            ).yellow(),
+        );
+        letter_line.push(Span::raw(" |"));
+        affine_table.push_line(Line::from(letter_line));
+    }
+    Paragraph::new(affine_table)
     .centered()
     .render(area, buf);
 }
@@ -66,10 +89,11 @@ pub fn render_caesar(shift: &i32, area: Rect, buf: &mut Buffer) {
 
 pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
     let vigenere_grid = format!("Vigenere Cipher\nCode: '{}'\n", code);
+    
     Paragraph::new(vigenere_grid).centered().render(area, buf);
 }
 
-pub fn render_rail_fence(text : &String,key: &i32, area: Rect, buf: &mut Buffer) {
+pub fn render_rail_fence(text : &str,key: &i32, area: Rect, buf: &mut Buffer) {
     let rails = *key as usize; //2
     let fences = text.len(); //11
     let mut railfence = format!("RailFence Cipher\nKey: {}\n", key);
@@ -151,7 +175,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             }
             CipherType::Atbash => render_atbash(middles[1], buf),
             CipherType::Affine(a, b) => {
-                render_affine(b, a, middles[1], buf);
+                render_affine(text,b, a, middles[1], buf);
             }
         }
     }
@@ -174,7 +198,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             }
             CipherType::Atbash => render_atbash(middles[1], buf),
             CipherType::Affine(a, b) => {
-                render_affine(b, a, middles[1], buf);
+                render_affine(text,b, a, middles[1], buf);
             }
         }
     }

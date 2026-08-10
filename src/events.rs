@@ -137,7 +137,7 @@ impl App {
                         },
                         CipherType::Vigenere(code) => match key.code {
                             KeyCode::Char(chr) if chr.is_alphabetic() => {
-                                code.push(chr);
+                                code.push(chr.to_ascii_uppercase());
                             }
                             KeyCode::Backspace => {
                                 code.pop();
