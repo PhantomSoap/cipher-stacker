@@ -1,5 +1,5 @@
-#![warn(clippy::pedantic)]    // Catches subtle code smells and stylistic issues
-#![warn(clippy::nursery)] 
+#![warn(clippy::pedantic)] // Catches subtle code smells and stylistic issues
+#![warn(clippy::nursery)]
 
 use std::io;
 pub mod app;

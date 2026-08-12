@@ -9,8 +9,8 @@ impl App {
             if key.kind == event::KeyEventKind::Release {
                 return Ok(());
             }
-            if let KeyCode::Esc = key.code {
-                self.exit()
+            if  KeyCode::Esc == key.code {
+                self.exit();
             }
             match &mut self.state {
                 AppState::EditingText(None) => match key.code {
@@ -67,7 +67,7 @@ impl App {
                             ));
                         }
                     }
-                    KeyCode::Left => {}
+                    
                     KeyCode::Right
                         if let Some(index) = self.text.selected
                             && self.text.ciphers.get(index + 1).is_some() =>
@@ -87,7 +87,7 @@ impl App {
                                 .text
                                 .ciphers
                                 .get(*index)
-                                .expect("Index in state is invalid: {index}");
+                                .expect("Index in state is invalid");
                             self.text.selected = Some(*index);
                             self.state = AppState::EditingText(Some(self.text.next(cipher).0));
                             return Ok(());
@@ -97,7 +97,7 @@ impl App {
                                 .text
                                 .ciphers
                                 .get(*index)
-                                .expect("Index in state is invalid: {index}");
+                                .expect("Index in state is invalid");
                             self.text.selected = Some(*index);
                             self.state = AppState::EditingText(Some(self.text.previous(cipher).0));
                             return Ok(());
@@ -112,7 +112,7 @@ impl App {
                                 .text
                                 .ciphers
                                 .get(*index)
-                                .expect("Index in state is invalid: {index}");
+                                .expect("Index in state is invalid");
 
                             self.state = AppState::EditingText(Some(cipher.clone()));
                             return Ok(());
@@ -146,9 +146,8 @@ impl App {
                         },
                         CipherType::RailFence(ckey) => match key.code {
                             KeyCode::Down if !(*ckey <= 1) => *ckey -= 1,
-                            KeyCode::Down => {}
-                            KeyCode::Up if !(*ckey == self.text.ciphered.len() as i32) => {
-                                *ckey += 1
+                            KeyCode::Up if !(*ckey == self.text.ciphered.len() as u8) => {
+                                *ckey += 1;
                             }
                             _ => {}
                         },
@@ -179,7 +178,6 @@ impl App {
                             KeyCode::Left if !(*b == 0) => {
                                 *b -= 1;
                             }
-                            KeyCode::Left => {}
                             KeyCode::Right if !(*b == 25) => {
                                 *b += 1;
                             }

@@ -7,9 +7,9 @@ use ciphers::{Affine, Atbash, Caesar, Cipher, RailFence, Vigenere};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CipherType {
-    Caeser(i32),
+    Caeser(i8),
     Vigenere(String),
-    RailFence(i32),
+    RailFence(u8),
     Atbash,
     Affine(u8, u8),
 }
@@ -64,12 +64,11 @@ impl CipherText {
                     history.push(working_cipher.clone());
                 }
                 CipherType::RailFence(key) => {
-                    if !(*key < 2 || *key >= working_cipher.len() as i32) {
+                    if !(*key < 2 || *key >= working_cipher.len() as u8) {
                         working_cipher = RailFence::new(*key as usize)
                             .encipher(&working_cipher)
                             .unwrap()
                             .to_string();
-                        
                     };
                     history.push(working_cipher.clone());
                 }
@@ -107,7 +106,7 @@ impl CipherText {
         }
     }
 
-    pub fn previous(&self,cipher: &CipherType) -> (CipherType, Option<usize>) {
+    pub fn previous(&self, cipher: &CipherType) -> (CipherType, Option<usize>) {
         if let Some(index) = self
             .ciphers
             .iter()
