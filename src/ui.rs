@@ -42,7 +42,7 @@ fn render_affine(text: &str, shift: u8, multiplyer: u8, area: Rect, buf: &mut Bu
         letter_line.push(Span::raw(" |"));
         letter_line.push(Span::raw(format!(
             "| {num:02} | ({multiplyer})({num:02}) + {shift:02} Mod 26 | {:02} | ",
-            (num * multiplyer + shift) % 26
+            (num as u16 * multiplyer as u16 + shift as u16) % 26
         )));
         letter_line.push(
             Span::raw(format!(
@@ -193,7 +193,13 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             }
         }
         } else {
-            
+            Paragraph::new(
+                Text::from(
+                    "CipherStacker"
+                )
+            )
+            .centered()
+            .render(middles[1],buf);                                
         }
     }
 

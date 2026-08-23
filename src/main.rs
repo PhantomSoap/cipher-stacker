@@ -6,6 +6,7 @@ pub mod app;
 pub mod ciphermod;
 pub mod events;
 pub mod ui;
+mod ui_area;
 
 use app::App;
 use ratatui::run;

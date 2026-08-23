@@ -31,7 +31,7 @@ impl CipherStack {
         }
     }
 
-    pub fn cipher(&mut self,text : &str,ciphertext : &mut String) -> Vec<String> {
+    pub fn stack_cipher(&mut self,text : &str,ciphertext : &mut String) -> Vec<String> {
         let mut history: Vec<String> = Vec::new();
         history.push(text.to_string());
         let mut working_cipher = text.to_string();

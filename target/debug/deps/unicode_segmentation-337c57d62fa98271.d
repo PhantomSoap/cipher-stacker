@@ -1,0 +1,9 @@
+/Users/hamadhanver/cipherstacker/target/debug/deps/unicode_segmentation-337c57d62fa98271.d: /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/lib.rs /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/grapheme.rs /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/sentence.rs /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/word.rs /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/tables.rs
+
+/Users/hamadhanver/cipherstacker/target/debug/deps/libunicode_segmentation-337c57d62fa98271.rmeta: /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/lib.rs /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/grapheme.rs /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/sentence.rs /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/word.rs /Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/tables.rs
+
+/Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/lib.rs:
+/Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/grapheme.rs:
+/Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/sentence.rs:
+/Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/word.rs:
+/Users/hamadhanver/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/unicode-segmentation-1.10.1/src/tables.rs:

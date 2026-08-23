@@ -40,7 +40,7 @@ pub struct App {
 impl App {
     pub fn new() -> App {
         App {
-            plaintext : String::new(),
+            plaintext : String::from("ExampleText"),
             ciphertext : String::new(),
             stack: CipherStack::new(),
             state: AppState::EditingText(None),
@@ -55,7 +55,7 @@ impl App {
 
             self.update(self.handle_key_events()?);
 
-            self.history = self.stack.cipher(&self.plaintext,&mut self.ciphertext);
+            self.history = self.stack.stack_cipher(&self.plaintext,&mut self.ciphertext);
         }
 
         Ok(())
@@ -99,9 +99,7 @@ impl App {
                     _ => {}
                 }
             },
-            CipherType::Atbash => {
-
-            },
+            CipherType::Atbash => {},
             CipherType::Affine(a, b) => {
                 match key {
                     KeyCode::Up => {
