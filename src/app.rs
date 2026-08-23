@@ -16,9 +16,9 @@ pub enum Message {
     PopChar,
     GoHome,
     EditCipher(usize,KeyCode),
-    NextCipher,
+    NextCipher(CipherType),
+    PreviousCipher(CipherType),
     NextInStack,
-    PreviousCipher,
     PreviousInStack,
     None
 }
