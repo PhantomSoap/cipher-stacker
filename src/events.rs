@@ -3,8 +3,17 @@ use crate::ciphermod::CipherType;
 use crossterm::event::{self, Event, KeyCode};
 use std::io;
 enum Message {
-    AddCipher(CipherType),
+    AddCipher(CipherType,Option<usize>),
     RemoveCipher(Option<usize>),
+    Exit,
+    Reset,
+    StopCiphering,
+    StartCiphering(usize),
+    PushChar(char),
+    PopChar,
+    LookAtCipher(CipherType),
+    GoHome,
+    EditCipher(usize,KeyCode),
 }
 impl App {
     pub fn handle_key_events(&mut self) -> io::Result<()> {

@@ -1,5 +1,6 @@
 use crate::ciphermod::{CipherText, CipherType};
 
+use crossterm::event::KeyCode;
 use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
 use std::io;
 
@@ -42,6 +43,82 @@ impl App {
         frame.render_widget(self, frame.area());
     }
 
+    pub fn edit_cipher(&mut self,index : usize, key : KeyCode) {
+        let cipher = self.text.ciphers.get_mut(index).unwrap();
+        match cipher {
+            CipherType::Caeser(shift) => {
+                match key {
+                    KeyCode::Right => {
+                        *shift = ((*shift + 1) % 26 + 26) % 26;
+                    }
+                    KeyCode::Left => {
+                        *shift = ((*shift - 1) % 26 + 26) % 26;
+                    }
+                    _ => {}
+                }
+            },
+            CipherType::Vigenere(code) => {
+                match key {
+                    KeyCode::Char(chr) if chr.is_alphabetic() => {
+                        code.push(chr.to_ascii_uppercase());
+                    }
+                    KeyCode::Backspace => {
+                        code.pop();
+                    }
+                    _ => {}
+                }
+            },
+            CipherType::RailFence(ckey) => {
+                match key {
+                    KeyCode::Down if !(*ckey <= 1) => *ckey -= 1,
+                    KeyCode::Up if !(*ckey == self.text.ciphered.len() as u8) => {
+                        *ckey += 1;
+                    }
+                    _ => {}
+                }
+            },
+            CipherType::Atbash => {
+
+            },
+            CipherType::Affine(a, b) => {
+                match key {
+                    KeyCode::Up => {
+                        let mut shift = *a;
+                        while !(*a == 26) && !(shift == 26) {
+                            if !((shift + 1) % 2 == 0) && !((shift + 1) % 13 == 0) {
+                                *a = shift + 1;
+                                break;
+                            } else {
+                                shift += 1;
+                            }
+                        }
+                    }
+                    KeyCode::Down => {
+                        let mut shift = *a;
+                        while !(*a == 0) && !(shift == 0) {
+                            if !((shift - 1) % 2 == 0) && !((shift - 1) % 13 == 0) {
+                                *a = shift - 1;
+                                break;
+                            } else {
+                                shift -= 1;
+                            }
+                        }
+                    }
+                    KeyCode::Left if !(*b == 0) => {
+                        *b -= 1;
+                    }
+                    KeyCode::Right if !(*b == 25) => {
+                        *b += 1;
+                    }
+                    _ => {}
+                }
+            },
+        }
+    }
+
+    pub fn update() {
+        
+    }
     pub fn exit(&mut self) {
         self.exit = true;
     }
