@@ -30,7 +30,13 @@ impl UiArea {
                 Constraint::Length(13),
             ]).split(area);
             let middle = Layout::default()
-                .margin(1);
+                .margin(1)
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Percentage(20),
+                    Constraint::Percentage(40),
+                    Constraint::Percentage(20),
+                ]).split(layouts[1]);
             let footer_middles = Layout::default()
                 .margin(1)
                 .direction(Direction::Vertical)
