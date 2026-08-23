@@ -2,7 +2,10 @@ use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 use crossterm::event::{self, Event, KeyCode};
 use std::io;
-
+enum Message {
+    AddCipher(CipherType),
+    RemoveCipher(Option<usize>),
+}
 impl App {
     pub fn handle_key_events(&mut self) -> io::Result<()> {
         if let Event::Key(key) = event::read()? {
