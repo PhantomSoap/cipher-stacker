@@ -1,4 +1,4 @@
-use crate::{app::AppState::EditingText, ciphermod::{CipherText, CipherType}};
+use crate::{app::AppState::EditingText, ciphermod::{CipherStack, CipherType}};
 
 use crossterm::event::KeyCode;
 use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
@@ -29,7 +29,7 @@ pub enum AppState {
 }
 
 pub struct App {
-    pub text: CipherText,
+    pub text: CipherStack,
     pub state: AppState,
     pub exit: bool,
     pub history: Vec<String>,
@@ -38,7 +38,7 @@ pub struct App {
 impl App {
     pub fn new() -> App {
         App {
-            text: CipherText::new(),
+            text: CipherStack::new(),
             state: AppState::EditingText(None),
             exit: false,
             history: Vec::new(),

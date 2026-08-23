@@ -15,19 +15,19 @@ pub enum CipherType {
 }
 
 #[derive(Debug)]
-pub struct CipherText {
+pub struct CipherStack {
     pub text: String,
     pub ciphers: Vec<CipherType>,
     pub ciphered: String,
     pub selected: Option<usize>,
 }
 
-impl CipherText {
-    pub fn default() -> CipherText {
+impl CipherStack {
+    pub fn default() -> CipherStack {
         Self::new()
     }
-    pub fn new() -> CipherText {
-        CipherText {
+    pub fn new() -> CipherStack {
+        CipherStack {
             text: "EXAMPLETEXT".to_string(),
             ciphers: Vec::new(),
             ciphered: String::from("EXAMPLETEXT"),
@@ -90,7 +90,7 @@ impl CipherText {
     }
 }
 
-impl CipherText {
+impl CipherStack {
     pub fn next(&self, cipher: &CipherType) -> (CipherType, Option<usize>) {
         if let Some(index) = self
             .ciphers
