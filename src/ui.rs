@@ -156,32 +156,15 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         ])
         .split(layouts[2]);
 
-    if matches!(app.state, AppState::EditingText(None)) {
-    } else {
-        let (cipher, text) = match &app.state {
-            AppState::CurrentlyEditingCiphers(indx) => (
-                app.stack.ciphers.get(*indx).unwrap(),
-                app.history.get(*indx + 1).unwrap(),
-            ),
-            AppState::EditingText(Some(cipher)) => (
-                cipher,
-                app.stack.selected.map_or_else(
-                    || app.history.first().unwrap(),
-                    |index| {
-                        app.history
-                            .get(index + 1)
-                            .unwrap_or_else(|| app.history.first().unwrap())
-                    },
-                ),
-            ),
-            AppState::EditingText(None) => unreachable!(),
-        };
+    if let Some(index) = app.stack.selected {
+        let cipher = &app.stack.ciphers[index];
+        let text = &app.history[index+1];
         match cipher {
             CipherType::Caeser(shift) => {
                 render_caesar(*shift, middles[1], buf);
             }
             CipherType::Vigenere(code) => {
-                render_vigenere(code, middles[1], buf);
+                render_vigenere(&code, middles[1], buf);
             }
             CipherType::RailFence(key) => {
                 render_rail_fence(text, *key, middles[1], buf);
@@ -190,6 +173,27 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             CipherType::Affine(a, b) => {
                 render_affine(text, *b, *a, middles[1], buf);
             }
+        }
+    } else {
+        if let AppState::EditingText(Some(cipher)) = &app.state {
+            let text = &app.history.last().unwrap_or(&app.history[0]);
+            match cipher {
+            CipherType::Caeser(shift) => {
+                render_caesar(*shift, middles[1], buf);
+            }
+            CipherType::Vigenere(code) => {
+                render_vigenere(&code, middles[1], buf);
+            }
+            CipherType::RailFence(key) => {
+                render_rail_fence(text, *key, middles[1], buf);
+            }
+            CipherType::Atbash => render_atbash(middles[1], buf),
+            CipherType::Affine(a, b) => {
+                render_affine(text, *b, *a, middles[1], buf);
+            }
+        }
+        } else {
+            
         }
     }
 

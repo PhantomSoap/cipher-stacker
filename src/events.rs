@@ -34,7 +34,7 @@ impl App {
                     
                     KeyCode::Right 
                     if let Some(index) = self.stack.selected
-                            && self.stack.ciphers.get(index + 1).is_some() => return Ok(Message::NextInStack),
+                            && index != self.stack.ciphers.len()-1 => return Ok(Message::NextInStack),
                         
 
                     _ => return Ok(Message::None),
