@@ -4,6 +4,19 @@ use crossterm::event::KeyCode;
 use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
 use std::io;
 
+enum Message {
+    AddCipher(CipherType,Option<usize>),
+    RemoveCipher(Option<usize>),
+    Exit,
+    Reset,
+    StopCiphering,
+    StartCiphering(usize),
+    PushChar(char),
+    PopChar,
+    LookAtCipher(CipherType),
+    GoHome,
+    EditCipher(usize,KeyCode),
+}
 #[derive(Debug)]
 pub enum AppState {
     CurrentlyEditingCiphers(usize),
@@ -117,7 +130,7 @@ impl App {
     }
 
     pub fn update() {
-        
+
     }
     pub fn exit(&mut self) {
         self.exit = true;
