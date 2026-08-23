@@ -4,7 +4,7 @@ use crossterm::event::KeyCode;
 use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
 use std::io;
 
-enum Message {
+pub enum Message {
     AddCipher(CipherType,Option<usize>),
     RemoveCipher(Option<usize>),
     Exit,
@@ -16,6 +16,11 @@ enum Message {
     LookAtCipher(CipherType),
     GoHome,
     EditCipher(usize,KeyCode),
+    NextCipher,
+    NextInStack,
+    PreviousCipher,
+    PreviousInStack,
+    None
 }
 #[derive(Debug)]
 pub enum AppState {
@@ -129,8 +134,34 @@ impl App {
         }
     }
 
-    pub fn update() {
-
+    pub fn update(&mut self, msg : Message) {
+        match msg {
+            Message::AddCipher(cipher_type, _) => todo!(),
+            Message::RemoveCipher(Some(index)) => {self.text.ciphers.remove(index);},
+            Message::RemoveCipher(None) => {self.text.ciphers.pop();},
+            Message::Exit => self.exit(),
+            Message::Reset => self.exit(),
+            Message::StopCiphering => {
+                if let AppState::CurrentlyEditingCiphers(index) = self.state {
+                    let cipher = self.text.ciphers[index].clone();
+                    self.state = AppState::EditingText(Some(cipher));
+                     
+                }
+            },
+            Message::StartCiphering(index) => {
+                self.state = AppState::CurrentlyEditingCiphers(index);
+            },
+            Message::PushChar(c) => self.text.text.push(c),
+            Message::PopChar => {self.text.text.pop();},
+            Message::LookAtCipher(cipher_type) => todo!(),
+            Message::GoHome => self.state = AppState::EditingText(None),
+            Message::EditCipher(index, key_code) => self.edit_cipher(index, key_code),
+            Message::None => {},
+            Message::NextCipher => todo!(),
+            Message::NextInStack => todo!(),
+            Message::PreviousCipher => todo!(),
+            Message::PreviousInStack => todo!(),
+        }
     }
     pub fn exit(&mut self) {
         self.exit = true;
