@@ -179,13 +179,34 @@ impl App {
             Message::PopChar => {self.text.text.pop();},
             Message::GoHome => self.state = AppState::EditingText(None),
             Message::EditCipher(index, key_code) => self.edit_cipher(index, key_code),
-            Message::NextCipher => todo!(),
-            Message::PreviousCipher => todo!(),
-            Message::NextInStack => todo!(),
-            Message::PreviousInStack => todo!(),
+            Message::NextCipher(cipher) => {
+                let (next_cipher, index_opt) = self.text.next(&cipher);
+                self.state = AppState::EditingText(Some(next_cipher));
+                self.text.selected = index_opt
+                
+            },
+            Message::PreviousCipher(cipher) => {
+                let (next_cipher, index_opt) = self.text.previous(&cipher);
+                self.state = AppState::EditingText(Some(next_cipher));
+                self.text.selected = index_opt
+            },
+            Message::NextInStack => {
+                if let Some(index) = &mut self.text.selected {
+                    *index+=1;
+                    self.state = AppState::EditingText(Some(self.text.ciphers[*index].clone()));
+
+                }
+            },
+            Message::PreviousInStack => {
+                if let Some(index) = &mut self.text.selected {
+                    *index-=1;
+                    self.state = AppState::EditingText(Some(self.text.ciphers[*index].clone()));
+                }
+            },
             Message::LookAtCipher(cipher) => {
                 self.state = EditingText(Some(cipher))
             },
+            
         }
     }
     pub fn exit(&mut self) {
