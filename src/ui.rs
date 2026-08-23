@@ -160,12 +160,12 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
     } else {
         let (cipher, text) = match &app.state {
             AppState::CurrentlyEditingCiphers(indx) => (
-                app.text.ciphers.get(*indx).unwrap(),
+                app.stack.ciphers.get(*indx).unwrap(),
                 app.history.get(*indx + 1).unwrap(),
             ),
             AppState::EditingText(Some(cipher)) => (
                 cipher,
-                app.text.selected.map_or_else(
+                app.stack.selected.map_or_else(
                     || app.history.first().unwrap(),
                     |index| {
                         app.history
@@ -199,7 +199,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             Line::from(""),
             Line::from("<Tab> Next Cipher"),
         ]),
-        AppState::EditingText(Some(cipher)) if let Some(index) = app.text.selected => {
+        AppState::EditingText(Some(cipher)) if let Some(index) = app.stack.selected => {
             Text::from(vec![
                 Line::from(format!("{cipher} ({index})")),
                 Line::from(""),
@@ -218,7 +218,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             Line::from("<Tab> Next Cipher"),
         ]),
         AppState::CurrentlyEditingCiphers(indx) => {
-            let cipher = app.text.ciphers.get(*indx).unwrap();
+            let cipher = app.stack.ciphers.get(*indx).unwrap();
 
             let mut text = Text::from(vec![
                 Line::from(format!("{cipher} | (Editing)")),
@@ -246,30 +246,30 @@ fn render_footer(state: Text<'_>, app: &App, area: Rect, buf: &mut Buffer) {
 
     let mut footer_text = Text::default();
 
-    footer_text.push_line(Line::from(format!("PlainText: {}", app.text.text)));
+    footer_text.push_line(Line::from(format!("PlainText: {}", app.plaintext)));
 
-    if let Some(index) = app.text.selected {
+    if let Some(index) = app.stack.selected {
         let mut cipher_line = Vec::new();
         cipher_line.push(Span::raw("["));
 
-        for (indx, cipher) in app.text.ciphers.iter().enumerate() {
+        for (indx, cipher) in app.stack.ciphers.iter().enumerate() {
             if index == indx {
                 cipher_line.push(Span::raw(format!("{cipher:?}")).blue());
             } else {
                 cipher_line.push(Span::raw(format!("{cipher:?}")));
             }
 
-            if indx != app.text.ciphers.len() - 1 {
+            if indx != app.stack.ciphers.len() - 1 {
                 cipher_line.push(Span::raw(", "));
             }
         }
         cipher_line.push(Span::raw("]"));
         footer_text.push_line(Line::from(cipher_line));
     } else {
-        footer_text.push_line(Line::from(format!("{:?}", app.text.ciphers)));
+        footer_text.push_line(Line::from(format!("{:?}", app.stack.ciphers)));
     }
 
-    footer_text.push_line(Line::from(format!("CipherText: {}", app.text.ciphered)));
+    footer_text.push_line(Line::from(format!("CipherText: {}", app.ciphertext)));
     footer_text.push_line(Line::from(""));
     footer_text.lines.extend(state);
 
@@ -280,7 +280,7 @@ fn render_footer(state: Text<'_>, app: &App, area: Rect, buf: &mut Buffer) {
         app.history.first().unwrap_or(&String::new())
     )));
 
-    for (index, cipher) in app.text.ciphers.iter().enumerate() {
+    for (index, cipher) in app.stack.ciphers.iter().enumerate() {
         if let Some(hist_item) = app.history.get(index + 1) {
             history_text.push_line(Line::from(format!("{cipher:?} -> {hist_item}")));
         }

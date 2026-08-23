@@ -16,9 +16,7 @@ pub enum CipherType {
 
 #[derive(Debug)]
 pub struct CipherStack {
-    pub text: String,
     pub ciphers: Vec<CipherType>,
-    pub ciphered: String,
     pub selected: Option<usize>,
 }
 
@@ -28,19 +26,17 @@ impl CipherStack {
     }
     pub fn new() -> CipherStack {
         CipherStack {
-            text: "EXAMPLETEXT".to_string(),
             ciphers: Vec::new(),
-            ciphered: String::from("EXAMPLETEXT"),
             selected: None,
         }
     }
 
-    pub fn cipher(&mut self) -> Vec<String> {
+    pub fn cipher(&mut self,text : &str,ciphertext : &mut String) -> Vec<String> {
         let mut history: Vec<String> = Vec::new();
-        history.push(self.text.clone());
-        let mut working_cipher = self.text.clone();
+        history.push(text.to_string());
+        let mut working_cipher = text.to_string();
         if self.ciphers.is_empty() {
-            self.ciphered = working_cipher;
+            *ciphertext = working_cipher;
             return history;
         };
 
@@ -49,10 +45,9 @@ impl CipherStack {
                 CipherType::Caeser(shift) => {
                     working_cipher = Caesar::new(*shift as u8)
                         .encipher(&working_cipher)
-                        .unwrap()
-                        .to_string();
+                        .unwrap();
 
-                    history.push(working_cipher.clone());
+                    history.push(working_cipher.to_string());
                 }
                 CipherType::Vigenere(code) => {
                     if !code.is_empty() {
@@ -85,7 +80,7 @@ impl CipherStack {
                 }
             };
         }
-        self.ciphered = working_cipher;
+        *ciphertext = working_cipher;
         history
     }
 }

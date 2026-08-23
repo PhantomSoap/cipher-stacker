@@ -28,20 +28,20 @@ impl App {
                     KeyCode::Backspace => return Ok(Message::PopChar),
                     KeyCode::Tab => return Ok(Message::NextCipher(cipher.clone())),
                     KeyCode::BackTab => return Ok(Message::PreviousCipher(cipher.clone())),
-                    KeyCode::Enter if let Some(index) = self.text.selected =>  return Ok(Message::StartCiphering(index)),
-                    KeyCode::Left if let Some(index) = self.text.selected 
-                    && self.text.ciphers.get(index - 1).is_some() => return Ok(Message::PreviousInStack),
+                    KeyCode::Enter if let Some(index) = self.stack.selected =>  return Ok(Message::StartCiphering(index)),
+                    KeyCode::Left if let Some(index) = self.stack.selected 
+                    && index !=0 => return Ok(Message::PreviousInStack),
                     
                     KeyCode::Right 
-                    if let Some(index) = self.text.selected
-                            && self.text.ciphers.get(index + 1).is_some() => return Ok(Message::NextInStack),
+                    if let Some(index) = self.stack.selected
+                            && self.stack.ciphers.get(index + 1).is_some() => return Ok(Message::NextInStack),
                         
 
                     _ => return Ok(Message::None),
                 },
                 AppState::CurrentlyEditingCiphers(index) => {
                     let cipher = self
-                        .text
+                        .stack
                         .ciphers
                         .get(*index)
                         .expect("Index in State was invalid {index}");
