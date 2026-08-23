@@ -1,4 +1,4 @@
-use crate::ciphermod::{CipherText, CipherType};
+use crate::{app::AppState::EditingText, ciphermod::{CipherText, CipherType}};
 
 use crossterm::event::KeyCode;
 use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
@@ -11,9 +11,9 @@ pub enum Message {
     Reset,
     StopCiphering,
     StartCiphering(usize),
+    LookAtCipher(CipherType),
     PushChar(char),
     PopChar,
-    LookAtCipher(CipherType),
     GoHome,
     EditCipher(usize,KeyCode),
     NextCipher,
@@ -49,7 +49,7 @@ impl App {
         while !self.exit {
             terminal.draw(|frame| self.draw(frame))?;
 
-            self.handle_key_events()?;
+            self.update(self.handle_key_events()?);
 
             self.history = self.text.cipher();
         }
@@ -136,31 +136,56 @@ impl App {
 
     pub fn update(&mut self, msg : Message) {
         match msg {
-            Message::AddCipher(cipher_type, _) => todo!(),
-            Message::RemoveCipher(Some(index)) => {self.text.ciphers.remove(index);},
-            Message::RemoveCipher(None) => {self.text.ciphers.pop();},
+            Message::None => {},
+            Message::AddCipher(cipher_type, Some(index)) => {
+                self.text.ciphers.insert(index,cipher_type.default());
+                self.state = AppState::CurrentlyEditingCiphers(index);
+                self.text.selected = Some(index)
+                
+            },
+            Message::AddCipher(cipher_type, None) => {
+                self.text.ciphers.push(cipher_type.default());
+                self.state = AppState::CurrentlyEditingCiphers(self.text.ciphers.len()-1);
+                self.text.selected = Some(self.text.ciphers.len()-1)
+            },
+            Message::RemoveCipher(Some(index)) => {
+                let removed = self.text.ciphers.remove(index);
+                self.state = AppState::EditingText(Some(removed.default()));
+                self.text.selected = None
+                
+            },
+            Message::RemoveCipher(None) => {
+                if let Some(removed) = self.text.ciphers.pop() {
+                    self.state = AppState::EditingText(Some(removed.default()));
+                    self.text.selected = None
+
+                }
+            },
             Message::Exit => self.exit(),
             Message::Reset => self.exit(),
             Message::StopCiphering => {
                 if let AppState::CurrentlyEditingCiphers(index) = self.state {
                     let cipher = self.text.ciphers[index].clone();
                     self.state = AppState::EditingText(Some(cipher));
-                     
+                    self.text.selected = Some(index);
+
                 }
             },
             Message::StartCiphering(index) => {
                 self.state = AppState::CurrentlyEditingCiphers(index);
+                self.text.selected = Some(index)
             },
             Message::PushChar(c) => self.text.text.push(c),
             Message::PopChar => {self.text.text.pop();},
-            Message::LookAtCipher(cipher_type) => todo!(),
             Message::GoHome => self.state = AppState::EditingText(None),
             Message::EditCipher(index, key_code) => self.edit_cipher(index, key_code),
-            Message::None => {},
             Message::NextCipher => todo!(),
-            Message::NextInStack => todo!(),
             Message::PreviousCipher => todo!(),
+            Message::NextInStack => todo!(),
             Message::PreviousInStack => todo!(),
+            Message::LookAtCipher(cipher) => {
+                self.state = EditingText(Some(cipher))
+            },
         }
     }
     pub fn exit(&mut self) {
