@@ -6,14 +6,14 @@ use ratatui::text::{Span, Text};
 use ratatui::widgets::Wrap;
 use ratatui::{
     buffer::Buffer,
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::Rect,
     style::Stylize,
     symbols::border,
     text::Line,
     widgets::{Block, Paragraph, Widget},
 };
-use std::mem::discriminant;
 use std::fmt::Write;
+use std::mem::discriminant;
 fn render_atbash(area: Rect, buf: &mut Buffer) {
     let atbasher = format!(
         "Atbash Cipher
@@ -201,7 +201,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 Line::from("<- Access Cipher in List ->"),
             ])
         }
-        AppState::EditingText(Some(cipher)) => Text::from(vec![
+        AppState::EditingText(Some(_cipher)) => Text::from(vec![
             Line::from("<+> to Add Cipher"),
             Line::from("<'-'> to Delete Cipher"),
             Line::from("<Tab> Next Cipher"),
@@ -267,7 +267,6 @@ fn render_footer(state: Text<'_>, app: &App, area: UiArea, buf: &mut Buffer) {
         .wrap(Wrap { trim: true })
         .render(area.ciphertext, buf);
     Paragraph::new(cipher_list)
-        
         .wrap(Wrap { trim: true })
         .render(area.cipher_list, buf);
     Paragraph::new(history_text)
@@ -276,32 +275,43 @@ fn render_footer(state: Text<'_>, app: &App, area: UiArea, buf: &mut Buffer) {
         .render(area.history, buf);
 }
 
-fn render_cipher_side_bar(area : Rect, buf : &mut Buffer, app : &App) {
+fn render_cipher_side_bar(area: Rect, buf: &mut Buffer, app: &App) {
     let cipher = match &app.state {
         AppState::CurrentlyEditingCiphers(indx) => Some(&app.stack.ciphers[*indx]),
-        AppState::EditingText(Some(cipher)) =>Some(cipher),
+        AppState::EditingText(Some(cipher)) => Some(cipher),
         AppState::EditingText(None) => None,
     };
+    let mut sidebar: Vec<Line> = Vec::new();
+    sidebar.push(Line::from("-".repeat(20)));
     if let Some(cipher) = cipher {
         let mut cipher_name = CipherType::first();
-        let mut sidebar : Vec<Line> = Vec::new();
+        
         for _ in 0..5 {
             if discriminant(&cipher_name) == discriminant(&cipher) {
-                sidebar.push(Line::from(Span::raw(cipher_name.name()).blue()))
+                sidebar.push(Line::from(vec![Span::raw("| "),Span::raw(cipher_name.name()).blue(),Span::raw(" |")]))
             } else {
-                sidebar.push(Line::from(cipher_name.name()))
+                sidebar.push(Line::from(format!("| {} |",cipher_name.name())))
             }
             cipher_name = cipher_name.next()
         }
 
-        Text::from(sidebar).render(area,buf);
+        
     } else {
         let mut cipher_name = CipherType::first();
-        let mut sidebar : Vec<Line> = Vec::new();
+        
         for _ in 0..5 {
-            sidebar.push(Line::from(cipher_name.name()));
+            sidebar.push(Line::from(format!("| {} |",cipher_name.name())));
             cipher_name = cipher_name.next();
         }
-        Text::from(sidebar).centered().render(area,buf);
+        
     }
+    let items = [
+        "Caeser Cipher",
+        "Vigenere Cipher",
+        "RailFence Cipher",
+        "Atbash Cipher",
+        "Affine Cipher",
+        ];
+        
+    
 }

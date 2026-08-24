@@ -1,6 +1,6 @@
 use ratatui::{
     buffer::Buffer,
-    layout::{self, Constraint, Direction, Layout, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     widgets::{Block, Widget},
 };
 
@@ -82,7 +82,7 @@ impl UiArea {
         }
     }
 
-    pub fn print_borders(&self, buf: &mut Buffer) {
+    pub fn render_borders(&self, buf: &mut Buffer) {
         Block::bordered().title("Title").render(self.title, buf);
         Block::bordered().title("history").render(self.history, buf);
         Block::bordered()

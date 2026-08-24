@@ -64,6 +64,6 @@ impl App {
                 }
             }
         }
-        { Ok(Message::None) }
+        Ok(Message::None)
     }
 }
