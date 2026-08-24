@@ -15,63 +15,8 @@ use ratatui::{
 use std::fmt::Write;
 use std::mem::discriminant;
 
-fn render_affine(text: &str, shift: u8, multiplyer: u8, area: Rect, buf: &mut Buffer) {
-    let mut affine_table = Text::from(format!(
-        "Affine Cipher\nShift: {shift} | multiplyer: {multiplyer}\n\n({multiplyer})(x) + {shift} Mod 26\n\n"
-    ));
 
-    for chr in text.chars() {
-        let num = chr as u8 - b'A';
-        let mut letter_line: Vec<Span> = Vec::new();
-        letter_line.push(Span::raw("| "));
-        letter_line.push(Span::raw(format!("{chr}")).yellow());
-        letter_line.push(Span::raw(" |"));
-        letter_line.push(Span::raw(format!(
-            "| {num:02} | ({multiplyer})({num:02}) + {shift:02} Mod 26 | {:02} | ",
-            (num as u16 * multiplyer as u16 + shift as u16) % 26
-        )));
-        letter_line.push(
-            Span::raw(format!(
-                "{}",
-                (((num * multiplyer + shift) % 26 + b'a') as char).to_uppercase()
-            ))
-            .yellow(),
-        );
-        letter_line.push(Span::raw(" |"));
-        affine_table.push_line(Line::from(letter_line));
-    }
-    Paragraph::new(affine_table).centered().render(area, buf);
-}
-pub fn render_caesar(shift: i8, area: Rect, buf: &mut Buffer) {
-    let ciphered_alphabet = Caesar::new(shift as u8)
-        .encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-        .unwrap();
-    let mut ciphered_boxed_alphabet = String::with_capacity(107);
-    ciphered_boxed_alphabet.push('|');
-    for c in ciphered_alphabet.chars() {
-        ciphered_boxed_alphabet.push(' ');
-        ciphered_boxed_alphabet.push(c);
-        ciphered_boxed_alphabet.push(' ');
-        ciphered_boxed_alphabet.push('|');
-    }
 
-    let caesar_shifter = format!(
-        "Caesar Shifter
-        {}
-        | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |
-        | ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |
-        {ciphered_boxed_alphabet}
-        {}
-        Shift: {shift}",
-
-        "_".repeat(105),
-        "‾".repeat(105),  
-    );
-
-    Paragraph::new(Text::from(caesar_shifter))
-        .centered()
-        .render(area, buf);
-}
 
 pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
     let vigenere_grid = format!("Vigenere Cipher\nCode: '{code}'\n");
@@ -130,7 +75,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         let text = &app.history[index];
         match cipher {
             CipherType::Caeser(shift) => {
-                render_caesar(*shift, areas.cipher, buf);
+                crate::ui::ciphers::caeser::render_caesar(*shift, areas.cipher, buf);
             }
             CipherType::Vigenere(code) => {
                 render_vigenere(&code, areas.cipher, buf);
@@ -140,7 +85,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             }
             CipherType::Atbash => crate::ui::ciphers::atbash::render_atbash(areas.cipher, buf),
             CipherType::Affine(a, b) => {
-                render_affine(text, *b, *a, areas.cipher, buf);
+                crate::ui::ciphers::affine::render_affine(text, *b, *a, areas.cipher, buf);
             }
         }
     } else {
@@ -148,7 +93,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             let text = &app.history.last().unwrap_or(&app.history[0]);
             match cipher {
                 CipherType::Caeser(shift) => {
-                    render_caesar(*shift, areas.cipher, buf);
+                    crate::ui::ciphers::caeser::render_caesar(*shift, areas.cipher, buf);
                 }
                 CipherType::Vigenere(code) => {
                     render_vigenere(&code, areas.cipher, buf);
@@ -158,7 +103,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 }
                 CipherType::Atbash => crate::ui::ciphers::atbash::render_atbash(areas.cipher, buf),
                 CipherType::Affine(a, b) => {
-                    render_affine(text, *b, *a, areas.cipher, buf);
+                    crate::ui::ciphers::affine::render_affine(text, *b, *a, areas.cipher, buf);
                 }
             }
         } else {
