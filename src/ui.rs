@@ -12,6 +12,7 @@ use ratatui::{
     text::Line,
     widgets::{Block, Paragraph, Widget},
 };
+use std::mem::discriminant;
 use std::fmt::Write;
 fn render_atbash(area: Rect, buf: &mut Buffer) {
     let atbasher = format!(
@@ -142,7 +143,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
     let areas = crate::ui_area::UiArea::new(area);
     if let Some(index) = app.stack.selected {
         let cipher = &app.stack.ciphers[index];
-        let text = &app.history[index + 1];
+        let text = &app.history[index];
         match cipher {
             CipherType::Caeser(shift) => {
                 render_caesar(*shift, areas.cipher, buf);
@@ -220,6 +221,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             text
         }
     };
+    render_cipher_side_bar(areas.ciphers_side_bar, buf, app);
     render_footer(state_text, app, areas, buf);
     render_block(area, buf);
 }
@@ -274,4 +276,34 @@ fn render_footer(state: Text<'_>, app: &App, area: UiArea, buf: &mut Buffer) {
         .centered()
         .wrap(Wrap { trim: true })
         .render(area.history, buf);
+}
+
+fn render_cipher_side_bar(area : Rect, buf : &mut Buffer, app : &App) {
+    let cipher = match &app.state {
+        AppState::CurrentlyEditingCiphers(indx) => Some(&app.stack.ciphers[*indx]),
+        AppState::EditingText(Some(cipher)) =>Some(cipher),
+        AppState::EditingText(None) => None,
+    };
+    if let Some(cipher) = cipher {
+        let mut cipher_name = CipherType::first();
+        let mut sidebar : Vec<Line> = Vec::new();
+        for _ in 0..5 {
+            if discriminant(&cipher_name) == discriminant(&cipher) {
+                sidebar.push(Line::from(Span::raw(cipher_name.name()).blue()))
+            } else {
+                sidebar.push(Line::from(cipher_name.name()))
+            }
+            cipher_name = cipher_name.next()
+        }
+
+        Text::from(sidebar).render(area,buf);
+    } else {
+        let mut cipher_name = CipherType::first();
+        let mut sidebar : Vec<Line> = Vec::new();
+        for _ in 0..5 {
+            sidebar.push(Line::from(cipher_name.name()));
+            cipher_name = cipher_name.next();
+        }
+        Text::from(sidebar).render(area,buf);
+    }
 }

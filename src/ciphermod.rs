@@ -115,6 +115,9 @@ impl CipherStack {
     }
 }
 impl CipherType {
+    pub fn first() -> Self {
+        Self::Caeser(0)
+    }
     pub fn next(&self) -> CipherType {
         match self {
             CipherType::Caeser(_) => CipherType::Vigenere("".to_string()),
