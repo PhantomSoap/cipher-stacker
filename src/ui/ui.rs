@@ -14,23 +14,7 @@ use ratatui::{
 };
 use std::fmt::Write;
 use std::mem::discriminant;
-fn render_atbash(area: Rect, buf: &mut Buffer) {
-    let atbasher = format!(
-        "Atbash Cipher
-        {}
-        | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |
-        | ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |
-        | Z | Y | X | W | V | U | T | S | R | Q | P | O | N | M | L | K | J | I | H | G | F | E | D | C | B | A |
-        {}
-        ",
 
-        "_".repeat(105),
-        "‾".repeat(105),  
-    );
-    Paragraph::new(Text::from(atbasher))
-        .centered()
-        .render(area, buf);
-}
 fn render_affine(text: &str, shift: u8, multiplyer: u8, area: Rect, buf: &mut Buffer) {
     let mut affine_table = Text::from(format!(
         "Affine Cipher\nShift: {shift} | multiplyer: {multiplyer}\n\n({multiplyer})(x) + {shift} Mod 26\n\n"
@@ -154,7 +138,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             CipherType::RailFence(key) => {
                 render_rail_fence(text, *key, areas.cipher, buf);
             }
-            CipherType::Atbash => render_atbash(areas.cipher, buf),
+            CipherType::Atbash => crate::ui::ciphers::atbash::render_atbash(areas.cipher, buf),
             CipherType::Affine(a, b) => {
                 render_affine(text, *b, *a, areas.cipher, buf);
             }
@@ -172,7 +156,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 CipherType::RailFence(key) => {
                     render_rail_fence(text, *key, areas.cipher, buf);
                 }
-                CipherType::Atbash => render_atbash(areas.cipher, buf),
+                CipherType::Atbash => crate::ui::ciphers::atbash::render_atbash(areas.cipher, buf),
                 CipherType::Affine(a, b) => {
                     render_affine(text, *b, *a, areas.cipher, buf);
                 }
