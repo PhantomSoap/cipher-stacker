@@ -1,4 +1,10 @@
-use ratatui::{buffer::Buffer, layout::Rect, style::Stylize, text::{Line, Span, Text}, widgets::{Paragraph, Widget}};
+use ratatui::{
+    buffer::Buffer,
+    layout::Rect,
+    style::Stylize,
+    text::{Line, Span, Text},
+    widgets::{Paragraph, Widget},
+};
 
 pub fn render_affine(text: &str, shift: u8, multiplyer: u8, area: Rect, buf: &mut Buffer) {
     let mut affine_table = Text::from(format!(
@@ -21,11 +27,9 @@ pub fn render_affine(text: &str, shift: u8, multiplyer: u8, area: Rect, buf: &mu
                 (((num * multiplyer + shift) % 26 + b'a') as char).to_uppercase()
             ))
             .yellow(),
-            
         );
         letter_line.push(Span::raw(" |"));
         affine_table.push_line(Line::from(letter_line));
     }
     Paragraph::new(affine_table).centered().render(area, buf);
-    
 }

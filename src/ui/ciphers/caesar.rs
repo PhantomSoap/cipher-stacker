@@ -1,6 +1,10 @@
-
-use ratatui::{buffer::Buffer, layout::Rect, text::Text, widgets::{Paragraph, Widget}};
 use ciphers::{Caesar, Cipher};
+use ratatui::{
+    buffer::Buffer,
+    layout::Rect,
+    text::Text,
+    widgets::{Paragraph, Widget},
+};
 pub fn render_caesar(shift: i8, area: Rect, buf: &mut Buffer) {
     let ciphered_alphabet = Caesar::new(shift as u8)
         .encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -30,5 +34,4 @@ pub fn render_caesar(shift: i8, area: Rect, buf: &mut Buffer) {
     Paragraph::new(Text::from(caesar_shifter))
         .centered()
         .render(area, buf);
-    
 }

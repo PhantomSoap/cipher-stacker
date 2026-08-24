@@ -1,4 +1,9 @@
-use ratatui::{buffer::Buffer, layout::Rect, text::Text, widgets::{Paragraph, Widget}};
+use ratatui::{
+    buffer::Buffer,
+    layout::Rect,
+    text::Text,
+    widgets::{Paragraph, Widget},
+};
 
 pub fn render_atbash(area: Rect, buf: &mut Buffer) {
     let atbasher = format!(
@@ -16,5 +21,4 @@ pub fn render_atbash(area: Rect, buf: &mut Buffer) {
     Paragraph::new(Text::from(atbasher))
         .centered()
         .render(area, buf);
-    
 }

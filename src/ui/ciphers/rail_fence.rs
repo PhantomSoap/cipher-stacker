@@ -1,6 +1,11 @@
 use std::fmt::Write;
 
-use ratatui::{buffer::Buffer, layout::Rect, text::Text, widgets::{Paragraph, Widget}};
+use ratatui::{
+    buffer::Buffer,
+    layout::Rect,
+    text::Text,
+    widgets::{Paragraph, Widget},
+};
 
 pub fn render_rail_fence(text: &str, key: u8, area: Rect, buf: &mut Buffer) {
     let rails = key as usize; //2
@@ -30,7 +35,6 @@ pub fn render_rail_fence(text: &str, key: u8, area: Rect, buf: &mut Buffer) {
         railfence.push('|');
         for chr in &fenced_rails[(fences * i)..fences * (i + 1)] {
             let _ = write!(railfence, " {chr} |");
-            
         }
         railfence.push('\n');
     }
@@ -39,5 +43,4 @@ pub fn render_rail_fence(text: &str, key: u8, area: Rect, buf: &mut Buffer) {
     Paragraph::new(Text::from(railfence))
         .centered()
         .render(area, buf);
-    
 }

@@ -1,19 +1,18 @@
 use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
-use crate::ui::ui_area::UiArea;
 
+
+use ratatui::style::Style;
 use ratatui::text::{Span, Text};
-use ratatui::widgets::Wrap;
+use ratatui::widgets::{Borders, List, ListItem, ListState, StatefulWidget, Wrap};
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
     style::Stylize,
     symbols::border,
     text::Line,
-    widgets::{Block, Paragraph, Widget},
+    widgets::{Block, Widget, Paragraph},
 };
-
-use std::mem::discriminant;
 
 
 pub fn render_block(area: Rect, buf: &mut Buffer) {
@@ -54,7 +53,12 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                     crate::ui::ciphers::vigenere::render_vigenere(&code, areas.cipher, buf);
                 }
                 CipherType::RailFence(key) => {
-                    crate::ui::ciphers::rail_fence::render_rail_fence(text, *key, areas.cipher, buf);
+                    crate::ui::ciphers::rail_fence::render_rail_fence(
+                        text,
+                        *key,
+                        areas.cipher,
+                        buf,
+                    );
                 }
                 CipherType::Atbash => crate::ui::ciphers::atbash::render_atbash(areas.cipher, buf),
                 CipherType::Affine(a, b) => {
@@ -72,7 +76,6 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         AppState::EditingText(None) => Text::from(vec![
             Line::from("Welcome to Cipher Stacker"),
             Line::from(""),
-            Line::from("<Tab> Next Cipher"),
         ]),
         AppState::EditingText(Some(cipher)) if let Some(index) = app.stack.selected => {
             Text::from(vec![
@@ -81,14 +84,12 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 Line::from("<+> to Add Cipher"),
                 Line::from("<Enter> to Edit selected Cipher"),
                 Line::from("<'-'> to Delete Selected Cipher"),
-                Line::from("<Tab> Next Cipher"),
                 Line::from("<- Access Cipher in List ->"),
             ])
         }
         AppState::EditingText(Some(_cipher)) => Text::from(vec![
             Line::from("<+> to Add Cipher"),
             Line::from("<'-'> to Delete Cipher"),
-            Line::from("<Tab> Next Cipher"),
         ]),
         AppState::CurrentlyEditingCiphers(indx) => {
             let cipher = app.stack.ciphers.get(*indx).unwrap();
@@ -103,99 +104,11 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             text
         }
     };
-    render_cipher_side_bar(areas.ciphers_side_bar, buf, app);
-    render_footer(state_text, app, areas, buf);
+    crate::ui::side_bar::render_cipher_side_bar(areas.ciphers_side_bar, buf, app);
+    crate::ui::footer::render_footer(state_text, app, areas, buf);
     render_block(area, buf);
 }
 
-fn render_footer(state: Text<'_>, app: &App, area: UiArea, buf: &mut Buffer) {
-    let cipher_list = if let Some(index) = app.stack.selected {
-        let mut cipher_line = Vec::new();
-        cipher_line.push(Span::raw("["));
 
-        for (indx, cipher) in app.stack.ciphers.iter().enumerate() {
-            if index == indx {
-                cipher_line.push(Span::raw(format!("{cipher:?}")).blue());
-            } else {
-                cipher_line.push(Span::raw(format!("{cipher:?}")));
-            }
 
-            if indx != app.stack.ciphers.len() - 1 {
-                cipher_line.push(Span::raw(", "));
-            }
-        }
-        cipher_line.push(Span::raw("]"));
-        Line::from(cipher_line)
-    } else {
-        Line::from(format!("{:?}", app.stack.ciphers))
-    };
 
-    state.render(area.instructions, buf);
-
-    let mut history_text = Text::default();
-    history_text.push_line(Line::from("History:"));
-    history_text.push_line(Line::from(format!(
-        "Plainttext -> {}",
-        app.history.first().unwrap_or(&String::new())
-    )));
-
-    for (index, cipher) in app.stack.ciphers.iter().enumerate() {
-        if let Some(hist_item) = app.history.get(index + 1) {
-            history_text.push_line(Line::from(format!("{cipher:?} -> {hist_item}")));
-        }
-    }
-    Paragraph::new(Line::from(format!("PlainText: {}", app.plaintext)))
-        .wrap(Wrap { trim: true })
-        .render(area.plaintext, buf);
-    Paragraph::new(Line::from(format!("CipherText: {}", app.ciphertext)))
-        .wrap(Wrap { trim: true })
-        .render(area.ciphertext, buf);
-    Paragraph::new(cipher_list)
-        .wrap(Wrap { trim: true })
-        .render(area.cipher_list, buf);
-    Paragraph::new(history_text)
-        .centered()
-        .wrap(Wrap { trim: true })
-        .render(area.history, buf);
-}
-
-fn render_cipher_side_bar(area: Rect, buf: &mut Buffer, app: &App) {
-    let cipher = match &app.state {
-        AppState::CurrentlyEditingCiphers(indx) => Some(&app.stack.ciphers[*indx]),
-        AppState::EditingText(Some(cipher)) => Some(cipher),
-        AppState::EditingText(None) => None,
-    };
-    let mut sidebar: Vec<Line> = Vec::new();
-    sidebar.push(Line::from("-".repeat(20)));
-    if let Some(cipher) = cipher {
-        let mut cipher_name = CipherType::first();
-        
-        for _ in 0..5 {
-            if discriminant(&cipher_name) == discriminant(&cipher) {
-                sidebar.push(Line::from(vec![Span::raw("| "),Span::raw(cipher_name.name()).blue(),Span::raw(" |")]))
-            } else {
-                sidebar.push(Line::from(format!("| {} |",cipher_name.name())))
-            }
-            cipher_name = cipher_name.next()
-        }
-
-        
-    } else {
-        let mut cipher_name = CipherType::first();
-        
-        for _ in 0..5 {
-            sidebar.push(Line::from(format!("| {} |",cipher_name.name())));
-            cipher_name = cipher_name.next();
-        }
-        
-    }
-    let items = [
-        "Caeser Cipher",
-        "Vigenere Cipher",
-        "RailFence Cipher",
-        "Atbash Cipher",
-        "Affine Cipher",
-        ];
-        
-    
-}
