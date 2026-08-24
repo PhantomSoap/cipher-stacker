@@ -31,7 +31,7 @@ impl CipherStack {
         }
     }
 
-    pub fn stack_cipher(&mut self,text : &str,ciphertext : &mut String) -> Vec<String> {
+    pub fn stack_cipher(&mut self, text: &str, ciphertext: &mut String) -> Vec<String> {
         let mut history: Vec<String> = Vec::new();
         history.push(text.to_string());
         let mut working_cipher = text.to_string();
@@ -43,9 +43,7 @@ impl CipherStack {
         for cipher in &self.ciphers {
             match cipher {
                 CipherType::Caeser(shift) => {
-                    working_cipher = Caesar::new(*shift as u8)
-                        .encipher(&working_cipher)
-                        .unwrap();
+                    working_cipher = Caesar::new(*shift as u8).encipher(&working_cipher).unwrap();
 
                     history.push(working_cipher.to_string());
                 }

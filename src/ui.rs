@@ -1,5 +1,6 @@
 use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
+use crate::ui_area::UiArea;
 use ciphers::{Caesar, Cipher};
 use ratatui::text::{Span, Text};
 use ratatui::widgets::Wrap;
@@ -138,68 +139,47 @@ pub fn render_block(area: Rect, buf: &mut Buffer) {
 }
 
 pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
-    let layouts = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Length(1),  // Border
-            Constraint::Length(1),  //Cipher Title
-            Constraint::Length(28), // cipher visualization
-            Constraint::Length(12),
-        ])
-        .split(area);
-    let middles = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage(20),
-            Constraint::Length(115),
-            Constraint::Percentage(20),
-        ])
-        .split(layouts[2]);
-
+    let areas = crate::ui_area::UiArea::new(area);
     if let Some(index) = app.stack.selected {
         let cipher = &app.stack.ciphers[index];
-        let text = &app.history[index+1];
+        let text = &app.history[index + 1];
         match cipher {
             CipherType::Caeser(shift) => {
-                render_caesar(*shift, middles[1], buf);
+                render_caesar(*shift, areas.cipher, buf);
             }
             CipherType::Vigenere(code) => {
-                render_vigenere(&code, middles[1], buf);
+                render_vigenere(&code, areas.cipher, buf);
             }
             CipherType::RailFence(key) => {
-                render_rail_fence(text, *key, middles[1], buf);
+                render_rail_fence(text, *key, areas.cipher, buf);
             }
-            CipherType::Atbash => render_atbash(middles[1], buf),
+            CipherType::Atbash => render_atbash(areas.cipher, buf),
             CipherType::Affine(a, b) => {
-                render_affine(text, *b, *a, middles[1], buf);
+                render_affine(text, *b, *a, areas.cipher, buf);
             }
         }
     } else {
         if let AppState::EditingText(Some(cipher)) = &app.state {
             let text = &app.history.last().unwrap_or(&app.history[0]);
             match cipher {
-            CipherType::Caeser(shift) => {
-                render_caesar(*shift, middles[1], buf);
+                CipherType::Caeser(shift) => {
+                    render_caesar(*shift, areas.cipher, buf);
+                }
+                CipherType::Vigenere(code) => {
+                    render_vigenere(&code, areas.cipher, buf);
+                }
+                CipherType::RailFence(key) => {
+                    render_rail_fence(text, *key, areas.cipher, buf);
+                }
+                CipherType::Atbash => render_atbash(areas.cipher, buf),
+                CipherType::Affine(a, b) => {
+                    render_affine(text, *b, *a, areas.cipher, buf);
+                }
             }
-            CipherType::Vigenere(code) => {
-                render_vigenere(&code, middles[1], buf);
-            }
-            CipherType::RailFence(key) => {
-                render_rail_fence(text, *key, middles[1], buf);
-            }
-            CipherType::Atbash => render_atbash(middles[1], buf),
-            CipherType::Affine(a, b) => {
-                render_affine(text, *b, *a, middles[1], buf);
-            }
-        }
         } else {
-            Paragraph::new(
-                Text::from(
-                    "CipherStacker"
-                )
-            )
-            .centered()
-            .render(middles[1],buf);                                
+            Paragraph::new(Text::from("CipherStacker"))
+                .centered()
+                .render(areas.cipher, buf);
         }
     }
 
@@ -240,25 +220,12 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             text
         }
     };
-    render_footer(state_text, app, layouts[3], buf);
+    render_footer(state_text, app, areas, buf);
     render_block(area, buf);
 }
 
-fn render_footer(state: Text<'_>, app: &App, area: Rect, buf: &mut Buffer) {
-    let footer_area = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage(20),
-            Constraint::Percentage(40),
-            Constraint::Percentage(40),
-        ])
-        .split(area);
-
-    let mut footer_text = Text::default();
-
-    footer_text.push_line(Line::from(format!("PlainText: {}", app.plaintext)));
-
-    if let Some(index) = app.stack.selected {
+fn render_footer(state: Text<'_>, app: &App, area: UiArea, buf: &mut Buffer) {
+    let cipher_list = if let Some(index) = app.stack.selected {
         let mut cipher_line = Vec::new();
         cipher_line.push(Span::raw("["));
 
@@ -274,14 +241,12 @@ fn render_footer(state: Text<'_>, app: &App, area: Rect, buf: &mut Buffer) {
             }
         }
         cipher_line.push(Span::raw("]"));
-        footer_text.push_line(Line::from(cipher_line));
+        Line::from(cipher_line)
     } else {
-        footer_text.push_line(Line::from(format!("{:?}", app.stack.ciphers)));
-    }
+        Line::from(format!("{:?}", app.stack.ciphers))
+    };
 
-    footer_text.push_line(Line::from(format!("CipherText: {}", app.ciphertext)));
-    footer_text.push_line(Line::from(""));
-    footer_text.lines.extend(state);
+    state.render(area.instructions, buf);
 
     let mut history_text = Text::default();
     history_text.push_line(Line::from("History:"));
@@ -295,14 +260,18 @@ fn render_footer(state: Text<'_>, app: &App, area: Rect, buf: &mut Buffer) {
             history_text.push_line(Line::from(format!("{cipher:?} -> {hist_item}")));
         }
     }
-
-    Paragraph::new(footer_text)
-        .centered()
+    Paragraph::new(Line::from(format!("PlainText: {}", app.plaintext)))
         .wrap(Wrap { trim: true })
-        .render(footer_area[1], buf);
-
+        .render(area.plaintext, buf);
+    Paragraph::new(Line::from(format!("CipherText: {}", app.ciphertext)))
+        .wrap(Wrap { trim: true })
+        .render(area.ciphertext, buf);
+    Paragraph::new(cipher_list)
+        
+        .wrap(Wrap { trim: true })
+        .render(area.cipher_list, buf);
     Paragraph::new(history_text)
         .centered()
         .wrap(Wrap { trim: true })
-        .render(footer_area[2], buf);
+        .render(area.history, buf);
 }
