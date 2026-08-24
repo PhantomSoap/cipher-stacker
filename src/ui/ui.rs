@@ -1,6 +1,6 @@
 use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
-use crate::ui_area::UiArea;
+use crate::ui::ui_area::UiArea;
 use ciphers::{Caesar, Cipher};
 use ratatui::text::{Span, Text};
 use ratatui::widgets::Wrap;
@@ -140,7 +140,7 @@ pub fn render_block(area: Rect, buf: &mut Buffer) {
 }
 
 pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
-    let areas = crate::ui_area::UiArea::new(area);
+    let areas = crate::ui::ui_area::UiArea::new(area);
     if let Some(index) = app.stack.selected {
         let cipher = &app.stack.ciphers[index];
         let text = &app.history[index];
