@@ -1,7 +1,7 @@
 use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 use crate::ui::ui_area::UiArea;
-use ciphers::{Caesar, Cipher};
+
 use ratatui::text::{Span, Text};
 use ratatui::widgets::Wrap;
 use ratatui::{
@@ -12,17 +12,8 @@ use ratatui::{
     text::Line,
     widgets::{Block, Paragraph, Widget},
 };
-use std::fmt::Write;
+
 use std::mem::discriminant;
-
-
-
-
-pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
-    let vigenere_grid = format!("Vigenere Cipher\nCode: '{code}'\n");
-
-    Paragraph::new(vigenere_grid).centered().render(area, buf);
-}
 
 
 pub fn render_block(area: Rect, buf: &mut Buffer) {
@@ -39,13 +30,13 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         let text = &app.history[index];
         match cipher {
             CipherType::Caeser(shift) => {
-                crate::ui::ciphers::caeser::render_caesar(*shift, areas.cipher, buf);
+                crate::ui::ciphers::caesar::render_caesar(*shift, areas.cipher, buf);
             }
             CipherType::Vigenere(code) => {
-                render_vigenere(&code, areas.cipher, buf);
+                crate::ui::ciphers::vigenere::render_vigenere(&code, areas.cipher, buf);
             }
             CipherType::RailFence(key) => {
-                render_rail_fence(text, *key, areas.cipher, buf);
+                crate::ui::ciphers::rail_fence::render_rail_fence(text, *key, areas.cipher, buf);
             }
             CipherType::Atbash => crate::ui::ciphers::atbash::render_atbash(areas.cipher, buf),
             CipherType::Affine(a, b) => {
@@ -57,13 +48,13 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             let text = &app.history.last().unwrap_or(&app.history[0]);
             match cipher {
                 CipherType::Caeser(shift) => {
-                    crate::ui::ciphers::caeser::render_caesar(*shift, areas.cipher, buf);
+                    crate::ui::ciphers::caesar::render_caesar(*shift, areas.cipher, buf);
                 }
                 CipherType::Vigenere(code) => {
-                    render_vigenere(&code, areas.cipher, buf);
+                    crate::ui::ciphers::vigenere::render_vigenere(&code, areas.cipher, buf);
                 }
                 CipherType::RailFence(key) => {
-                    crate::ui::ciphers::Railfence::render_rail_fence(text, *key, areas.cipher, buf);
+                    crate::ui::ciphers::rail_fence::render_rail_fence(text, *key, areas.cipher, buf);
                 }
                 CipherType::Atbash => crate::ui::ciphers::atbash::render_atbash(areas.cipher, buf),
                 CipherType::Affine(a, b) => {
