@@ -202,8 +202,6 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             ])
         }
         AppState::EditingText(Some(cipher)) => Text::from(vec![
-            Line::from(cipher.name()),
-            Line::from(""),
             Line::from("<+> to Add Cipher"),
             Line::from("<'-'> to Delete Cipher"),
             Line::from("<Tab> Next Cipher"),
@@ -304,6 +302,6 @@ fn render_cipher_side_bar(area : Rect, buf : &mut Buffer, app : &App) {
             sidebar.push(Line::from(cipher_name.name()));
             cipher_name = cipher_name.next();
         }
-        Text::from(sidebar).render(area,buf);
+        Text::from(sidebar).centered().render(area,buf);
     }
 }
