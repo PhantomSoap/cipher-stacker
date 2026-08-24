@@ -1,10 +1,7 @@
 use std::fmt::Write;
 
 use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    text::Text,
-    widgets::{Paragraph, Widget},
+    buffer::Buffer, layout::Rect, text::Text, widgets::{Block, Paragraph, Widget},
 };
 
 pub fn render_rail_fence(text: &str, key: u8, area: Rect, buf: &mut Buffer) {
@@ -43,4 +40,6 @@ pub fn render_rail_fence(text: &str, key: u8, area: Rect, buf: &mut Buffer) {
     Paragraph::new(Text::from(railfence))
         .centered()
         .render(area, buf);
+    Block::bordered().render(area,buf);
+
 }

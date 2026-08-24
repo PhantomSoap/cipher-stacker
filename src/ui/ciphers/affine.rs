@@ -1,9 +1,5 @@
 use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    style::Stylize,
-    text::{Line, Span, Text},
-    widgets::{Paragraph, Widget},
+    buffer::Buffer, layout::Rect, style::Stylize, text::{Line, Span, Text}, widgets::{Block, Paragraph, Widget},
 };
 
 pub fn render_affine(text: &str, shift: u8, multiplyer: u8, area: Rect, buf: &mut Buffer) {
@@ -32,4 +28,5 @@ pub fn render_affine(text: &str, shift: u8, multiplyer: u8, area: Rect, buf: &mu
         affine_table.push_line(Line::from(letter_line));
     }
     Paragraph::new(affine_table).centered().render(area, buf);
+    Block::bordered().render(area,buf);
 }

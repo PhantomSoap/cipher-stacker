@@ -211,5 +211,6 @@ impl Default for App {
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer) {
         crate::ui::ui::render(self, area, buf);
+        //crate::ui::ui_area::UiArea::new(area).render_borders(buf);
     }
 }

@@ -1,8 +1,5 @@
 use ratatui::{
-    buffer::Buffer,
-    layout::Rect,
-    text::Text,
-    widgets::{Paragraph, Widget},
+    buffer::Buffer, layout::Rect, text::Text, widgets::{Block, Paragraph, Widget},
 };
 
 pub fn render_atbash(area: Rect, buf: &mut Buffer) {
@@ -21,4 +18,7 @@ pub fn render_atbash(area: Rect, buf: &mut Buffer) {
     Paragraph::new(Text::from(atbasher))
         .centered()
         .render(area, buf);
+
+    Block::bordered().render(area,buf);
+
 }
