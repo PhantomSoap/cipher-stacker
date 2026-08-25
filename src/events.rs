@@ -16,14 +16,14 @@ impl App {
                 AppState::EditingText(None) => match key.code {
                     KeyCode::Tab => return Ok(Message::LookAtCipher(CipherType::Caeser(0))),
                     KeyCode::Char('-') => return Ok(Message::RemoveCipher(None)),
-                    KeyCode::Char(chr) if chr.is_alphabetic() => return Ok(Message::PushChar(chr)),
+                    KeyCode::Char(chr)  => return Ok(Message::PushChar(chr)),
                     KeyCode::Backspace => return Ok(Message::PopChar),
                     _ => return Ok(Message::None),
                 },
                 AppState::EditingText(Some(cipher)) => match key.code {
                     KeyCode::Char('-') => return Ok(Message::RemoveCipher(None)),
                     KeyCode::Char('+') => return Ok(Message::AddCipher(cipher.default(), None)),
-                    KeyCode::Char(chr) if chr.is_alphabetic() => return Ok(Message::PushChar(chr)),
+                    KeyCode::Char(chr) => return Ok(Message::PushChar(chr)),
                     KeyCode::Backspace => return Ok(Message::PopChar),
                     KeyCode::Tab => return Ok(Message::NextCipher(cipher.clone())),
                     KeyCode::BackTab => return Ok(Message::PreviousCipher(cipher.clone())),

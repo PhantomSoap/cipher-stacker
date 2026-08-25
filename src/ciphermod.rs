@@ -3,7 +3,7 @@ use std::{
     mem::discriminant,
 };
 
-use ciphers::{Affine, Atbash, Caesar, Cipher, RailFence, Vigenere};
+use cifers::{cipher::Cipher,Caeser,Vigenere,railfence::RailFence,Affine};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CipherType {
@@ -43,37 +43,32 @@ impl CipherStack {
         for cipher in &self.ciphers {
             match cipher {
                 CipherType::Caeser(shift) => {
-                    working_cipher = Caesar::new(*shift as u8).encipher(&working_cipher).unwrap();
+                    working_cipher = Caeser::new(*shift as i32).encipher(&working_cipher);
 
                     history.push(working_cipher.to_string());
                 }
                 CipherType::Vigenere(code) => {
                     if !code.is_empty() {
-                        working_cipher = Vigenere::new(code)
+                        working_cipher = Vigenere::new(code.clone())
                             .encipher(&working_cipher)
-                            .unwrap()
-                            .to_string();
                     }
                     history.push(working_cipher.clone());
                 }
                 CipherType::RailFence(key) => {
                     if !(*key < 2 || *key >= working_cipher.len() as u8) {
-                        working_cipher = RailFence::new(*key as usize)
+                        working_cipher = RailFence::new(*key as u8)
                             .encipher(&working_cipher)
-                            .unwrap()
-                            .to_string();
+                            
                     };
                     history.push(working_cipher.clone());
                 }
                 CipherType::Atbash => {
-                    working_cipher = Atbash::new().encipher(&working_cipher).unwrap().to_string();
+                    working_cipher = Affine::new(1,0).encipher(&working_cipher);
                     history.push(working_cipher.clone());
                 }
                 CipherType::Affine(a, b) => {
                     working_cipher = Affine::new(*a as i32, *b as i32)
-                        .encipher(&working_cipher)
-                        .unwrap()
-                        .to_string();
+                        .encipher(&working_cipher);
                     history.push(working_cipher.clone());
                 }
             };

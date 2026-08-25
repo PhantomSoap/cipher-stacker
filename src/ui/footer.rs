@@ -1,4 +1,9 @@
-use ratatui::{buffer::Buffer, style::Stylize, text::{Line, Span, Text}, widgets::{Paragraph, Widget, Wrap}};
+use ratatui::{
+    buffer::Buffer,
+    style::Stylize,
+    text::{Line, Span, Text},
+    widgets::{Paragraph, Widget, Wrap},
+};
 
 use crate::{app::App, ui::ui_area::UiArea};
 
@@ -6,7 +11,7 @@ pub fn render_footer(state: Text<'_>, app: &App, area: UiArea, buf: &mut Buffer)
     let cipher_list = if let Some(index) = app.stack.selected {
         let mut cipher_line = Vec::new();
         cipher_line.push(Span::raw("["));
-        
+
         for (indx, cipher) in app.stack.ciphers.iter().enumerate() {
             if index == indx {
                 cipher_line.push(Span::raw(format!("{cipher:?}")).blue());
@@ -25,7 +30,7 @@ pub fn render_footer(state: Text<'_>, app: &App, area: UiArea, buf: &mut Buffer)
     };
 
     state.render(area.instructions, buf);
-    
+
     let mut history_text = Text::default();
     history_text.push_line(Line::from("History:"));
     history_text.push_line(Line::from(format!(

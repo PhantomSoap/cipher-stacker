@@ -3,7 +3,7 @@ use ratatui::layout::Rect;
 use ratatui::style::Style;
 use ratatui::widgets::{Block, Borders, List, ListItem, ListState, StatefulWidget};
 
-use crate::app::{App,AppState};
+use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 
 pub fn render_cipher_side_bar(area: Rect, buf: &mut Buffer, app: &App) {
@@ -29,14 +29,15 @@ pub fn render_cipher_side_bar(area: Rect, buf: &mut Buffer, app: &App) {
         ListItem::from("Caesar Cipher"),
         ListItem::from("Vigenere Cipher"),
         ListItem::from("Railfence Cipher"),
-        ListItem::from("Affine Cipher"),
         ListItem::from("Atbash Cipher"),
+        ListItem::from("Affine Cipher"),
+        
     ])
     .block(
         Block::default()
             .borders(Borders::ALL)
             .title_bottom(" <Tab> to move to next cipher ")
-            .title_top(" Available Ciphers ")
+            .title_top(" Available Ciphers "),
     )
     .highlight_style(Style::new().blue())
     .highlight_spacing(ratatui::widgets::HighlightSpacing::Always);

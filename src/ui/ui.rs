@@ -1,7 +1,6 @@
 use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 
-
 use ratatui::style::Style;
 use ratatui::text::{Span, Text};
 use ratatui::widgets::{Borders, List, ListItem, ListState, StatefulWidget, Wrap};
@@ -11,9 +10,8 @@ use ratatui::{
     style::Stylize,
     symbols::border,
     text::Line,
-    widgets::{Block, Widget, Paragraph},
+    widgets::{Block, Paragraph, Widget},
 };
-
 
 pub fn render_block(area: Rect, buf: &mut Buffer) {
     let block = Block::bordered()
@@ -29,17 +27,17 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         let text = &app.history[index];
         match cipher {
             CipherType::Caeser(shift) => {
-                crate::ui::ciphers::caesar::render_caesar(*shift, areas.cipher, buf);
+                crate::ui::ciphers_ui::caesar_ui::render_caesar(*shift, areas.cipher, buf);
             }
             CipherType::Vigenere(code) => {
-                crate::ui::ciphers::vigenere::render_vigenere(&code, areas.cipher, buf);
+                crate::ui::ciphers_ui::vigenere_ui::render_vigenere(&code, areas.cipher, buf);
             }
             CipherType::RailFence(key) => {
-                crate::ui::ciphers::rail_fence::render_rail_fence(text, *key, areas.cipher, buf);
+                crate::ui::ciphers_ui::rail_fence_ui::render_rail_fence(text, *key, areas.cipher, buf);
             }
-            CipherType::Atbash => crate::ui::ciphers::atbash::render_atbash(areas.cipher, buf),
+            CipherType::Atbash => crate::ui::ciphers_ui::atbash_ui::render_atbash(areas.cipher, buf),
             CipherType::Affine(a, b) => {
-                crate::ui::ciphers::affine::render_affine(text, *b, *a, areas.cipher, buf);
+                crate::ui::ciphers_ui::affine_ui::render_affine(text, *b, *a, areas.cipher, buf);
             }
         }
     } else {
@@ -47,22 +45,22 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             let text = &app.history.last().unwrap_or(&app.history[0]);
             match cipher {
                 CipherType::Caeser(shift) => {
-                    crate::ui::ciphers::caesar::render_caesar(*shift, areas.cipher, buf);
+                    crate::ui::ciphers_ui::caesar_ui::render_caesar(*shift, areas.cipher, buf);
                 }
                 CipherType::Vigenere(code) => {
-                    crate::ui::ciphers::vigenere::render_vigenere(&code, areas.cipher, buf);
+                    crate::ui::ciphers_ui::vigenere_ui::render_vigenere(&code, areas.cipher, buf);
                 }
                 CipherType::RailFence(key) => {
-                    crate::ui::ciphers::rail_fence::render_rail_fence(
+                    crate::ui::ciphers_ui::rail_fence_ui::render_rail_fence(
                         text,
                         *key,
                         areas.cipher,
                         buf,
                     );
                 }
-                CipherType::Atbash => crate::ui::ciphers::atbash::render_atbash(areas.cipher, buf),
+                CipherType::Atbash => crate::ui::ciphers_ui::atbash_ui::render_atbash(areas.cipher, buf),
                 CipherType::Affine(a, b) => {
-                    crate::ui::ciphers::affine::render_affine(text, *b, *a, areas.cipher, buf);
+                    crate::ui::ciphers_ui::affine_ui::render_affine(text, *b, *a, areas.cipher, buf);
                 }
             }
         } else {
@@ -108,7 +106,3 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
     crate::ui::footer::render_footer(state_text, app, areas, buf);
     render_block(area, buf);
 }
-
-
-
-
