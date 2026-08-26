@@ -4,7 +4,8 @@ use std::{
 };
 
 use cifers::{Cipher,Caeser,Vigenere,Railfence,Affine};
-use ratatui::{Frame, layout::Rect, widgets::{List, ListItem, ListState}};
+
+use ratatui::{Frame, layout::Rect, style::Color, widgets::{List, ListItem, ListState}};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CipherType {
@@ -189,8 +190,13 @@ impl CipherStack {
     pub fn draw(&self,frame : &mut Frame, area : Rect,selected : Option<usize>) {
         let mut state = ListState::default();
         state.select(selected);
-        let list = List::new(self.ciphers.iter().map(|cipher| ListItem::from(format!("{:?}",cipher))));
-
+        let list = List::new(
+            self.ciphers
+            .iter()
+            .map(
+                |cipher| ListItem::from(format!("{:?}",cipher))
+            )
+        ).highlight_style(Color::Blue);
         frame.render_stateful_widget(list, area, &mut state);
     }
 }
