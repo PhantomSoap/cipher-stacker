@@ -20,6 +20,7 @@ pub enum CipherType {
 pub struct CipherStack {
     pub ciphers: Vec<CipherType>,
     pub selected: Option<usize>,
+    pub scroll : usize,
 }
 
 impl CipherStack {
@@ -30,6 +31,7 @@ impl CipherStack {
         CipherStack {
             ciphers: Vec::new(),
             selected: None,
+            scroll : 0,
         }
     }
 
