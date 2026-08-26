@@ -2,28 +2,30 @@ use ratatui::{
     Frame, buffer::Buffer, layout::Rect, style::Stylize, text::{Line, Span, Text}, widgets::{Block, Paragraph, Widget},
 };
 
-pub struct AffineView {
+pub struct AffineView<'a> {
     pub a : u8,
     pub b : u8,
+    pub text : &'a str,
 }
 
-impl AffineView {
-    pub fn new(a : u8, b : u8) -> Self {
+impl<'a> AffineView<'a> {
+    pub fn new(a : u8, b : u8,text : &'a str) -> Self {
         Self {
             a,
             b,
+            text
             
         }
     }
 
-    pub fn draw(&self,frame : &mut Frame, area : Rect,text : &str ) {
+    pub fn draw(&self,frame : &mut Frame, area : Rect) {
         let a = self.a;
         let b = self.b;
         let mut affine_table = Text::from(format!(
         "Affine Cipher\na: {a} | b: {b}\n\n({a})(x) + {b} Mod 26\n\n"
     ));
 
-    for chr in text.chars() {
+    for chr in self.text.chars() {
         if chr.is_alphabetic() {
             let base = if chr.is_ascii_uppercase() {b'A'} else {b'a'};
             let x = chr as u8 - base;
