@@ -1,27 +1,13 @@
+use crate::Message;
 use crate::cipher_stack::{CipherStack, CipherType};
-
+use crate::plaintext::Plaintext;
+use crate::ciphertext::Ciphertext;
+use crate::history::History;
 use crossterm::event::KeyCode;
 use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
 use std::io;
 
-pub enum Message {
-    AddCipher(CipherType, Option<usize>),
-    RemoveCipher(Option<usize>),
-    Exit,
-    Reset,
-    StopCiphering,
-    StartCiphering(usize),
-    LookAtCipher(CipherType),
-    PushChar(char),
-    PopChar,
-    GoHome,
-    EditCipher(usize, KeyCode),
-    NextCipher(CipherType),
-    PreviousCipher(CipherType),
-    NextInStack,
-    PreviousInStack,
-    None,
-}
+
 #[derive(Debug)]
 pub enum AppState {
     CurrentlyEditingCiphers(usize),
@@ -35,36 +21,8 @@ pub enum Focus {
     History,
 
 }
-pub struct Plaintext {
-    pub text : String,
-    pub scroll : usize,
-}
-impl Plaintext {
-    pub fn new(text : String) -> Self {
-        Self {
-            text,
-            scroll : 0
-        }
-    }
-}
-pub struct Ciphertext {
-    pub text : String,
-    pub scroll : usize,
-}
 
-impl Ciphertext {
-    pub fn new(text : String) -> Self {
-        Self {
-            text,
-            scroll : 0
-        }
-    }
-}
-#[derive(Default)]
-pub struct History {
-    pub list : Vec<String>,
-    pub scroll : usize,
-}
+
 
 
 

@@ -1,4 +1,5 @@
-use crate::app::{App, AppState, Message};
+use crate::app::{App, AppState};
+use crate::Message;
 use crate::cipher_stack::CipherType;
 use crossterm::event::{self, Event, KeyCode};
 use std::io;
