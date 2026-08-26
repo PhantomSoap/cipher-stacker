@@ -141,9 +141,9 @@ dependencies = [
 
 [[package]]
 name = "cifers"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8cfe7568ac658346a1f5b2a7ea0e7c57b7e3a3a5f48569317c08d638c031550a"
+checksum = "1d58334cf0eef68e0a79f84add8f59d2fdaa7fb5d7a99634e605ad360086a659"
 dependencies = [
  "rand 0.10.2",
 ]

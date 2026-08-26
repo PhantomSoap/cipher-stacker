@@ -3,7 +3,7 @@ use std::{
     mem::discriminant,
 };
 
-use cifers::{cipher::Cipher,Caeser,Vigenere,railfence::RailFence,Affine};
+use cifers::{Cipher,Caeser,Vigenere,Railfence,Affine};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CipherType {
@@ -56,14 +56,14 @@ impl CipherStack {
                 }
                 CipherType::RailFence(key) => {
                     if !(*key < 2 || *key >= working_cipher.len() as u8) {
-                        working_cipher = RailFence::new(*key as u8)
+                        working_cipher = Railfence::new(*key as u8)
                             .encipher(&working_cipher)
                             
                     };
                     history.push(working_cipher.clone());
                 }
                 CipherType::Atbash => {
-                    working_cipher = Affine::new(1,0).encipher(&working_cipher);
+                    working_cipher = Affine::atbash().encipher(&working_cipher);
                     history.push(working_cipher.clone());
                 }
                 CipherType::Affine(a, b) => {
