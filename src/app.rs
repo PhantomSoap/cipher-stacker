@@ -35,6 +35,7 @@ pub struct App {
     pub state: AppState,
     pub exit: bool,
     pub history: Vec<String>,
+    pub show_visualization : bool
 }
 
 impl App {
@@ -46,6 +47,7 @@ impl App {
             state: AppState::EditingText(None),
             exit: false,
             history: Vec::new(),
+            show_visualization : true
         }
     }
 
