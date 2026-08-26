@@ -3,6 +3,8 @@ use std::fmt::Write;
 use ratatui::{
     Frame, buffer::Buffer, layout::Rect, text::Text, widgets::{Block, Paragraph, Widget},
 };
+
+use crate::ui::ciphers_ui::cipherview::CipherView;
 pub struct RailfenceView<'a> {
     pub key : u8,
     pub text : &'a str
@@ -15,7 +17,9 @@ impl<'a> RailfenceView<'a> {
             key,
         }
     }
-    pub fn draw(&self,frame : &mut Frame, area : Rect) {
+} 
+impl<'a> CipherView for RailfenceView<'a> {
+    fn draw(&self,frame : &mut Frame, area : Rect) {
         let rails = self.key as usize; //2
         let fences = self.text.len(); //11
         let mut railfence = format!("RailFence Cipher\nKey: {rails}\n");

@@ -2,6 +2,8 @@ use ratatui::{
     Frame, buffer::Buffer, layout::Rect, style::Stylize, text::{Line, Span, Text}, widgets::{Block, Paragraph, Widget},
 };
 
+use crate::ui::ciphers_ui::cipherview::CipherView;
+
 pub struct AffineView<'a> {
     pub a : u8,
     pub b : u8,
@@ -17,8 +19,9 @@ impl<'a> AffineView<'a> {
             
         }
     }
-
-    pub fn draw(&self,frame : &mut Frame, area : Rect) {
+}
+impl<'a> CipherView for AffineView<'a> {
+    fn draw(&self,frame : &mut Frame, area : Rect) {
         let a = self.a;
         let b = self.b;
         let mut affine_table = Text::from(format!(

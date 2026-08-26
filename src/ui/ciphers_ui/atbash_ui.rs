@@ -1,9 +1,12 @@
 use ratatui::{
     Frame, buffer::Buffer, layout::Rect, text::Text, widgets::{Block, Paragraph, Widget},
 };
+
+use crate::ui::ciphers_ui::cipherview::CipherView;
+#[derive(Default)]
 pub struct AtbashView {}
-impl AtbashView {
-    pub fn draw(frame : &mut Frame, area : Rect) {
+impl CipherView for AtbashView {
+    fn draw(&self,frame : &mut Frame, area : Rect) {
         let atbasher = format!(
         "Atbash Cipher
         {}

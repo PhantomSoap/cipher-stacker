@@ -4,6 +4,8 @@ use ratatui::{
 };
 use cifers::{cipher::Cipher,Caeser};
 
+use crate::ui::ciphers_ui::cipherview::CipherView;
+
 pub struct CaesarView {
     pub shift : i8,
     
@@ -15,7 +17,9 @@ impl CaesarView {
             shift,
         }
     }
-    pub fn draw(&self,frame : &mut Frame, area : Rect) {
+}
+impl CipherView for CaesarView {
+    fn draw(&self,frame : &mut Frame, area : Rect) {
         let shift = self.shift;
         let ciphered_alphabet = Caeser::new(shift as i32)
         .encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
