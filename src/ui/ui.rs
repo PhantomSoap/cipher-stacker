@@ -21,10 +21,28 @@ pub fn render_block(area: Rect, buf: &mut Buffer) {
 
 pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
     let areas = crate::ui::ui_area::UiArea::new(area);
-    if app.show_visualization {
-        if let Some(index) = app.stack.selected {
-            let cipher = &app.stack.ciphers[index];
-            let text = &app.history[index];
+    
+    if let Some(index) = app.stack.selected {
+        let cipher = &app.stack.ciphers[index];
+        let text = &app.history[index];
+        match cipher {
+            CipherType::Caeser(shift) => {
+                crate::ui::ciphers_ui::caesar_ui::render_caesar(*shift, areas.cipher, buf);
+            }
+            CipherType::Vigenere(code) => {
+                crate::ui::ciphers_ui::vigenere_ui::render_vigenere(&code, areas.cipher, buf);
+            }
+            CipherType::RailFence(key) => {
+                crate::ui::ciphers_ui::rail_fence_ui::render_rail_fence(text, *key, areas.cipher, buf);
+            }
+            CipherType::Atbash => crate::ui::ciphers_ui::atbash_ui::render_atbash(areas.cipher, buf),
+            CipherType::Affine(a, b) => {
+                crate::ui::ciphers_ui::affine_ui::render_affine(text, *a, *b, areas.cipher, buf);
+            }
+        }
+    } else {
+        if let AppState::EditingText(Some(cipher)) = &app.state {
+            let text = &app.history.last().unwrap_or(&app.history[0]);
             match cipher {
                 CipherType::Caeser(shift) => {
                     crate::ui::ciphers_ui::caesar_ui::render_caesar(*shift, areas.cipher, buf);
@@ -33,7 +51,12 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                     crate::ui::ciphers_ui::vigenere_ui::render_vigenere(&code, areas.cipher, buf);
                 }
                 CipherType::RailFence(key) => {
-                    crate::ui::ciphers_ui::rail_fence_ui::render_rail_fence(text, *key, areas.cipher, buf);
+                    crate::ui::ciphers_ui::rail_fence_ui::render_rail_fence(
+                        text,
+                        *key,
+                        areas.cipher,
+                        buf,
+                    );
                 }
                 CipherType::Atbash => crate::ui::ciphers_ui::atbash_ui::render_atbash(areas.cipher, buf),
                 CipherType::Affine(a, b) => {
@@ -41,35 +64,12 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 }
             }
         } else {
-            if let AppState::EditingText(Some(cipher)) = &app.state {
-                let text = &app.history.last().unwrap_or(&app.history[0]);
-                match cipher {
-                    CipherType::Caeser(shift) => {
-                        crate::ui::ciphers_ui::caesar_ui::render_caesar(*shift, areas.cipher, buf);
-                    }
-                    CipherType::Vigenere(code) => {
-                        crate::ui::ciphers_ui::vigenere_ui::render_vigenere(&code, areas.cipher, buf);
-                    }
-                    CipherType::RailFence(key) => {
-                        crate::ui::ciphers_ui::rail_fence_ui::render_rail_fence(
-                            text,
-                            *key,
-                            areas.cipher,
-                            buf,
-                        );
-                    }
-                    CipherType::Atbash => crate::ui::ciphers_ui::atbash_ui::render_atbash(areas.cipher, buf),
-                    CipherType::Affine(a, b) => {
-                        crate::ui::ciphers_ui::affine_ui::render_affine(text, *a, *b, areas.cipher, buf);
-                    }
-                }
-            } else {
-                Paragraph::new(Text::from("CipherStacker"))
-                    .centered()
-                    .render(areas.cipher, buf);
-            }
+            Paragraph::new(Text::from("CipherStacker"))
+                .centered()
+                .render(areas.cipher, buf);
         }
-    } 
+    }
+     
 
     let state_text: Text<'_> = match &app.state {
         AppState::EditingText(None) => Text::from(vec![
