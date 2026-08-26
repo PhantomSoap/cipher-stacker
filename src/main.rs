@@ -3,7 +3,7 @@
 
 use std::io;
 pub mod app;
-pub mod ciphermod;
+pub mod cipher_stack;
 pub mod events;
 pub mod ui;
 

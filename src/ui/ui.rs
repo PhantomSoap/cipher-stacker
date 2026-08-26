@@ -1,5 +1,5 @@
 use crate::app::{App, AppState};
-use crate::ciphermod::CipherType;
+use crate::cipher_stack::CipherType;
 
 
 use ratatui::text::Text;
@@ -36,7 +36,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             }
             CipherType::Atbash => crate::ui::ciphers_ui::atbash_ui::render_atbash(areas.cipher, buf),
             CipherType::Affine(a, b) => {
-                crate::ui::ciphers_ui::affine_ui::render_affine(text, *b, *a, areas.cipher, buf);
+                crate::ui::ciphers_ui::affine_ui::render_affine(text, *a, *b, areas.cipher, buf);
             }
         }
     } else {
@@ -59,7 +59,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
                 }
                 CipherType::Atbash => crate::ui::ciphers_ui::atbash_ui::render_atbash(areas.cipher, buf),
                 CipherType::Affine(a, b) => {
-                    crate::ui::ciphers_ui::affine_ui::render_affine(text, *b, *a, areas.cipher, buf);
+                    crate::ui::ciphers_ui::affine_ui::render_affine(text, *a, *b, areas.cipher, buf);
                 }
             }
         } else {

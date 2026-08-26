@@ -4,7 +4,7 @@ use ratatui::style::Style;
 use ratatui::widgets::{Block, Borders, List, ListItem, ListState, StatefulWidget};
 
 use crate::app::{App, AppState};
-use crate::ciphermod::CipherType;
+use crate::cipher_stack::CipherType;
 
 pub fn render_cipher_side_bar(area: Rect, buf: &mut Buffer, app: &App) {
     let cipher_opt = match &app.state {

@@ -1,4 +1,4 @@
-use crate::ciphermod::{CipherStack, CipherType};
+use crate::cipher_stack::{CipherStack, CipherType};
 
 use crossterm::event::KeyCode;
 use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
