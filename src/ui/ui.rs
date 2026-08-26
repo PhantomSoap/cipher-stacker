@@ -1,9 +1,8 @@
 use crate::app::{App, AppState};
 use crate::ciphermod::CipherType;
 
-use ratatui::style::Style;
-use ratatui::text::{Span, Text};
-use ratatui::widgets::{Borders, List, ListItem, ListState, StatefulWidget, Wrap};
+
+use ratatui::text::Text;
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
