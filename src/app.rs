@@ -27,6 +27,14 @@ pub enum AppState {
     CurrentlyEditingCiphers(usize),
     EditingText(Option<CipherType>),
 }
+pub enum Focus {
+    Plaintext,
+    Ciphertext,
+    CipherStack,
+    Cipher,
+    History,
+    
+}
 pub struct Plaintext {
     pub text : String,
     pub scroll : usize,
