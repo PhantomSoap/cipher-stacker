@@ -27,10 +27,36 @@ pub enum AppState {
     CurrentlyEditingCiphers(usize),
     EditingText(Option<CipherType>),
 }
+pub struct Plaintext {
+    pub text : String,
+    pub scroll : usize,
+}
+impl Plaintext {
+    pub fn new(text : String) -> Self {
+        Self {
+            text,
+            scroll : 0
+        }
+    }
+}
+pub struct Ciphertext {
+    pub text : String,
+    pub scroll : usize,
+}
+
+impl Ciphertext {
+    pub fn new(text : String) -> Self {
+        Self {
+            text,
+            scroll : 0
+        }
+    }
+}
+
 
 pub struct App {
-    pub plaintext: String,
-    pub ciphertext: String,
+    pub plaintext: Plaintext,
+    pub ciphertext: Ciphertext,
     pub stack: CipherStack,
     pub state: AppState,
     pub exit: bool,
@@ -41,8 +67,8 @@ pub struct App {
 impl App {
     pub fn new() -> App {
         App {
-            plaintext: String::from("ExampleText"),
-            ciphertext: String::new(),
+            plaintext: Plaintext::new(String::from("ExampleText")),
+            ciphertext: Ciphertext::new(String::from("ExampleText")),
             stack: CipherStack::new(),
             state: AppState::EditingText(None),
             exit: false,
@@ -59,7 +85,7 @@ impl App {
 
             self.history = self
                 .stack
-                .stack_cipher(&self.plaintext, &mut self.ciphertext);
+                .stack_cipher(&self.plaintext.text, &mut self.ciphertext.text);
         }
 
         Ok(())
@@ -92,7 +118,7 @@ impl App {
             },
             CipherType::RailFence(ckey) => match key {
                 KeyCode::Down if !(*ckey <= 1) => *ckey -= 1,
-                KeyCode::Up if !(*ckey == self.plaintext.len() as u8) => {
+                KeyCode::Up if !(*ckey == self.plaintext.text.len() as u8) => {
                     *ckey += 1;
                 }
                 _ => {}
@@ -169,9 +195,9 @@ impl App {
                 self.state = AppState::CurrentlyEditingCiphers(index);
                 self.stack.selected = Some(index)
             }
-            Message::PushChar(c) => self.plaintext.push(c),
+            Message::PushChar(c) => self.plaintext.text.push(c),
             Message::PopChar => {
-                self.plaintext.pop();
+                self.plaintext.text.pop();
             }
             Message::GoHome => self.state = AppState::EditingText(None),
             Message::EditCipher(index, key_code) => self.edit_cipher(index, key_code),

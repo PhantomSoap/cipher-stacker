@@ -43,10 +43,10 @@ pub fn render_footer(state: Text<'_>, app: &App, area: UiArea, buf: &mut Buffer)
             history_text.push_line(Line::from(format!("{cipher:?} -> {hist_item}")));
         }
     }
-    Paragraph::new(Line::from(format!("PlainText: {}", app.plaintext)))
+    Paragraph::new(Line::from(format!("PlainText: {}", app.plaintext.text)))
         .wrap(Wrap { trim: true })
         .render(area.plaintext, buf);
-    Paragraph::new(Line::from(format!("CipherText: {}", app.ciphertext)))
+    Paragraph::new(Line::from(format!("CipherText: {}", app.ciphertext.text)))
         .wrap(Wrap { trim: true })
         .render(area.ciphertext, buf);
     Paragraph::new(cipher_list)
