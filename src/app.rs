@@ -33,7 +33,7 @@ pub enum Focus {
     CipherStack,
     Cipher,
     History,
-    
+
 }
 pub struct Plaintext {
     pub text : String,
@@ -75,6 +75,7 @@ pub struct App {
     pub state: AppState,
     pub exit: bool,
     pub history: History,
+    pub focus : Focus,
     
 }
 
@@ -87,6 +88,7 @@ impl App {
             state: AppState::EditingText(None),
             exit: false,
             history: History::default(),
+            focus : Focus::Plaintext,
             
         }
     }
