@@ -23,6 +23,18 @@ pub enum Focus {
 
 }
 
+impl Focus {
+    pub fn next(&self) -> Self {
+        match self {
+            Focus::Plaintext => todo!(),
+            Focus::Ciphertext => todo!(),
+            Focus::CipherStack => todo!(),
+            Focus::Cipher => todo!(),
+            Focus::History => todo!(),
+        }
+    }
+}
+
 
 
 
@@ -34,11 +46,16 @@ pub struct App {
     pub state: AppState,
     pub exit: bool,
     pub history: History,
-    cipherview : Option<Box<dyn CipherView>>,
+    pub cipherview : Option<Box<dyn CipherView>>,
     pub focus : Focus,
     
 }
-
+pub struct AppLayout {
+    plaintext : Rect, //3
+    ciphertext : Rect, //3
+    cipherstack : Rect,
+    history : Rect,
+}
 impl App {
     pub fn new() -> App {
         App {
@@ -70,6 +87,12 @@ impl App {
 
     pub fn draw(&self, frame: &mut Frame) {
         frame.render_widget(self, frame.area());
+        //self.cipherview.draw(frame,)
+        //self.plaintext.draw(frame,)
+        //self.ciphertext.draw(frame,)
+        //self.stack.draw(frame,),
+        //self.history.draw(frame,),
+
     }
 
     pub fn edit_cipher(&mut self, index: usize, key: KeyCode) {
