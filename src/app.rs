@@ -3,6 +3,7 @@ use crate::cipher_stack::{CipherStack, CipherType};
 use crate::plaintext::Plaintext;
 use crate::ciphertext::Ciphertext;
 use crate::history::History;
+use crate::ui::ciphers_ui::cipherview::CipherView;
 use crossterm::event::KeyCode;
 use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
 use std::io;
@@ -33,6 +34,7 @@ pub struct App {
     pub state: AppState,
     pub exit: bool,
     pub history: History,
+    cipherview : Option<Box<dyn CipherView>>,
     pub focus : Focus,
     
 }
@@ -47,6 +49,7 @@ impl App {
             exit: false,
             history: History::default(),
             focus : Focus::Plaintext,
+            cipherview : None,
             
         }
     }
