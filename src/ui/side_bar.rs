@@ -8,7 +8,7 @@ use crate::cipher_stack::CipherType;
 
 pub fn render_cipher_side_bar(area: Rect, buf: &mut Buffer, app: &App) {
     let cipher_opt = match &app.state {
-        AppState::CurrentlyEditingCiphers(indx) => Some(&app.stack.ciphers[*indx]),
+        AppState::EditingCipher(indx) => Some(&app.stack.ciphers[*indx]),
         AppState::EditingText(Some(cipher)) => Some(cipher),
         AppState::EditingText(None) => None,
     };

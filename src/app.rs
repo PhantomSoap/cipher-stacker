@@ -11,8 +11,9 @@ use std::io;
 
 #[derive(Debug)]
 pub enum AppState {
-    CurrentlyEditingCiphers(usize),
-    EditingText(Option<CipherType>),
+    EditingCipher(usize),
+    EditingText,
+    Home,
 }
 pub enum Focus {
     Plaintext,
@@ -62,7 +63,7 @@ impl App {
             plaintext: Plaintext::new(String::from("ExampleText")),
             ciphertext: Ciphertext::new(String::from("ExampleText")),
             stack: CipherStack::new(),
-            state: AppState::EditingText(None),
+            state: AppState::Home,
             exit: false,
             history: History::default(),
             focus : Focus::Plaintext,
@@ -163,67 +164,68 @@ impl App {
             Message::None => {}
             Message::AddCipher(cipher_type, Some(index)) => {
                 self.stack.ciphers.insert(index, cipher_type.default());
-                self.state = AppState::CurrentlyEditingCiphers(index);
+                self.state = AppState::EditingCipher(index);
                 self.stack.selected = Some(index)
             }
             Message::AddCipher(cipher_type, None) => {
                 self.stack.ciphers.push(cipher_type.default());
-                self.state = AppState::CurrentlyEditingCiphers(self.stack.ciphers.len() - 1);
+                self.state = AppState::EditingCipher(self.stack.ciphers.len() - 1);
                 self.stack.selected = Some(self.stack.ciphers.len() - 1)
             }
             Message::RemoveCipher(Some(index)) => {
                 let removed = self.stack.ciphers.remove(index);
-                self.state = AppState::EditingText(Some(removed.default()));
-                self.stack.selected = None
+                self.state = AppState::EditingText;
+                self.stack.selected = if !(self.stack.ciphers.len() == 0) {Some(self.stack.ciphers.len()-1)} else {None};
             }
             Message::RemoveCipher(None) => {
                 if let Some(removed) = self.stack.ciphers.pop() {
-                    self.state = AppState::EditingText(Some(removed.default()));
-                    self.stack.selected = None
+                    self.state = AppState::EditingText;
+                    self.stack.selected = if !(self.stack.ciphers.len() == 0) {Some(self.stack.ciphers.len()-1)} else {None};
                 }
             }
             Message::Exit => self.exit(),
             Message::Reset => self.exit(),
             Message::StopCiphering => {
-                if let AppState::CurrentlyEditingCiphers(index) = self.state {
+                if let AppState::EditingCipher(index) = self.state {
                     let cipher = self.stack.ciphers[index].clone();
-                    self.state = AppState::EditingText(Some(cipher));
+                    self.state = AppState::EditingText;
                     self.stack.selected = Some(index);
                 }
             }
             Message::StartCiphering(index) => {
-                self.state = AppState::CurrentlyEditingCiphers(index);
+                self.state = AppState::EditingCipher(index);
                 self.stack.selected = Some(index)
             }
             Message::PushChar(c) => self.plaintext.text.push(c),
             Message::PopChar => {
                 self.plaintext.text.pop();
             }
-            Message::GoHome => self.state = AppState::EditingText(None),
+            Message::GoHome => self.state = AppState::Home,
             Message::EditCipher(index, key_code) => self.edit_cipher(index, key_code),
             Message::NextCipher(cipher) => {
                 let (next_cipher, index_opt) = self.stack.next(&cipher);
-                self.state = AppState::EditingText(Some(next_cipher));
+                self.state = AppState::EditingText;
                 self.stack.selected = index_opt
             }
             Message::PreviousCipher(cipher) => {
                 let (next_cipher, index_opt) = self.stack.previous(&cipher);
-                self.state = AppState::EditingText(Some(next_cipher));
+                self.state = AppState::EditingText;
                 self.stack.selected = index_opt
             }
             Message::NextInStack => {
                 if let Some(index) = &mut self.stack.selected {
                     *index += 1;
-                    self.state = AppState::EditingText(Some(self.stack.ciphers[*index].clone()));
+                    self.state = AppState::EditingText;
                 }
             }
             Message::PreviousInStack => {
                 if let Some(index) = &mut self.stack.selected {
                     *index -= 1;
-                    self.state = AppState::EditingText(Some(self.stack.ciphers[*index].clone()));
+                    self.state = AppState::EditingText;
                 }
             }
-            Message::LookAtCipher(cipher) => self.state = AppState::EditingText(Some(cipher)),
+            Message::LookAtCipher(cipher) => self.state = AppState::EditingText,
+            Message::NextFocus => self.focus = self.focus.next(),
         }
     }
     pub fn exit(&mut self) {

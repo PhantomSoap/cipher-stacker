@@ -90,9 +90,8 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
             Line::from("<+> to Add Cipher"),
             Line::from("<'-'> to Delete Cipher"),
         ]),
-        AppState::CurrentlyEditingCiphers(indx) => {
+        AppState::EditingCipher(indx) => {
             let cipher = app.stack.ciphers.get(*indx).unwrap();
-
             let mut text = Text::from(vec![
                 Line::from(format!("{cipher} | (Editing)")),
                 Line::from(""),

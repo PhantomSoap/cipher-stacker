@@ -47,7 +47,7 @@ impl App {
 
                     _ => return Ok(Message::None),
                 },
-                AppState::CurrentlyEditingCiphers(index) => {
+                AppState::EditingCipher(index) => {
                     let cipher = self
                         .stack
                         .ciphers

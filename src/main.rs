@@ -33,6 +33,7 @@ pub enum Message {
     NextInStack,
     PreviousInStack,
     None,
+    NextFocus,
 }
 
 
