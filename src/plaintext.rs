@@ -17,7 +17,6 @@ impl Plaintext {
             .wrap(Wrap { trim : true})
             .block(Block::bordered())//.border_style(Color::Blue))
             .scroll((self.scroll as u16,0));
-
         frame.render_widget(widget, area);
     }
 }

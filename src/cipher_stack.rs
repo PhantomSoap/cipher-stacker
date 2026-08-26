@@ -4,6 +4,7 @@ use std::{
 };
 
 use cifers::{Cipher,Caeser,Vigenere,Railfence,Affine};
+use ratatui::{Frame, layout::Rect, widgets::{List, ListItem, ListState}};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CipherType {
@@ -181,5 +182,15 @@ impl fmt::Display for CipherType {
             CipherType::Atbash => write!(f, "Atbash Cipher"),
             CipherType::Affine(a, b) => write!(f, "Affine Cipher; Multiplyer: {}, Shift: {}", a, b),
         }
+    }
+}
+
+impl CipherStack {
+    pub fn draw(&self,frame : &mut Frame, area : Rect,selected : Option<usize>) {
+        let mut state = ListState::default();
+        state.select(selected);
+        let list = List::new(self.ciphers.iter().map(|cipher| ListItem::from(format!("{:?}",cipher))));
+
+        frame.render_stateful_widget(list, area, &mut state);
     }
 }
