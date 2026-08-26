@@ -35,11 +35,11 @@ pub fn render_footer(state: Text<'_>, app: &App, area: UiArea, buf: &mut Buffer)
     history_text.push_line(Line::from("History:"));
     history_text.push_line(Line::from(format!(
         "Plainttext -> {}",
-        app.history.first().unwrap_or(&String::new())
+        app.history.list.first().unwrap_or(&String::new())
     )));
 
     for (index, cipher) in app.stack.ciphers.iter().enumerate() {
-        if let Some(hist_item) = app.history.get(index + 1) {
+        if let Some(hist_item) = app.history.list.get(index + 1) {
             history_text.push_line(Line::from(format!("{cipher:?} -> {hist_item}")));
         }
     }

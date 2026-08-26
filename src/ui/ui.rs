@@ -24,7 +24,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
     
     if let Some(index) = app.stack.selected {
         let cipher = &app.stack.ciphers[index];
-        let text = &app.history[index];
+        let text = &app.history.list[index];
         match cipher {
             CipherType::Caeser(shift) => {
                 crate::ui::ciphers_ui::caesar_ui::render_caesar(*shift, areas.cipher, buf);
@@ -42,7 +42,7 @@ pub fn render(app: &App, area: Rect, buf: &mut Buffer) {
         }
     } else {
         if let AppState::EditingText(Some(cipher)) = &app.state {
-            let text = &app.history.last().unwrap_or(&app.history[0]);
+            let text = &app.history.list.last().unwrap_or(&app.history.list[0]);
             match cipher {
                 CipherType::Caeser(shift) => {
                     crate::ui::ciphers_ui::caesar_ui::render_caesar(*shift, areas.cipher, buf);

@@ -52,6 +52,12 @@ impl Ciphertext {
         }
     }
 }
+#[derive(Default)]
+pub struct History {
+    pub list : Vec<String>,
+    pub scroll : usize,
+}
+
 
 
 pub struct App {
@@ -60,7 +66,7 @@ pub struct App {
     pub stack: CipherStack,
     pub state: AppState,
     pub exit: bool,
-    pub history: Vec<String>,
+    pub history: History,
     
 }
 
@@ -72,7 +78,7 @@ impl App {
             stack: CipherStack::new(),
             state: AppState::EditingText(None),
             exit: false,
-            history: Vec::new(),
+            history: History::default(),
             
         }
     }
@@ -83,7 +89,7 @@ impl App {
 
             self.update(self.handle_key_events()?);
 
-            self.history = self
+            self.history.list = self
                 .stack
                 .stack_cipher(&self.plaintext.text, &mut self.ciphertext.text);
         }
