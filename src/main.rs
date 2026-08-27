@@ -4,18 +4,25 @@
 use std::io;
 pub mod app;
 pub mod cipher_stack;
-pub mod events;
-pub mod ui;
+
+pub mod cipherviews;
 pub mod plaintext;
 pub mod ciphertext;
 pub mod history;
+pub mod control_panel;
 
+pub use control_panel::ControlPanel;
+pub use plaintext::Plaintext;
+pub use ciphertext::Ciphertext;
+pub use cipher_stack::{CipherStack,CipherType};
+pub use history::History;
+pub use crate::cipherviews::cipherview::{AppCipher, CipherView};
+pub use app::App;
 
-use app::App;
 use crossterm::event::KeyCode;
 use ratatui::run;
 
-use crate::cipher_stack::CipherType;
+
 pub enum Message {
     AddCipher(CipherType, Option<usize>),
     RemoveCipher(Option<usize>),

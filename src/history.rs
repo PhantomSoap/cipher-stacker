@@ -1,6 +1,6 @@
 use ratatui::{Frame, layout::Rect, text::{Line, Text}, widgets::{ListState, Paragraph, Wrap}};
 
-use crate::cipher_stack::CipherType;
+use crate::{CipherStack, cipher_stack::CipherType};
 
 #[derive(Default)]
 pub struct History {
@@ -9,7 +9,7 @@ pub struct History {
 }
 
 impl History {
-    pub fn draw(&self,frame : &mut Frame,area : Rect,selected : Option<usize>,cipherstack : Vec<CipherType>) {
+    pub fn draw(&self,frame : &mut Frame,area : Rect,cipherstack : &CipherStack) {
     let mut history_text = Text::default();
     history_text.push_line(Line::from("History:"));
     history_text.push_line(Line::from(format!(
@@ -17,7 +17,7 @@ impl History {
         self.list.first().unwrap_or(&String::new())
     )));
 
-    for (index, cipher) in cipherstack.iter().enumerate() {
+    for (index, cipher) in cipherstack.ciphers.iter().enumerate() {
         if let Some(hist_item) = self.list.get(index + 1) {
             history_text.push_line(Line::from(format!("{cipher:?} -> {hist_item}")));
         }

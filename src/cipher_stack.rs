@@ -189,9 +189,9 @@ impl fmt::Display for CipherType {
 }
 
 impl CipherStack {
-    pub fn draw(&self,frame : &mut Frame, area : Rect,selected : Option<usize>) {
+    pub fn draw(&self,frame : &mut Frame, area : Rect) {
         let mut state = ListState::default();
-        state.select(selected);
+        state.select(self.selected);
         let list = List::new(
             self.ciphers
             .iter()

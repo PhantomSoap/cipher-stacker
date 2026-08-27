@@ -1,11 +1,14 @@
 use crate::Message;
-use crate::cipher_stack::{CipherStack, CipherType};
-use crate::plaintext::Plaintext;
-use crate::ciphertext::Ciphertext;
-use crate::history::History;
-use crate::ui::ciphers_ui::cipherview::CipherView;
-use crossterm::event::KeyCode;
-use ratatui::{DefaultTerminal, Frame, buffer::Buffer, layout::Rect, widgets::Widget};
+use crate::{CipherStack, CipherType};
+use crate::ControlPanel;
+use crate::Plaintext;
+use crate::Ciphertext;
+use crate::History;
+use crate::{AppCipher, CipherView};
+use crossterm::event::{self, Event, KeyCode};
+use ratatui::layout::{ Constraint, Direction, Layout};
+use ratatui::widgets::Block;
+use ratatui::{DefaultTerminal, Frame, layout::Rect};
 use std::io;
 
 
@@ -47,15 +50,65 @@ pub struct App {
     pub state: AppState,
     pub exit: bool,
     pub history: History,
-    pub cipherview : Option<Box<dyn CipherView>>,
+    pub cipherview : Option<AppCipher>,
+    pub control : Option<ControlPanel>,
     pub focus : Focus,
     
 }
 pub struct AppLayout {
-    plaintext : Rect, //3
-    ciphertext : Rect, //3
+    plaintext : Rect, 
+    ciphertext : Rect, 
     cipherstack : Rect,
     history : Rect,
+    cipherview : Rect,
+}
+
+impl AppLayout {
+    pub fn build(area : Rect) -> Self {
+        let layouts = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints([
+                Constraint::Length(1),
+                Constraint::Length(30),
+                Constraint::Length(9),         
+            ]).split(area);
+
+        let middles = Layout::default()
+                .direction(Direction::Horizontal)
+                .margin(1)
+                .constraints([
+                    Constraint::Percentage(20),
+                    Constraint::Percentage(60),
+                    Constraint::Percentage(20),
+                ]).split(layouts[1]);
+
+        let bottoms = Layout::default()
+                    .direction(Direction::Horizontal)
+                    .margin(1)
+                    .constraints([
+                        Constraint::Percentage(20),
+                        Constraint::Percentage(60),
+                        Constraint::Percentage(20),
+                    ]).split(layouts[2]);
+
+        let footer_lines = Layout::default()
+                        .direction(Direction::Vertical)
+                        .margin(1)
+                        .constraints([
+                            Constraint::Length(3),
+                            Constraint::Length(3),
+                            Constraint::Length(3),
+                        ]).split(bottoms[1]);
+
+        Self {
+            plaintext: footer_lines[0],
+            ciphertext: footer_lines[2],
+            cipherstack: bottoms[0],
+            history: bottoms[2],
+            cipherview : middles[1],
+        }
+    }
 }
 impl App {
     pub fn new() -> App {
@@ -68,6 +121,8 @@ impl App {
             history: History::default(),
             focus : Focus::Plaintext,
             cipherview : None,
+            control : None,
+
             
         }
     }
@@ -76,7 +131,7 @@ impl App {
         while !self.exit {
             terminal.draw(|frame| self.draw(frame))?;
 
-            self.update(self.handle_key_events()?);
+            self.update(self.handle_input_events()?);
 
             self.history.list = self
                 .stack
@@ -86,14 +141,44 @@ impl App {
         Ok(())
     }
 
-    pub fn draw(&self, frame: &mut Frame) {
-        frame.render_widget(self, frame.area());
-        //self.cipherview.draw(frame,)
-        //self.plaintext.draw(frame,)
-        //self.ciphertext.draw(frame,)
-        //self.stack.draw(frame,),
-        //self.history.draw(frame,),
+    pub fn handle_input_events(&self)  -> io::Result<Message>{
+        match event::read()? {
+            
+            Event::Key(key_event) => {
+                match self.focus {
+                    Focus::Plaintext => todo!(),
+                    Focus::Ciphertext => todo!(),
+                    Focus::CipherStack => todo!(),
+                    Focus::Cipher => todo!(),
+                    Focus::History => todo!(),
+                }
+            },
+            Event::Mouse(mouse_event) => {
+                match self.focus {
+                    Focus::Plaintext => todo!(),
+                    Focus::Ciphertext => todo!(),
+                    Focus::CipherStack => todo!(),
+                    Focus::Cipher => todo!(),
+                    Focus::History => todo!(),
+        }
+            },
+            Event::Paste(_) => {Ok(Message::None)}
+            _ => {Ok(Message::None)}
+        }
+        
+    }
 
+    pub fn draw(&self, frame: &mut Frame) {
+        let areas = AppLayout::build(frame.area()); 
+        if let Some(cipherview) = &self.cipherview {
+            cipherview.draw(frame,areas.cipherview);
+        } else {
+            frame.render_widget(Block::bordered(),areas.cipherview)
+        }
+        self.plaintext.draw(frame,areas.plaintext);
+        self.ciphertext.draw(frame,areas.ciphertext);
+        self.stack.draw(frame,areas.cipherstack);
+        self.history.draw(frame,areas.history,&self.stack);
     }
 
     pub fn edit_cipher(&mut self, index: usize, key: KeyCode) {
@@ -238,9 +323,4 @@ impl Default for App {
         Self::new()
     }
 }
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut Buffer) {
-        crate::ui::ui::render(self, area, buf);
-        //crate::ui::ui_area::UiArea::new(area).render_borders(buf);
-    }
-}
+
