@@ -22,7 +22,6 @@ impl Ciphertext {
             .block(Block::bordered())//.border_style(Color::Blue))
             .scroll((self.scroll as u16,0));
         frame.render_widget(widget, area);
-        frame.render_widget(Block::bordered(), area);
     }
 
     pub fn handle_key_events(&mut self,key : KeyEvent)  -> Option<Message>{

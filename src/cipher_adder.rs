@@ -6,14 +6,14 @@ use crate::{Message, cipher_stack::CipherType};
 
 
 pub struct CipherAdder {
-    cipher : Option<CipherType>,
+    cipher : CipherType,
     scroll : u16,
 }
 
 impl CipherAdder {
     pub fn new() -> Self {
         Self {
-            cipher : None,
+            cipher : CipherType::Caeser(0),
             scroll : 0,
         }
     }
@@ -25,13 +25,13 @@ impl CipherAdder {
 
         match key.code {
             KeyCode::Esc => {Some(Message::Exit)},
-            KeyCode::Char('+') if let Some(cipher) = &self.cipher => {Some(Message::AddCipher(cipher.default(),None))}
-            KeyCode::Up if let Some(cipher) = &mut self.cipher => {
-                *cipher = cipher.next(); 
+            KeyCode::Char('+') => {Some(Message::AddCipher(self.cipher.default(),None))}
+            KeyCode::Up => {
+                self.cipher = self.cipher.next(); 
                 None
             },
-            KeyCode::Down if let Some(cipher) = &mut self.cipher => {
-                *cipher = cipher.previous(); 
+            KeyCode::Down  => {
+                self.cipher = self.cipher.previous(); 
                 None
             }  
             KeyCode::Tab => Some(Message::NextFocus),

@@ -18,10 +18,11 @@ impl Plaintext {
     pub fn draw(&self,frame : &mut Frame,area : Rect) {
         let widget = Paragraph::new(format!("Plaintext: {}",self.text))
             .wrap(Wrap { trim : true})
+            .block(Block::bordered())
             //.border_style(Color::Blue))
             .scroll((self.scroll as u16,0));
         frame.render_widget(widget, area);
-        frame.render_widget(Block::bordered(), area);
+        
     }
 
     pub fn handle_key_events(&mut self,key : KeyEvent)  -> Option<Message>{

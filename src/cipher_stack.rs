@@ -5,7 +5,7 @@ use std::{
 
 use cifers::{Cipher,Caeser,Vigenere,Railfence,Affine};
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
-use ratatui::{Frame, layout::Rect, style::Color, widgets::{List, ListItem, ListState}};
+use ratatui::{Frame, layout::Rect, style::Color, widgets::{Block, List, ListItem, ListState}};
 
 use crate::Message;
 
@@ -200,7 +200,7 @@ impl CipherStack {
             .map(
                 |cipher| ListItem::from(format!("{:?}",cipher))
             )
-        ).highlight_style(Color::Blue);
+        ).highlight_style(Color::Blue).block(Block::bordered());
         frame.render_stateful_widget(list, area, &mut state);
     }
 
@@ -212,6 +212,20 @@ impl CipherStack {
         match key.code {
             KeyCode::Esc => {Some(Message::Exit)},
             KeyCode::Tab => Some(Message::NextFocus),
+            KeyCode::Up if let Some(index) = self.selected  => {
+                if index !=0 {
+                    Some(Message::PreviousInStack)
+                } else {
+                    None
+                }
+            },
+            KeyCode::Down if let Some(index) = self.selected  => {
+                if index !=self.ciphers.len()-1 {
+                    Some(Message::NextInStack)
+                } else {
+                    None
+                }
+            },
 
             _ => None
         }

@@ -41,11 +41,8 @@ pub enum Message {
     PreviousCipher(CipherType),
     NextInStack,
     PreviousInStack,
-<<<<<<< HEAD
     NextFocus,
-=======
-    None,
->>>>>>> parent of 086006a (removed inner value of appstate editing text)
+
 }
 
 
