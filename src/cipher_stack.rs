@@ -4,8 +4,10 @@ use std::{
 };
 
 use cifers::{Cipher,Caeser,Vigenere,Railfence,Affine};
-
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
 use ratatui::{Frame, layout::Rect, style::Color, widgets::{List, ListItem, ListState}};
+
+use crate::Message;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CipherType {
@@ -200,5 +202,28 @@ impl CipherStack {
             )
         ).highlight_style(Color::Blue);
         frame.render_stateful_widget(list, area, &mut state);
+    }
+
+    pub fn handle_key_events(&mut self,key : KeyEvent)  -> Option<Message>{
+        if let KeyEventKind::Release =  key.kind {
+            return None
+        }
+
+        match key.code {
+            KeyCode::Esc => {Some(Message::Exit)},
+            KeyCode::Tab => Some(Message::NextFocus),
+
+            _ => None
+        }
+    }
+
+    pub fn handle_mouse_events(&mut self, m : MouseEvent) {
+        match m.kind {
+            crossterm::event::MouseEventKind::ScrollDown => {self.scroll+=1},
+            crossterm::event::MouseEventKind::ScrollUp if self.scroll !=0=> {self.scroll-=1},
+            crossterm::event::MouseEventKind::ScrollLeft => {},
+            crossterm::event::MouseEventKind::ScrollRight => {},
+            _ => {}
+        }
     }
 }

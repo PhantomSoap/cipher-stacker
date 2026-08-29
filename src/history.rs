@@ -1,6 +1,7 @@
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
 use ratatui::{Frame, layout::Rect, text::{Line, Text}, widgets::{ListState, Paragraph, Wrap}};
 
-use crate::{CipherStack, cipher_stack::CipherType};
+use crate::{CipherStack, Message, cipher_stack::CipherType};
 
 #[derive(Default)]
 pub struct History {
@@ -32,5 +33,27 @@ impl History {
 
 
         
+    }
+    pub fn handle_key_events(&mut self,key : KeyEvent)  -> Option<Message>{
+        if let KeyEventKind::Release =  key.kind {
+            return None
+        }
+
+        match key.code {
+            KeyCode::Esc => {Some(Message::Exit)},
+            KeyCode::Tab => Some(Message::NextFocus),
+
+            _ => None
+        }
+    }
+
+    pub fn handle_mouse_events(&mut self, m : MouseEvent) {
+        match m.kind {
+            crossterm::event::MouseEventKind::ScrollDown => {self.scroll+=1},
+            crossterm::event::MouseEventKind::ScrollUp if self.scroll !=0=> {self.scroll-=1},
+            crossterm::event::MouseEventKind::ScrollLeft => {},
+            crossterm::event::MouseEventKind::ScrollRight => {},
+            _ => {}
+        }
     }
 }

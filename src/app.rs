@@ -1,10 +1,12 @@
 use crate::Message;
+
+
 use crate::{CipherStack, CipherType};
-use crate::ControlPanel;
+use crate::CipherAdder;
 use crate::Plaintext;
 use crate::Ciphertext;
 use crate::History;
-use crate::{AppCipher, CipherView};
+use crate::AppCipher;
 use crossterm::event::{self, Event, KeyCode};
 use ratatui::layout::{ Constraint, Direction, Layout};
 use ratatui::widgets::Block;
@@ -14,15 +16,14 @@ use std::io;
 
 #[derive(Debug)]
 pub enum AppState {
-    EditingCipher(usize),
-    EditingText,
-    Home,
+    CurrentlyEditingCiphers(usize),
+    EditingText(Option<CipherType>),
 }
 pub enum Focus {
     Plaintext,
     Ciphertext,
     CipherStack,
-    Cipher,
+    AddCipher,
     History,
 
 }
@@ -30,11 +31,11 @@ pub enum Focus {
 impl Focus {
     pub fn next(&self) -> Self {
         match self {
-            Focus::Plaintext => todo!(),
-            Focus::Ciphertext => todo!(),
-            Focus::CipherStack => todo!(),
-            Focus::Cipher => todo!(),
-            Focus::History => todo!(),
+            Focus::Plaintext => Focus::AddCipher,
+            Focus::AddCipher => Focus::Ciphertext,
+            Focus::Ciphertext => Focus::CipherStack,
+            Focus::CipherStack => Focus::History,
+            Focus::History => Focus::Plaintext,
         }
     }
 }
@@ -51,7 +52,7 @@ pub struct App {
     pub exit: bool,
     pub history: History,
     pub cipherview : Option<AppCipher>,
-    pub control : Option<ControlPanel>,
+    pub adding_panel : CipherAdder,
     pub focus : Focus,
     
 }
@@ -116,12 +117,13 @@ impl App {
             plaintext: Plaintext::new(String::from("ExampleText")),
             ciphertext: Ciphertext::new(String::from("ExampleText")),
             stack: CipherStack::new(),
-            state: AppState::Home,
+            state: AppState::EditingText(None),
             exit: false,
             history: History::default(),
             focus : Focus::Plaintext,
             cipherview : None,
-            control : None,
+            adding_panel : CipherAdder::new(),
+            
 
             
         }
@@ -131,7 +133,9 @@ impl App {
         while !self.exit {
             terminal.draw(|frame| self.draw(frame))?;
 
-            self.update(self.handle_input_events()?);
+            if let Some(msg) = self.handle_input_events()? {
+                self.update(msg);
+            }
 
             self.history.list = self
                 .stack
@@ -141,29 +145,50 @@ impl App {
         Ok(())
     }
 
-    pub fn handle_input_events(&self)  -> io::Result<Message>{
+    pub fn handle_input_events(&mut self)  -> io::Result<Option<Message>>{
         match event::read()? {
             
             Event::Key(key_event) => {
                 match self.focus {
-                    Focus::Plaintext => todo!(),
-                    Focus::Ciphertext => todo!(),
-                    Focus::CipherStack => todo!(),
-                    Focus::Cipher => todo!(),
-                    Focus::History => todo!(),
+                    Focus::Plaintext => {
+                        self.plaintext.handle_key_events(key_event);
+                        Ok(None)
+                    },
+                    Focus::Ciphertext => {
+                        self.ciphertext.handle_key_events(key_event);
+                        Ok(None)
+                    },
+                    Focus::CipherStack => {
+                        self.stack.handle_key_events(key_event);
+                        Ok(None)
+                    },
+                    Focus::AddCipher => {
+                        self.adding_panel.handle_key_events(key_event);
+                        Ok(None)
+                    },
+                    Focus::History => Ok(None),
                 }
             },
             Event::Mouse(mouse_event) => {
                 match self.focus {
-                    Focus::Plaintext => todo!(),
-                    Focus::Ciphertext => todo!(),
-                    Focus::CipherStack => todo!(),
-                    Focus::Cipher => todo!(),
-                    Focus::History => todo!(),
+                    Focus::Plaintext => {
+                        self.plaintext.handle_mouse_events(mouse_event);
+                        Ok(None)
+                    },
+                    Focus::Ciphertext => {
+                        self.ciphertext.handle_mouse_events(mouse_event);
+                        Ok(None)
+                    },
+                    Focus::CipherStack => {
+                        self.stack.handle_mouse_events(mouse_event);
+                        Ok(None)
+                    },
+                    Focus::AddCipher => {Ok(None)},
+                    Focus::History => {Ok(None)},
         }
             },
-            Event::Paste(_) => {Ok(Message::None)}
-            _ => {Ok(Message::None)}
+            Event::Paste(_) => {Ok(None)}
+            _ => {Ok(None)}
         }
         
     }
@@ -246,71 +271,69 @@ impl App {
 
     pub fn update(&mut self, msg: Message) {
         match msg {
-            Message::None => {}
             Message::AddCipher(cipher_type, Some(index)) => {
                 self.stack.ciphers.insert(index, cipher_type.default());
-                self.state = AppState::EditingCipher(index);
+                self.state = AppState::CurrentlyEditingCiphers(index);
                 self.stack.selected = Some(index)
             }
             Message::AddCipher(cipher_type, None) => {
                 self.stack.ciphers.push(cipher_type.default());
-                self.state = AppState::EditingCipher(self.stack.ciphers.len() - 1);
+                self.state = AppState::CurrentlyEditingCiphers(self.stack.ciphers.len() - 1);
                 self.stack.selected = Some(self.stack.ciphers.len() - 1)
             }
             Message::RemoveCipher(Some(index)) => {
                 let removed = self.stack.ciphers.remove(index);
-                self.state = AppState::EditingText;
-                self.stack.selected = if !(self.stack.ciphers.len() == 0) {Some(self.stack.ciphers.len()-1)} else {None};
+                self.state = AppState::EditingText(Some(removed.default()));
+                self.stack.selected = None
             }
             Message::RemoveCipher(None) => {
                 if let Some(removed) = self.stack.ciphers.pop() {
-                    self.state = AppState::EditingText;
-                    self.stack.selected = if !(self.stack.ciphers.len() == 0) {Some(self.stack.ciphers.len()-1)} else {None};
+                    self.state = AppState::EditingText(Some(removed.default()));
+                    self.stack.selected = None
                 }
             }
             Message::Exit => self.exit(),
             Message::Reset => self.exit(),
             Message::StopCiphering => {
-                if let AppState::EditingCipher(index) = self.state {
+                if let AppState::CurrentlyEditingCiphers(index) = self.state {
                     let cipher = self.stack.ciphers[index].clone();
-                    self.state = AppState::EditingText;
+                    self.state = AppState::EditingText(Some(cipher));
                     self.stack.selected = Some(index);
                 }
             }
             Message::StartCiphering(index) => {
-                self.state = AppState::EditingCipher(index);
+                self.state = AppState::CurrentlyEditingCiphers(index);
                 self.stack.selected = Some(index)
             }
             Message::PushChar(c) => self.plaintext.text.push(c),
             Message::PopChar => {
                 self.plaintext.text.pop();
             }
-            Message::GoHome => self.state = AppState::Home,
+            Message::GoHome => self.state = AppState::EditingText(None),
             Message::EditCipher(index, key_code) => self.edit_cipher(index, key_code),
             Message::NextCipher(cipher) => {
                 let (next_cipher, index_opt) = self.stack.next(&cipher);
-                self.state = AppState::EditingText;
+                self.state = AppState::EditingText(Some(next_cipher));
                 self.stack.selected = index_opt
             }
             Message::PreviousCipher(cipher) => {
                 let (next_cipher, index_opt) = self.stack.previous(&cipher);
-                self.state = AppState::EditingText;
+                self.state = AppState::EditingText(Some(next_cipher));
                 self.stack.selected = index_opt
             }
             Message::NextInStack => {
                 if let Some(index) = &mut self.stack.selected {
                     *index += 1;
-                    self.state = AppState::EditingText;
+                    self.state = AppState::EditingText(Some(self.stack.ciphers[*index].clone()));
                 }
             }
             Message::PreviousInStack => {
                 if let Some(index) = &mut self.stack.selected {
                     *index -= 1;
-                    self.state = AppState::EditingText;
+                    self.state = AppState::EditingText(Some(self.stack.ciphers[*index].clone()));
                 }
             }
-            Message::LookAtCipher(cipher) => self.state = AppState::EditingText,
-            Message::NextFocus => self.focus = self.focus.next(),
+            Message::LookAtCipher(cipher) => self.state = AppState::EditingText(Some(cipher)),
         }
     }
     pub fn exit(&mut self) {

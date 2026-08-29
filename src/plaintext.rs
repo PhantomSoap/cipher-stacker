@@ -1,4 +1,4 @@
-use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
 use ratatui::{Frame, layout::Rect, style::{Color, Style}, text::Text, widgets::{Block, Paragraph, Wrap}};
 
 use crate::Message;
@@ -18,9 +18,10 @@ impl Plaintext {
     pub fn draw(&self,frame : &mut Frame,area : Rect) {
         let widget = Paragraph::new(format!("Plaintext: {}",self.text))
             .wrap(Wrap { trim : true})
-            .block(Block::bordered())//.border_style(Color::Blue))
+            //.border_style(Color::Blue))
             .scroll((self.scroll as u16,0));
         frame.render_widget(widget, area);
+        frame.render_widget(Block::bordered(), area);
     }
 
     pub fn handle_key_events(&mut self,key : KeyEvent)  -> Option<Message>{
@@ -41,6 +42,16 @@ impl Plaintext {
             KeyCode::Tab => Some(Message::NextFocus),
 
             _ => None
+        }
+    }
+
+    pub fn handle_mouse_events(&mut self, m : MouseEvent) {
+        match m.kind {
+            crossterm::event::MouseEventKind::ScrollDown => {self.scroll+=1},
+            crossterm::event::MouseEventKind::ScrollUp if self.scroll !=0=> {self.scroll-=1},
+            crossterm::event::MouseEventKind::ScrollLeft => {},
+            crossterm::event::MouseEventKind::ScrollRight => {},
+            _ => {}
         }
     }
 }

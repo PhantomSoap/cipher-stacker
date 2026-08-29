@@ -9,9 +9,11 @@ pub mod cipherviews;
 pub mod plaintext;
 pub mod ciphertext;
 pub mod history;
-pub mod control_panel;
+pub mod cipher_adder;
 
-pub use control_panel::ControlPanel;
+
+pub use cipher_adder::CipherAdder;
+
 pub use plaintext::Plaintext;
 pub use ciphertext::Ciphertext;
 pub use cipher_stack::{CipherStack,CipherType};
@@ -39,8 +41,11 @@ pub enum Message {
     PreviousCipher(CipherType),
     NextInStack,
     PreviousInStack,
-    None,
+<<<<<<< HEAD
     NextFocus,
+=======
+    None,
+>>>>>>> parent of 086006a (removed inner value of appstate editing text)
 }
 
 
