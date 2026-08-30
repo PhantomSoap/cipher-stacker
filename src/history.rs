@@ -1,5 +1,5 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
-use ratatui::{Frame, layout::Rect, text::{Line, Text}, widgets::{ListState, Paragraph, Wrap}};
+use ratatui::{Frame, layout::Rect, style::Color, text::{Line, Text}, widgets::{Block, ListState, Paragraph, Wrap}};
 
 use crate::{CipherStack, Message, cipher_stack::CipherType};
 
@@ -10,7 +10,7 @@ pub struct History {
 }
 
 impl History {
-    pub fn draw(&self,frame : &mut Frame,area : Rect,cipherstack : &CipherStack) {
+    pub fn draw(&self,frame : &mut Frame,area : Rect,cipherstack : &CipherStack,focus : bool) {
     let mut history_text = Text::default();
     history_text.push_line(Line::from("History:"));
     history_text.push_line(Line::from(format!(
@@ -24,10 +24,17 @@ impl History {
         }
     }
 
-    frame.render_widget(
+    frame.render_widget(if focus {
         Paragraph::new(history_text)
         .wrap(Wrap {trim : true})
-        .scroll((self.scroll as u16,0)),
+        .block(Block::bordered().border_style(Color::Blue))
+        .scroll((self.scroll as u16,0))
+        } else {
+            Paragraph::new(history_text)
+            .wrap(Wrap {trim : true})
+            .block(Block::bordered())
+            .scroll((self.scroll as u16,0))
+        },
         area,
     )
 

@@ -222,8 +222,8 @@ impl App {
         self.plaintext.draw(frame,areas.plaintext,if let Focus::Plaintext = self.focus {true} else {false});
         self.ciphertext.draw(frame,areas.ciphertext,if let Focus::Ciphertext = self.focus {true} else {false});
         self.stack.draw(frame,areas.cipherstack,if let Focus::CipherStack = self.focus {true} else {false});
-        self.history.draw(frame,areas.history,&self.stack);
-        self.adding_panel.draw(frame,areas.adding_panel)
+        self.history.draw(frame,areas.history,&self.stack,if let Focus::History = self.focus {true} else {false});
+        self.adding_panel.draw(frame,areas.adding_panel,if let Focus::History = self.focus {true} else {false})
     }
 
     

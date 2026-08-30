@@ -18,7 +18,7 @@ impl CipherAdder {
             scroll : 0,
         }
     }
-    pub fn draw(&self,frame : &mut Frame, area : Rect) {
+    pub fn draw(&self,frame : &mut Frame, area : Rect,focus : bool) {
         let panel = Paragraph::new(Text::from(format!("____________\n| {:?} | <+> Add Cipher |\n------------------",&self.cipher)));
         frame.render_widget(panel, area);
     }
