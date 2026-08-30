@@ -1,12 +1,19 @@
+use crate::CipherType;
+use crate::AffineView;
+use crate::AtbashView;
+use crate::CaesarView;
+use crate::RailfenceView;
+use crate::VigenereView;
+use crate::CipherView;
 use crate::{EditingPanel, Message};
 
-use crate::{CipherStack, CipherType};
+use crate::CipherStack;
 use crate::CipherAdder;
 use crate::Plaintext;
 use crate::Ciphertext;
 use crate::History;
 use crate::AppCipher;
-use crossterm::event::{self, Event, KeyCode};
+use crossterm::event::{self, Event};
 use ratatui::layout::{ Constraint, Direction, Layout};
 use ratatui::widgets::Block;
 use ratatui::{DefaultTerminal, Frame, layout::Rect};
@@ -198,11 +205,17 @@ impl App {
     pub fn draw(&self, frame: &mut Frame) {
         let areas = AppLayout::build(frame.area()); 
         frame.render_widget(Block::bordered().title(format!("{:?}",self.focus)), frame.area());
-        if let Some(cipherview) = &self.cipherview {
-            cipherview.draw(frame,areas.cipherview);
-        } else {
-            frame.render_widget(Block::bordered(),areas.cipherview)
+        if let Some(index) = self.stack.selected {
+            match &self.stack.ciphers[index] {
+                CipherType::Caeser(shift) => CaesarView::new(*shift).draw(frame,areas.cipherview),
+                CipherType::Vigenere(code) => VigenereView::new(&code).draw(frame,areas.cipherview),
+                CipherType::RailFence(key) => RailfenceView::new(&self.plaintext.text,*key).draw(frame,areas.cipherview),
+                CipherType::Atbash => AtbashView::default().draw(frame,areas.cipherview),
+                CipherType::Affine(a, b) => AffineView::new(*a,*b,&self.plaintext.text).draw(frame,areas.cipherview),
+            }
         }
+        
+        
         self.plaintext.draw(frame,areas.plaintext);
         self.ciphertext.draw(frame,areas.ciphertext);
         self.stack.draw(frame,areas.cipherstack);
@@ -214,9 +227,9 @@ impl App {
 
     pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            Message::AddCipher(cipher_name, _) => self.stack.update(&msg),
+            Message::AddCipher(_, _) => self.stack.update(&msg),
             Message::RemoveCipher(_) => self.stack.update(&msg),
-            Message::EditCipher(cipher_edit) => self.stack.update(&msg),
+            Message::EditCipher(_) => self.stack.update(&msg),
             Message::NextInStack => self.stack.update(&msg),
             Message::PreviousInStack => self.stack.update(&msg),
             Message::CipherPlaintext => None,

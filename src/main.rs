@@ -24,7 +24,11 @@ use crate::cipher_stack::{CipherEdit, CipherName,CipherStack,CipherType};
 pub use crate::cipherviews::cipherview::{AppCipher, CipherView};
 pub use crate::cipher_editer::EditingPanel;
 pub use app::App;
-
+pub use crate::cipherviews::affine_ui::AffineView;
+pub use crate::cipherviews::atbash_ui::AtbashView;
+pub use crate::cipherviews::caesar_ui::CaesarView;
+pub use crate::cipherviews::rail_fence_ui::RailfenceView;
+pub use crate::cipherviews::vigenere_ui::VigenereView;
 
 use ratatui::run;
 
