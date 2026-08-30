@@ -68,6 +68,7 @@ pub struct AppLayout {
     history : Rect,
     cipherview : Rect,
     adding_panel : Rect,
+    editing_panel : Rect,
 }
 
 impl AppLayout {
@@ -106,15 +107,17 @@ impl AppLayout {
                             Constraint::Length(4),
                             Constraint::Length(4),
                             Constraint::Length(4),
+                            Constraint::Length(4),
                         ]).split(bottoms[1]);
 
         Self {
             plaintext: footer_lines[0],
-            ciphertext: footer_lines[2],
+            ciphertext: footer_lines[3],
             cipherstack: bottoms[0],
             history: bottoms[2],
             cipherview : middles[1],
             adding_panel : footer_lines[1],
+            editing_panel : footer_lines[2]
         }
     }
 }
@@ -216,8 +219,8 @@ impl App {
         }
         
         
-        self.plaintext.draw(frame,areas.plaintext);
-        self.ciphertext.draw(frame,areas.ciphertext);
+        self.plaintext.draw(frame,areas.plaintext,if let Focus::Plaintext = self.focus {true} else {false});
+        self.ciphertext.draw(frame,areas.ciphertext,);
         self.stack.draw(frame,areas.cipherstack);
         self.history.draw(frame,areas.history,&self.stack);
         self.adding_panel.draw(frame,areas.adding_panel)

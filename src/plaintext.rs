@@ -15,12 +15,19 @@ impl Plaintext {
         }
     }
 
-    pub fn draw(&self,frame : &mut Frame,area : Rect) {
-        let widget = Paragraph::new(format!("Plaintext: {}",self.text))
-            .wrap(Wrap { trim : true})
-            .block(Block::bordered())
-            //.border_style(Color::Blue))
-            .scroll((self.scroll as u16,0));
+    pub fn draw(&self,frame : &mut Frame,area : Rect,focus : bool) {
+    
+            let widget = if focus {
+                Paragraph::new(format!("Plaintext: {}",self.text))
+                    .wrap(Wrap { trim : true})
+                    .block(Block::bordered().border_style(Color::Blue))
+                    .scroll((self.scroll as u16,0))
+            } else {
+                Paragraph::new(format!("Plaintext: {}",self.text))
+                    .wrap(Wrap { trim : true})
+                    .block(Block::bordered())
+                    .scroll((self.scroll as u16,0))
+            };
         frame.render_widget(widget, area);
         
     }
