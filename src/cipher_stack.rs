@@ -1,6 +1,5 @@
 use std::{
-    fmt::{self, Formatter},
-    mem::discriminant,
+    fmt::{self, Formatter}
 };
 
 use cifers::{Cipher,Caeser,Vigenere,Railfence,Affine};
@@ -8,7 +7,55 @@ use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
 use ratatui::{Frame, layout::Rect, style::Color, widgets::{Block, List, ListItem, ListState}};
 
 use crate::Message;
+#[derive(Debug,Clone,Copy)]
+pub enum CipherEdit {
+    PushChar(char),
+    Popchar,
+    Up,
+    Down,
+    Left,
+    Right,
+}
+#[derive(Debug,Clone, Copy)]
+pub enum CipherName {
+    Caesar,
+    Vigenere,
+    Railfence,
+    Atbash,
+    Affine,
+}
 
+impl CipherName {
+    pub fn next(&mut self) {
+        *self = match self {
+            CipherName::Caesar => CipherName::Vigenere,
+            CipherName::Vigenere => CipherName::Railfence,
+            CipherName::Railfence => CipherName::Atbash,
+            CipherName::Atbash => CipherName::Affine,
+            CipherName::Affine => CipherName::Caesar,
+        }
+    }
+
+    pub fn previous(&mut self) {
+        *self = match self {
+            CipherName::Caesar => CipherName::Affine,
+            CipherName::Vigenere => CipherName::Caesar,
+            CipherName::Railfence => CipherName::Vigenere,
+            CipherName::Atbash => CipherName::Railfence,
+            CipherName::Affine => CipherName::Atbash,
+        }
+    }
+
+    pub fn into_ciphertype(&self) -> CipherType {
+        match self {
+            CipherName::Caesar => CipherType::Caeser(0),
+            CipherName::Vigenere => CipherType::Vigenere("".to_string()),
+            CipherName::Railfence => CipherType::RailFence(1),
+            CipherName::Atbash => CipherType::RailFence(1),
+            CipherName::Affine => CipherType::Affine(1, 0),
+        }
+    }
+}
 #[derive(Debug, Clone, PartialEq)]
 pub enum CipherType {
     Caeser(i8),
@@ -61,11 +108,11 @@ impl CipherStack {
                     history.push(working_cipher.clone());
                 }
                 CipherType::RailFence(key) => {
-                    if !(*key < 2 || *key >= working_cipher.len() as u8) {
-                        working_cipher = Railfence::new(*key as u8)
-                            .encipher(&working_cipher)
+                     
+                    working_cipher = Railfence::new(*key as u8 % working_cipher.len() as u8)
+                        .encipher(&working_cipher);
                             
-                    };
+                    
                     history.push(working_cipher.clone());
                 }
                 CipherType::Atbash => {
@@ -84,70 +131,8 @@ impl CipherStack {
     }
 }
 
-impl CipherStack {
-    pub fn next(&self, cipher: &CipherType) -> (CipherType, Option<usize>) {
-        if let Some(index) = self
-            .ciphers
-            .iter()
-            .enumerate()
-            .filter(|&(_, val)| discriminant(val) == discriminant(&cipher.next()))
-            .nth_back(0)
-            .map(|(indx, _)| indx)
-        {
-            (self.ciphers.get(index).unwrap().clone(), Some(index))
-        } else {
-            (cipher.next(), None)
-        }
-    }
 
-    pub fn previous(&self, cipher: &CipherType) -> (CipherType, Option<usize>) {
-        if let Some(index) = self
-            .ciphers
-            .iter()
-            .enumerate()
-            .filter(|&(_, val)| discriminant(val) == discriminant(&cipher.previous()))
-            .nth_back(0)
-            .map(|(indx, _)| indx)
-        {
-            (self.ciphers.get(index).unwrap().clone(), Some(index))
-        } else {
-            (cipher.previous(), None)
-        }
-    }
-}
 impl CipherType {
-    pub fn first() -> Self {
-        Self::Caeser(0)
-    }
-    pub fn next(&self) -> CipherType {
-        match self {
-            CipherType::Caeser(_) => CipherType::Vigenere("".to_string()),
-            CipherType::Vigenere(_) => CipherType::RailFence(1),
-            CipherType::RailFence(_) => CipherType::Atbash,
-            CipherType::Atbash => CipherType::Affine(1, 0),
-            CipherType::Affine(_, _) => CipherType::Caeser(0),
-        }
-    }
-    pub fn previous(&self) -> CipherType {
-        match self {
-            CipherType::Caeser(_) => CipherType::Affine(1, 0),
-            CipherType::Vigenere(_) => CipherType::Caeser(0),
-            CipherType::RailFence(_) => CipherType::Vigenere("".to_string()),
-            CipherType::Atbash => CipherType::RailFence(1),
-            CipherType::Affine(_, _) => CipherType::Atbash,
-        }
-    }
-
-    pub fn default(&self) -> CipherType {
-        match self {
-            CipherType::Caeser(_) => CipherType::Caeser(0),
-            CipherType::Vigenere(_) => CipherType::Vigenere("".to_string()),
-            CipherType::RailFence(_) => CipherType::RailFence(1),
-            CipherType::Atbash => CipherType::Atbash,
-            CipherType::Affine(_, _) => CipherType::Affine(1, 0),
-        }
-    }
-
     pub fn instructions(&self) -> String {
         match self {
             CipherType::Caeser(_) => String::from("<- Shift ->"),
@@ -167,6 +152,16 @@ impl CipherType {
             CipherType::RailFence(_) => String::from("RailFence Cipher"),
             CipherType::Atbash => String::from("Atbash Cipher"),
             CipherType::Affine(_, _) => String::from("Affine Cipher"),
+        }
+    }
+
+    pub fn into_ciphername(&self) -> CipherName {
+        match self {
+            CipherType::Caeser(_) => CipherName::Caesar,
+            CipherType::Vigenere(_) => CipherName::Vigenere,
+            CipherType::RailFence(_) => CipherName::Railfence,
+            CipherType::Atbash => CipherName::Atbash,
+            CipherType::Affine(_, _) => CipherName::Affine,
         }
     }
 }
@@ -239,5 +234,123 @@ impl CipherStack {
             crossterm::event::MouseEventKind::ScrollRight => {},
             _ => {}
         }
+    }
+
+    pub fn update(&mut self,msg : &Message) -> Option<Message> {
+        match msg {
+            Message::AddCipher(ciphername, Some(index)) => {
+                self.ciphers.insert(*index, ciphername.into_ciphertype());
+                self.selected = Some(*index);
+                Some(Message::CipherPlaintext)
+            },
+            Message::AddCipher(ciphername, None) => {
+                self.ciphers.push(ciphername.into_ciphertype());
+                self.selected = Some(self.ciphers.len() - 1);
+                Some(Message::CipherPlaintext)
+            },
+            
+            Message::RemoveCipher(Some(index)) => {
+                let _removed = self.ciphers.remove(*index);
+                self.selected = if self.ciphers.len() !=0 {Some(self.ciphers.len()-1)} else {None};
+                Some(Message::CipherPlaintext)
+            },
+            Message::RemoveCipher(None) => {
+                if let Some(removed) = self.ciphers.pop() {
+                    self.selected = if self.ciphers.len() !=0 {Some(self.ciphers.len()-1)} else {None};
+                    
+                }
+                Some(Message::CipherPlaintext)
+            },
+            Message::EditCipher(edit) => {
+                if let Some(index) = self.selected {
+                    match edit {
+                        CipherEdit::PushChar(chr) if let CipherType::Vigenere(code) = &mut self.ciphers[index]  => {
+                            code.push(chr.to_ascii_uppercase());
+                        },
+                        CipherEdit::Popchar if let CipherType::Vigenere(code) = &mut self.ciphers[index] => {
+                            code.pop();
+                        },
+                        CipherEdit::Up => {
+                            match &mut self.ciphers[index] {
+                                CipherType::Affine(a,_b ) => {
+                                    let mut shift = *a;
+                                    while !(*a == 26) && !(shift == 26) {
+                                        if !((shift + 1) % 2 == 0) && !((shift + 1) % 13 == 0) {
+                                            *a = shift + 1;
+                                            break;
+                                        } else {
+                                            shift += 1;
+                                        }
+                                    }
+                                },
+                                CipherType::RailFence(key)  => {
+                                    *key +=1
+                                },
+                                _ => {}
+                            }
+                        },
+                        CipherEdit::Down => {
+                            match &mut self.ciphers[index] {
+                                CipherType::Affine(a,_b ) => {
+                                    let mut shift = *a;
+                                    while !(*a == 0) && !(shift == 0) {
+                                        if !((shift - 1) % 2 == 0) && !((shift - 1) % 13 == 0) {
+                                            *a = shift - 1;
+                                            break;
+                                        } else {
+                                            shift -= 1;
+                                        }
+                                    }
+                                },
+                                CipherType::RailFence(key) if *key !=1 => {
+                                    *key -=1
+                                },
+                                _ => {}
+                            }
+                        },
+                        CipherEdit::Left => {
+                            match &mut self.ciphers[index] {
+                                CipherType::Caeser(shift) => {
+                                    *shift = ((*shift - 1) % 26 + 26) % 26;
+                                },
+                                CipherType::Affine(_a,b ) if !(*b == 0) => {
+                                    *b -= 1;
+                                } 
+                                _ => {}
+                            }
+                        },
+                        CipherEdit::Right => {
+                            match &mut self.ciphers[index] {
+                                CipherType::Caeser(shift) => {
+                                    *shift = ((*shift + 1) % 26 + 26) % 26;
+                                },
+                                CipherType::Affine(_a,b ) if !(*b == 25) => {
+                                    *b += 1;
+                                } 
+
+                                
+                                _ => {}
+                            }
+                        },
+                        _ => {}
+                    }
+                }
+                Some(Message::CipherPlaintext)
+            },
+            Message::NextInStack => {
+                if let Some(index) = &mut self.selected {
+                    *index += 1;
+                }
+                None
+            },
+            Message::PreviousInStack if let Some(index) = &mut self.selected=> {
+                if *index !=0 {
+                    *index -= 1;
+                }
+                None
+            }
+            _ => {None}
+        }
+
     }
 }

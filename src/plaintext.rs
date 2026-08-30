@@ -34,11 +34,11 @@ impl Plaintext {
             KeyCode::Esc => {Some(Message::Exit)},
             KeyCode::Backspace => {
                 self.text.pop();
-                None
+                Some(Message::CipherPlaintext)
             },
             KeyCode::Char(c) => {
                 self.text.push(c);
-                None
+                Some(Message::CipherPlaintext)
             },
             KeyCode::Tab => Some(Message::NextFocus),
 

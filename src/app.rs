@@ -1,4 +1,5 @@
-use crate::Message;
+use crate::{EditingPanel, Message};
+
 use crate::{CipherStack, CipherType};
 use crate::CipherAdder;
 use crate::Plaintext;
@@ -19,6 +20,7 @@ pub enum Focus {
     Ciphertext,
     CipherStack,
     AddCipher,
+    EditCipher,
     History,
 
 }
@@ -27,9 +29,10 @@ impl Focus {
     pub fn next(&self) -> Self {
         match self {
             Focus::Plaintext => Focus::AddCipher,
-            Focus::AddCipher => Focus::Ciphertext,
-            Focus::Ciphertext => Focus::CipherStack,
-            Focus::CipherStack => Focus::History,
+            Focus::AddCipher => Focus::CipherStack,
+            Focus::Ciphertext => Focus::History,
+            Focus::CipherStack => Focus::EditCipher,
+            Focus::EditCipher => Focus::Ciphertext,
             Focus::History => Focus::Plaintext,
         }
     }
@@ -47,6 +50,7 @@ pub struct App {
     pub history: History,
     pub cipherview : Option<AppCipher>,
     pub adding_panel : CipherAdder,
+    pub editing_panel : EditingPanel,
     pub focus : Focus,
     
 }
@@ -56,6 +60,7 @@ pub struct AppLayout {
     cipherstack : Rect,
     history : Rect,
     cipherview : Rect,
+    adding_panel : Rect,
 }
 
 impl AppLayout {
@@ -102,6 +107,7 @@ impl AppLayout {
             cipherstack: bottoms[0],
             history: bottoms[2],
             cipherview : middles[1],
+            adding_panel : footer_lines[1],
         }
     }
 }
@@ -116,9 +122,7 @@ impl App {
             focus : Focus::Plaintext,
             cipherview : None,
             adding_panel : CipherAdder::new(),
-            
-
-            
+            editing_panel : EditingPanel::new(),
         }
     }
 
@@ -160,6 +164,7 @@ impl App {
                         
                     },
                     Focus::History => Ok(self.history.handle_key_events(key_event)),
+                    Focus::EditCipher => Ok(self.editing_panel.handle_key_events(key_event))
                 }
             },
             Event::Mouse(mouse_event) => {
@@ -177,6 +182,7 @@ impl App {
                         Ok(None)
                     },
                     Focus::AddCipher => {Ok(None)},
+                    Focus::EditCipher => Ok(None),
                     Focus::History => {
                         self.history.handle_mouse_events(mouse_event);
                         Ok(None)
@@ -201,125 +207,24 @@ impl App {
         self.ciphertext.draw(frame,areas.ciphertext);
         self.stack.draw(frame,areas.cipherstack);
         self.history.draw(frame,areas.history,&self.stack);
+        self.adding_panel.draw(frame,areas.adding_panel)
     }
 
-    pub fn edit_cipher(&mut self, index: usize, key: KeyCode) {
-        let cipher = self.stack.ciphers.get_mut(index).unwrap();
-        match cipher {
-            CipherType::Caeser(shift) => match key {
-                KeyCode::Right => {
-                    *shift = ((*shift + 1) % 26 + 26) % 26;
-                }
-                KeyCode::Left => {
-                    *shift = ((*shift - 1) % 26 + 26) % 26;
-                }
-                _ => {}
-            },
-            CipherType::Vigenere(code) => match key {
-                KeyCode::Char(chr) if chr.is_alphabetic() => {
-                    code.push(chr.to_ascii_uppercase());
-                }
-                KeyCode::Backspace => {
-                    code.pop();
-                }
-                _ => {}
-            },
-            CipherType::RailFence(ckey) => match key {
-                KeyCode::Down if !(*ckey <= 1) => *ckey -= 1,
-                KeyCode::Up if !(*ckey == self.plaintext.text.len() as u8) => {
-                    *ckey += 1;
-                }
-                _ => {}
-            },
-            CipherType::Atbash => {}
-            CipherType::Affine(a, b) => match key {
-                KeyCode::Up => {
-                    let mut shift = *a;
-                    while !(*a == 26) && !(shift == 26) {
-                        if !((shift + 1) % 2 == 0) && !((shift + 1) % 13 == 0) {
-                            *a = shift + 1;
-                            break;
-                        } else {
-                            shift += 1;
-                        }
-                    }
-                }
-                KeyCode::Down => {
-                    let mut shift = *a;
-                    while !(*a == 0) && !(shift == 0) {
-                        if !((shift - 1) % 2 == 0) && !((shift - 1) % 13 == 0) {
-                            *a = shift - 1;
-                            break;
-                        } else {
-                            shift -= 1;
-                        }
-                    }
-                }
-                KeyCode::Left if !(*b == 0) => {
-                    *b -= 1;
-                }
-                KeyCode::Right if !(*b == 25) => {
-                    *b += 1;
-                }
-                _ => {}
-            },
-        }
-    }
+    
 
-    pub fn update(&mut self, msg: Message) {
+    pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            Message::AddCipher(cipher_type, Some(index)) => {
-                self.stack.ciphers.insert(index, cipher_type.default());
-                self.stack.selected = Some(index)
-            }
-            Message::AddCipher(cipher_type, None) => {
-                self.stack.ciphers.push(cipher_type.default());
-                self.stack.selected = Some(self.stack.ciphers.len() - 1)
-            }
-            Message::RemoveCipher(Some(index)) => {
-                let removed = self.stack.ciphers.remove(index);
-                self.stack.selected = None
-            }
-            Message::RemoveCipher(None) => {
-                if let Some(removed) = self.stack.ciphers.pop() {
-                    self.stack.selected = None
-                }
-            }
-            Message::Exit => self.exit(),
-            Message::Reset => self.exit(),
-            Message::StopCiphering => {
-                
-            }
-            Message::StartCiphering(index) => {
-                self.stack.selected = Some(index)
-            }
-            Message::PushChar(c) => self.plaintext.text.push(c),
-            Message::PopChar => {
-                self.plaintext.text.pop();
-            }
-            Message::GoHome => {},
-            Message::EditCipher(index, key_code) => self.edit_cipher(index, key_code),
-            Message::NextCipher(cipher) => {
-                let (next_cipher, index_opt) = self.stack.next(&cipher);
-                self.stack.selected = index_opt
-            }
-            Message::PreviousCipher(cipher) => {
-                let (next_cipher, index_opt) = self.stack.previous(&cipher);
-                self.stack.selected = index_opt
-            }
-            Message::NextInStack => {
-                if let Some(index) = &mut self.stack.selected {
-                    *index += 1;
-                }
-            }
-            Message::PreviousInStack if let Some(index) = &mut self.stack.selected=> {
-                if *index !=0 {
-                    *index -= 1;
-                }
-            }
-            Message::LookAtCipher(cipher) => {},
-            Message::NextFocus => {self.focus = self.focus.next()},
-            _ => {},
+            Message::AddCipher(cipher_name, _) => self.stack.update(&msg),
+            Message::RemoveCipher(_) => self.stack.update(&msg),
+            Message::EditCipher(cipher_edit) => self.stack.update(&msg),
+            Message::NextInStack => self.stack.update(&msg),
+            Message::PreviousInStack => self.stack.update(&msg),
+            Message::CipherPlaintext => None,
+            Message::DecipherCiphertext => None,
+            Message::Exit => {self.exit(); None},
+            Message::Reset => {self.exit(); None},
+            Message::GoHome => {self.exit(); None},
+            Message::NextFocus => {self.focus = self.focus.next(); None},
         }
     }
     pub fn exit(&mut self) {

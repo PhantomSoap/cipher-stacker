@@ -10,37 +10,36 @@ pub mod plaintext;
 pub mod ciphertext;
 pub mod history;
 pub mod cipher_adder;
+pub mod cipher_editer;
+
 
 
 pub use cipher_adder::CipherAdder;
 
 pub use plaintext::Plaintext;
 pub use ciphertext::Ciphertext;
-pub use cipher_stack::{CipherStack,CipherType};
+
 pub use history::History;
+use crate::cipher_stack::{CipherEdit, CipherName,CipherStack,CipherType};
 pub use crate::cipherviews::cipherview::{AppCipher, CipherView};
+pub use crate::cipher_editer::EditingPanel;
 pub use app::App;
 
-use crossterm::event::KeyCode;
+
 use ratatui::run;
 
 
 pub enum Message {
-    AddCipher(CipherType, Option<usize>),
+    AddCipher(CipherName, Option<usize>),
     RemoveCipher(Option<usize>),
-    Exit,
-    Reset,
-    StopCiphering,
-    StartCiphering(usize),
-    LookAtCipher(CipherType),
-    PushChar(char),
-    PopChar,
-    GoHome,
-    EditCipher(usize, KeyCode),
-    NextCipher(CipherType),
-    PreviousCipher(CipherType),
+    EditCipher(CipherEdit),
     NextInStack,
     PreviousInStack,
+    CipherPlaintext,
+    DecipherCiphertext,
+    Exit,
+    Reset,
+    GoHome,
     NextFocus,
 
 }

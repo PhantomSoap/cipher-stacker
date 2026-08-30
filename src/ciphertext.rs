@@ -33,11 +33,11 @@ impl Ciphertext {
             KeyCode::Esc => {Some(Message::Exit)},
             KeyCode::Backspace => {
                 self.text.pop();
-                None
+                Some(Message::DecipherCiphertext)
             },
             KeyCode::Char(c) => {
                 self.text.push(c);
-                None
+                Some(Message::DecipherCiphertext)
             },
             KeyCode::Tab => Some(Message::NextFocus),
 
