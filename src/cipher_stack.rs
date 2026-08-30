@@ -186,16 +186,26 @@ impl fmt::Display for CipherType {
 }
 
 impl CipherStack {
-    pub fn draw(&self,frame : &mut Frame, area : Rect) {
+    pub fn draw(&self,frame : &mut Frame, area : Rect,focus : bool) {
         let mut state = ListState::default();
         state.select(self.selected);
-        let list = List::new(
+        let list = if focus {
+            List::new(
             self.ciphers
             .iter()
             .map(
                 |cipher| ListItem::from(format!("{:?}",cipher))
             )
-        ).highlight_style(Color::Blue).block(Block::bordered());
+            ).highlight_style(Color::Blue).block(Block::bordered().border_style(Color::Blue))
+        } else {
+            List::new(
+            self.ciphers
+            .iter()
+            .map(
+                |cipher| ListItem::from(format!("{:?}",cipher))
+            )
+            ).highlight_style(Color::Blue).block(Block::bordered())
+        };
         frame.render_stateful_widget(list, area, &mut state);
     }
 
