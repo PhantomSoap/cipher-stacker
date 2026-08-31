@@ -20,13 +20,13 @@ impl Ciphertext {
         let widget = if focus {
             Paragraph::new(format!("Ciphertext: {}",self.text))
             .wrap(Wrap { trim : true})
-            .block(Block::bordered().border_style(Color::Blue))
-            .scroll((self.scroll as u16,0))
+            .block(Block::bordered().title_top("Ciphertext").border_style(Color::Blue))
+            .scroll((if self.scroll == 0 {0} else {self.scroll-1} as u16 as u16,0))
         } else {
             Paragraph::new(format!("Ciphertext: {}",self.text))
             .wrap(Wrap { trim : true})
-            .block(Block::bordered())
-            .scroll((self.scroll as u16,0))
+            .block(Block::bordered().title_top("Ciphertext"))
+            .scroll((if self.scroll == 0 {0} else {self.scroll-1} as u16 as u16,0))
         };
         frame.render_widget(widget, area);
     }

@@ -63,7 +63,7 @@ pub struct AppLayout {
     history : Rect,
     cipherview : Rect,
     adding_panel : Rect,
-    _editing_panel : Rect,
+    editing_panel : Rect,
 }
 
 impl AppLayout {
@@ -74,7 +74,7 @@ impl AppLayout {
             .constraints([
                 Constraint::Length(1),
                 Constraint::Length(30),
-                Constraint::Length(15),         
+                Constraint::Length(20),         
             ]).split(area);
 
         let middles = Layout::default()
@@ -83,7 +83,7 @@ impl AppLayout {
                 .constraints([
                     Constraint::Percentage(20),
                     Constraint::Percentage(60),
-                    Constraint::Percentage(20),
+                    Constraint::Percentage(14),
                 ]).split(layouts[1]);
 
         let bottoms = Layout::default()
@@ -100,8 +100,8 @@ impl AppLayout {
                         .margin(1)
                         .constraints([
                             Constraint::Length(4),
-                            Constraint::Length(4),
-                            Constraint::Length(4),
+                            Constraint::Length(3),
+                            Constraint::Length(3),
                             Constraint::Length(4),
                         ]).split(bottoms[1]);
 
@@ -112,7 +112,7 @@ impl AppLayout {
             history: bottoms[2],
             cipherview : middles[1],
             adding_panel : footer_lines[1],
-            _editing_panel : footer_lines[2]
+            editing_panel : footer_lines[2]
         }
     }
 }
@@ -214,18 +214,15 @@ impl App {
         self.ciphertext.draw(frame,areas.ciphertext,if let Focus::Ciphertext = self.focus {true} else {false});
         self.stack.draw(frame,areas.cipherstack,if let Focus::CipherStack = self.focus {true} else {false});
         self.history.draw(frame,areas.history,&self.stack,if let Focus::History = self.focus {true} else {false});
-        self.adding_panel.draw(frame,areas.adding_panel,if let Focus::History = self.focus {true} else {false})
+        self.adding_panel.draw(frame,areas.adding_panel,if let Focus::AddCipher = self.focus {true} else {false});
+        self.editing_panel.draw(frame,areas.editing_panel,if let Focus::EditCipher = self.focus {true} else {false});
     }
 
 
     pub fn update_cipherview(&mut self) {
         if let Some(cipherview) = &mut self.cipherview {
             if let Some(index) = self.stack.selected {
-                
                 cipherview.assign(index,&self.stack.ciphers[index],&self.plaintext.text)
-                
-                    
-                
             } else {
                 self.cipherview = None;
             }

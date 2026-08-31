@@ -18,15 +18,15 @@ impl Plaintext {
     pub fn draw(&self,frame : &mut Frame,area : Rect,focus : bool) {
     
             let widget = if focus {
-                Paragraph::new(format!("Plaintext: {}",self.text))
-                    .wrap(Wrap { trim : true})
-                    .block(Block::bordered().border_style(Color::Blue))
-                    .scroll((self.scroll as u16,0))
+                Paragraph::new(format!("{}",self.text))
+                    .wrap(Wrap { trim : false})
+                    .block(Block::bordered().title_top("Plaintext").border_style(Color::Blue))
+                    .scroll((if self.scroll == (self.text.len() / 137) || self.scroll ==0 {self.scroll} else {self.scroll-1} as u16,0))
             } else {
-                Paragraph::new(format!("Plaintext: {}",self.text))
-                    .wrap(Wrap { trim : true})
-                    .block(Block::bordered())
-                    .scroll((self.scroll as u16,0))
+                Paragraph::new(format!("{}",self.text))
+                    .wrap(Wrap { trim : false})
+                    .block(Block::bordered().title_top("Plaintext"))
+                    .scroll((if self.scroll == self.text.len() / 137  {self.scroll} else {self.scroll-1} as u16 as u16,0))
             };
         frame.render_widget(widget, area);
         
@@ -55,11 +55,18 @@ impl Plaintext {
 
     pub fn handle_mouse_events(&mut self, m : MouseEvent) {
         match m.kind {
-            crossterm::event::MouseEventKind::ScrollDown => {self.scroll+=1},
+            crossterm::event::MouseEventKind::ScrollDown => {self.scroll_down()},
             crossterm::event::MouseEventKind::ScrollUp if self.scroll !=0=> {self.scroll-=1},
             crossterm::event::MouseEventKind::ScrollLeft => {},
             crossterm::event::MouseEventKind::ScrollRight => {},
             _ => {}
         }
+    }
+
+    pub fn scroll_down(&mut self) {
+        self.scroll = (self.scroll+1) % (self.text.len() / 137);
+        
+
+        
     }
 }

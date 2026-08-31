@@ -6,7 +6,7 @@ use cifers::{Cipher,Caeser,Vigenere,Railfence,Affine};
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
 use ratatui::{Frame, layout::Rect, style::Color, widgets::{Block, List, ListItem, ListState}};
 
-use crate::Message;
+use crate::Message::{self, RemoveCipher};
 #[derive(Debug,Clone,Copy)]
 pub enum CipherEdit {
     PushChar(char),
@@ -196,7 +196,7 @@ impl CipherStack {
             .map(
                 |cipher| ListItem::from(format!("{:?}",cipher))
             )
-            ).highlight_style(Color::Blue).block(Block::bordered().border_style(Color::Blue).title_bottom(format!("{:?}",self.selected)))
+            ).highlight_style(Color::Blue).block(Block::bordered().border_style(Color::Blue).title_top("Ciphers").title_bottom(format!("{:?}",self.selected)))
         } else {
             List::new(
             self.ciphers
@@ -204,7 +204,7 @@ impl CipherStack {
             .map(
                 |cipher| ListItem::from(format!("{:?}",cipher))
             )
-            ).highlight_style(Color::Blue).block(Block::bordered().title_bottom(format!("{:?}",self.selected)))
+            ).highlight_style(Color::Blue).block(Block::bordered().title_top("Ciphers").title_bottom(format!("{:?}",self.selected)))
         };
         frame.render_stateful_widget(list, area, &mut state);
     }
@@ -217,6 +217,9 @@ impl CipherStack {
         match key.code {
             KeyCode::Esc => {Some(Message::Exit)},
             KeyCode::Tab => Some(Message::NextFocus),
+            KeyCode::Char('-') => {
+                Some(RemoveCipher(self.selected))   
+            }
             KeyCode::Up if let Some(index) = self.selected  => {
                 if index !=0 {
                     Some(Message::PreviousInStack)
@@ -251,25 +254,25 @@ impl CipherStack {
             Message::AddCipher(ciphername, Some(index)) => {
                 self.ciphers.insert(*index, ciphername.into_ciphertype());
                 self.selected = Some(*index);
-                Some(Message::CipherPlaintext)
+                None
             },
             Message::AddCipher(ciphername, None) => {
                 self.ciphers.push(ciphername.into_ciphertype());
                 self.selected = Some(self.ciphers.len() - 1);
-                Some(Message::CipherPlaintext)
+                None
             },
             
             Message::RemoveCipher(Some(index)) => {
                 let _removed = self.ciphers.remove(*index);
                 self.selected = if self.ciphers.len() !=0 {Some(self.ciphers.len()-1)} else {None};
-                Some(Message::CipherPlaintext)
+                None
             },
             Message::RemoveCipher(None) => {
                 if let Some(_removed) = self.ciphers.pop() {
                     self.selected = if self.ciphers.len() !=0 {Some(self.ciphers.len()-1)} else {None};
                     
                 }
-                Some(Message::CipherPlaintext)
+                None
             },
             Message::EditCipher(edit) => {
                 if let Some(index) = self.selected {
@@ -345,7 +348,7 @@ impl CipherStack {
                         _ => {}
                     }
                 }
-                Some(Message::CipherPlaintext)
+                None
             },
             Message::NextInStack => {
                 if let Some(index) = &mut self.selected {
