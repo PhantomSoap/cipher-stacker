@@ -51,7 +51,7 @@ impl CipherName {
             CipherName::Caesar => CipherType::Caeser(0),
             CipherName::Vigenere => CipherType::Vigenere("".to_string()),
             CipherName::Railfence => CipherType::RailFence(1),
-            CipherName::Atbash => CipherType::RailFence(1),
+            CipherName::Atbash => CipherType::Atbash,
             CipherName::Affine => CipherType::Affine(1, 0),
         }
     }
@@ -196,7 +196,7 @@ impl CipherStack {
             .map(
                 |cipher| ListItem::from(format!("{:?}",cipher))
             )
-            ).highlight_style(Color::Blue).block(Block::bordered().border_style(Color::Blue))
+            ).highlight_style(Color::Blue).block(Block::bordered().border_style(Color::Blue).title_bottom(format!("{:?}",self.selected)))
         } else {
             List::new(
             self.ciphers
@@ -204,7 +204,7 @@ impl CipherStack {
             .map(
                 |cipher| ListItem::from(format!("{:?}",cipher))
             )
-            ).highlight_style(Color::Blue).block(Block::bordered())
+            ).highlight_style(Color::Blue).block(Block::bordered().title_bottom(format!("{:?}",self.selected)))
         };
         frame.render_stateful_widget(list, area, &mut state);
     }
@@ -265,7 +265,7 @@ impl CipherStack {
                 Some(Message::CipherPlaintext)
             },
             Message::RemoveCipher(None) => {
-                if let Some(removed) = self.ciphers.pop() {
+                if let Some(_removed) = self.ciphers.pop() {
                     self.selected = if self.ciphers.len() !=0 {Some(self.ciphers.len()-1)} else {None};
                     
                 }

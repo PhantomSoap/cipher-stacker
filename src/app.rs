@@ -1,10 +1,4 @@
-use crate::CipherType;
-use crate::AffineView;
-use crate::AtbashView;
-use crate::CaesarView;
-use crate::RailfenceView;
-use crate::VigenereView;
-use crate::CipherView;
+
 use crate::{EditingPanel, Message};
 
 use crate::CipherStack;
@@ -16,6 +10,7 @@ use crate::AppCipher;
 use crossterm::event::{self, Event};
 use ratatui::layout::{ Constraint, Direction, Layout};
 use ratatui::widgets::Block;
+
 use ratatui::{DefaultTerminal, Frame, layout::Rect};
 use std::io;
 
@@ -68,7 +63,7 @@ pub struct AppLayout {
     history : Rect,
     cipherview : Rect,
     adding_panel : Rect,
-    editing_panel : Rect,
+    _editing_panel : Rect,
 }
 
 impl AppLayout {
@@ -117,7 +112,7 @@ impl AppLayout {
             history: bottoms[2],
             cipherview : middles[1],
             adding_panel : footer_lines[1],
-            editing_panel : footer_lines[2]
+            _editing_panel : footer_lines[2]
         }
     }
 }
@@ -205,25 +200,40 @@ impl App {
         
     }
 
-    pub fn draw(&self, frame: &mut Frame) {
+    pub fn draw(&mut self, frame: &mut Frame) {
         let areas = AppLayout::build(frame.area()); 
         frame.render_widget(Block::bordered().title(format!("{:?}",self.focus)), frame.area());
-        if let Some(index) = self.stack.selected {
-            match &self.stack.ciphers[index] {
-                CipherType::Caeser(shift) => CaesarView::new(*shift).draw(frame,areas.cipherview),
-                CipherType::Vigenere(code) => VigenereView::new(&code).draw(frame,areas.cipherview),
-                CipherType::RailFence(key) => RailfenceView::new(&self.plaintext.text,*key).draw(frame,areas.cipherview),
-                CipherType::Atbash => AtbashView::default().draw(frame,areas.cipherview),
-                CipherType::Affine(a, b) => AffineView::new(*a,*b,&self.plaintext.text).draw(frame,areas.cipherview),
-            }
+        self.update_cipherview();
+        if let Some(cipherview) = &self.cipherview {
+            cipherview.draw(frame,areas.cipherview);
+        } else {
+            frame.render_widget(Block::bordered(),areas.cipherview);
         }
-        
         
         self.plaintext.draw(frame,areas.plaintext,if let Focus::Plaintext = self.focus {true} else {false});
         self.ciphertext.draw(frame,areas.ciphertext,if let Focus::Ciphertext = self.focus {true} else {false});
         self.stack.draw(frame,areas.cipherstack,if let Focus::CipherStack = self.focus {true} else {false});
         self.history.draw(frame,areas.history,&self.stack,if let Focus::History = self.focus {true} else {false});
         self.adding_panel.draw(frame,areas.adding_panel,if let Focus::History = self.focus {true} else {false})
+    }
+
+
+    pub fn update_cipherview(&mut self) {
+        if let Some(cipherview) = &mut self.cipherview {
+            if let Some(index) = self.stack.selected {
+                
+                cipherview.assign(index,&self.stack.ciphers[index],&self.plaintext.text)
+                
+                    
+                
+            } else {
+                self.cipherview = None;
+            }
+        } else {
+            if let Some(index) = self.stack.selected {
+                self.cipherview = Some(AppCipher::new(index,&self.stack.ciphers[index],&self.plaintext.text));
+            }
+        }
     }
 
     

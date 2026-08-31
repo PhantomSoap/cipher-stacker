@@ -44,7 +44,7 @@ impl EditingPanel {
         }
     }
 
-    pub fn update(&mut self,msg : Message) {
+    pub fn update(&mut self,_msg : Message) {
         
     }
 }

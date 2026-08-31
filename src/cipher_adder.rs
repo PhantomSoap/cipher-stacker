@@ -3,7 +3,7 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
 use ratatui::{Frame, layout::Rect, text::Text, widgets::Paragraph};
 
-use crate::{Message, cipher_stack::{CipherName, CipherType}};
+use crate::{Message, CipherName};
 
 
 pub struct CipherAdder {

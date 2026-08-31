@@ -5,26 +5,21 @@ use ratatui::{
 };
 
 use crate::CipherView;
-pub struct VigenereView<'a> {
-    pub code : &'a String
+pub struct VigenereView {
+    pub code : String
 }
-impl<'a> VigenereView<'a> {
-    pub fn new(code : &'a String) -> Self {
+impl VigenereView {
+    pub fn new(code :  String) -> Self {
         Self {
             code,
         }
     }
 } 
-impl<'a> CipherView for VigenereView<'a> {
+impl CipherView for VigenereView {
     fn draw(&self,frame : &mut ratatui::prelude::Frame,area : Rect) {
         let vigenere_grid = format!("Vigenere Cipher\nCode: '{}'\n",self.code);
 
         frame.render_widget(Paragraph::new(vigenere_grid).block(Block::bordered()), area);
     }
 }
-pub fn render_vigenere(code: &String, area: Rect, buf: &mut Buffer) {
-    let vigenere_grid = format!("Vigenere Cipher\nCode: '{code}'\n");
 
-    Paragraph::new(vigenere_grid).centered().render(area, buf);
-    Block::bordered().render(area, buf);
-}
