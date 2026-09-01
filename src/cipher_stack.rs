@@ -130,7 +130,7 @@ impl CipherStack {
                 |cipher| ListItem::from(format!("{:?}",cipher))
             )
             )
-            .highlight_style(Color::Blue)
+            .highlight_style(Color::LightRed)
             .block(Block::bordered()
             .border_style(style)
             .title_top("Ciphers")

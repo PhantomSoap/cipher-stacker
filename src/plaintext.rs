@@ -57,7 +57,7 @@ impl Plaintext {
 
     pub fn handle_mouse_events(&mut self, m : MouseEvent) {
         match m.kind {
-            crossterm::event::MouseEventKind::ScrollDown => {self.scroll_down()},
+            crossterm::event::MouseEventKind::ScrollDown => {self.scroll +=1},
             crossterm::event::MouseEventKind::ScrollUp if self.scroll !=0=> {self.scroll-=1},
             crossterm::event::MouseEventKind::ScrollLeft => {},
             crossterm::event::MouseEventKind::ScrollRight => {},
@@ -65,10 +65,5 @@ impl Plaintext {
         }
     }
 
-    pub fn scroll_down(&mut self) {
-        self.scroll = (self.scroll+1) % (self.text.len() / 137);
-        
-
-        
-    }
+    
 }

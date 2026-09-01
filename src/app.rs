@@ -69,7 +69,7 @@ impl AppLayout {
                 .constraints([
                     Constraint::Percentage(20),
                     Constraint::Percentage(60),
-                    Constraint::Percentage(14),
+                    Constraint::Percentage(9),
                 ]).split(layouts[1]);
 
         let bottoms = Layout::default()
@@ -86,14 +86,13 @@ impl AppLayout {
                         .margin(1)
                         .constraints([
                             Constraint::Length(4),
-                            Constraint::Length(3),
-                            Constraint::Length(3),
+                            Constraint::Length(1),
                             Constraint::Length(4),
                         ]).split(bottoms[1]);
 
         Self {
             plaintext: footer_lines[0],
-            ciphertext: footer_lines[3],
+            ciphertext: footer_lines[2],
             cipherstack: bottoms[0],
             history: bottoms[2],
             cipherview : middles[1],
