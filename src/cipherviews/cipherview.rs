@@ -1,6 +1,6 @@
 use ratatui::{Frame, layout::Rect};
 
-use crate::{CipherName, cipher_stack::CipherType, cipherviews::{affine_ui::AffineView, atbash_ui::AtbashView, caesar_ui::CaesarView, rail_fence_ui::RailfenceView, vigenere_ui::VigenereView}};
+use crate::{CipherType, cipherviews::{affine_ui::AffineView, atbash_ui::AtbashView, caesar_ui::CaesarView, rail_fence_ui::RailfenceView, vigenere_ui::VigenereView}};
 
 pub trait CipherView {
     fn draw(&self,frame : &mut Frame,area : Rect);

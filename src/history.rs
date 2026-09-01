@@ -1,7 +1,7 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
-use ratatui::{Frame, layout::Rect, style::Color, text::{Line, Text}, widgets::{Block, ListState, Paragraph, Wrap}};
+use ratatui::{Frame, layout::Rect, style::Color, text::{Line, Text}, widgets::{Block, Paragraph, Wrap}};
 
-use crate::{CipherStack, Message, cipher_stack::CipherType};
+use crate::{CipherStack, Message};
 
 #[derive(Default)]
 pub struct History {
@@ -48,6 +48,8 @@ impl History {
 
         match key.code {
             KeyCode::Esc => {Some(Message::Exit)},
+            KeyCode::Up if self.scroll !=0 => {self.scroll -=1; None},
+            KeyCode::Down  => {self.scroll +=1; None},
             KeyCode::Tab => Some(Message::NextFocus),
 
             _ => None

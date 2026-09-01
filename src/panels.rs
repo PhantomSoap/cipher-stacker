@@ -6,82 +6,8 @@ use crate::CipherEdit;
 use crate::{Message, CipherName};
 
 
-pub struct CipherAdder {
-    cipher : CipherName,
-    scroll : u16,
-}
 
-impl CipherAdder {
-    pub fn new() -> Self {
-        Self {
-            cipher : CipherName::Caesar,
-            scroll : 0,
-        }
-    }
-    pub fn draw(&self,frame : &mut Frame, area : Rect,focus : bool) {
-        let panel = if focus {
-            Paragraph::new(
-                Text::from(
-                    Line::from(
-                        vec![
-                            Span::raw("| "),
-                            Span::styled(format!("{:?}",&self.cipher), Style::default().fg(Color::Black).bg(Color::White)),
-                            Span::raw(" |"),
-                            Span::styled("<+>",Color::Blue),
-                            Span::raw(" to add cipher |")
-                        ]
-                    )
-                )
-            ).block(Block::bordered().border_style(Color::Blue).title_top("Add Cipher"))
-        } else {
-            Paragraph::new(
-                Text::from(
-                    Line::from(
-                        vec![
-                            Span::raw("| "),
-                            Span::styled(format!("{:?}",&self.cipher), Style::default().fg(Color::Black).bg(Color::White)),
-                            Span::raw(" |"),
-                            Span::styled("<+>",Color::Blue),
-                            Span::raw(" to add cipher |")
-                        ]
-                    )
-                )
-            ).block(Block::bordered().title_top("Add Cipher"))
-        };
-        frame.render_widget(panel, area);
-    }
 
-    pub fn handle_key_events(&mut self,key : KeyEvent)  -> Option<Message>{
-        if let KeyEventKind::Release =  key.kind {
-            return None
-        }
-
-        match key.code {
-            KeyCode::Esc => {Some(Message::Exit)},
-            KeyCode::Char('+') => {Some(Message::AddCipher(self.cipher,None))}
-            KeyCode::Up => {
-                self.cipher.next(); 
-                None
-            },
-            KeyCode::Down  => {
-                self.cipher.previous(); 
-                None
-            }  
-            KeyCode::Tab => Some(Message::NextFocus),
-            _ => None
-        }
-    }
-
-    pub fn handle_mouse_events(&mut self, m : MouseEvent) {
-        match m.kind {
-            crossterm::event::MouseEventKind::ScrollDown => {self.scroll+=1},
-            crossterm::event::MouseEventKind::ScrollUp if self.scroll !=0=> {self.scroll-=1},
-            crossterm::event::MouseEventKind::ScrollLeft => {},
-            crossterm::event::MouseEventKind::ScrollRight => {},
-            _ => {}
-        }
-    }
-}
 
 
 pub struct EditingPanel {

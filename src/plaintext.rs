@@ -1,5 +1,5 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
-use ratatui::{Frame, layout::Rect, style::{Color, Style}, text::Text, widgets::{Block, Paragraph, Wrap}};
+use ratatui::{Frame, layout::Rect, style::{Color}, widgets::{Block, Paragraph, Wrap}};
 
 use crate::Message;
 
@@ -39,6 +39,8 @@ impl Plaintext {
 
         match key.code {
             KeyCode::Esc => {Some(Message::Exit)},
+            KeyCode::Up if self.scroll !=0 => {self.scroll -=1; None},
+            KeyCode::Down  => {self.scroll +=1; None},
             KeyCode::Backspace => {
                 self.text.pop();
                 Some(Message::CipherPlaintext)

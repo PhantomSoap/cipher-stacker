@@ -2,7 +2,6 @@
 use crate::{EditingPanel, Message};
 
 use crate::CipherStack;
-use crate::CipherAdder;
 use crate::Plaintext;
 use crate::Ciphertext;
 use crate::History;
@@ -21,7 +20,6 @@ pub enum Focus {
     Plaintext,
     Ciphertext,
     CipherStack,
-    AddCipher,
     EditCipher,
     History,
 
@@ -30,8 +28,7 @@ pub enum Focus {
 impl Focus {
     pub fn next(&self) -> Self {
         match self {
-            Focus::Plaintext => Focus::AddCipher,
-            Focus::AddCipher => Focus::CipherStack,
+            Focus::Plaintext => Focus::CipherStack,
             Focus::Ciphertext => Focus::History,
             Focus::CipherStack => Focus::EditCipher,
             Focus::EditCipher => Focus::Ciphertext,
@@ -51,7 +48,6 @@ pub struct App {
     pub exit: bool,
     pub history: History,
     pub cipherview : Option<AppCipher>,
-    pub adding_panel : CipherAdder,
     pub editing_panel : EditingPanel,
     pub focus : Focus,
     
@@ -62,7 +58,6 @@ pub struct AppLayout {
     cipherstack : Rect,
     history : Rect,
     cipherview : Rect,
-    adding_panel : Rect,
     editing_panel : Rect,
 }
 
@@ -111,7 +106,6 @@ impl AppLayout {
             cipherstack: bottoms[0],
             history: bottoms[2],
             cipherview : middles[1],
-            adding_panel : footer_lines[1],
             editing_panel : footer_lines[2]
         }
     }
@@ -126,7 +120,7 @@ impl App {
             history: History::default(),
             focus : Focus::Plaintext,
             cipherview : None,
-            adding_panel : CipherAdder::new(),
+            
             editing_panel : EditingPanel::new(),
         }
     }
@@ -164,10 +158,6 @@ impl App {
                         Ok(self.stack.handle_key_events(key_event))
                         
                     },
-                    Focus::AddCipher => {
-                        Ok(self.adding_panel.handle_key_events(key_event))
-                        
-                    },
                     Focus::History => Ok(self.history.handle_key_events(key_event)),
                     Focus::EditCipher => Ok(self.editing_panel.handle_key_events(key_event))
                 }
@@ -186,7 +176,6 @@ impl App {
                         self.stack.handle_mouse_events(mouse_event);
                         Ok(None)
                     },
-                    Focus::AddCipher => {Ok(None)},
                     Focus::EditCipher => Ok(None),
                     Focus::History => {
                         self.history.handle_mouse_events(mouse_event);
@@ -214,7 +203,6 @@ impl App {
         self.ciphertext.draw(frame,areas.ciphertext,if let Focus::Ciphertext = self.focus {true} else {false});
         self.stack.draw(frame,areas.cipherstack,if let Focus::CipherStack = self.focus {true} else {false});
         self.history.draw(frame,areas.history,&self.stack,if let Focus::History = self.focus {true} else {false});
-        self.adding_panel.draw(frame,areas.adding_panel,if let Focus::AddCipher = self.focus {true} else {false});
         self.editing_panel.draw(frame,areas.editing_panel,if let Focus::EditCipher = self.focus {true} else {false});
     }
 

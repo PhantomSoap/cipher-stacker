@@ -1,7 +1,7 @@
 #![warn(clippy::pedantic)] // Catches subtle code smells and stylistic issues
 #![warn(clippy::nursery)]
 
-use std::io::{self, stdout};
+use std::io;
 pub mod app;
 pub mod cipher_stack;
 
@@ -11,21 +11,25 @@ pub mod ciphertext;
 pub mod history;
 
 pub mod panels;
+pub mod ciphertype;
+pub mod ciphername;
 
 
 
-use crossterm::cursor::{Hide, Show};
+
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::execute;
 use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode};
-pub use panels::CipherAdder;
+
 
 pub use plaintext::Plaintext;
 pub use ciphertext::Ciphertext;
 
 pub use history::History;
 use ratatui::backend::CrosstermBackend;
-use crate::cipher_stack::{CipherEdit, CipherName,CipherStack,CipherType};
+pub use crate::ciphertype::CipherType;
+pub use crate::ciphername::CipherName;
+pub use crate::cipher_stack::{CipherEdit,CipherStack};
 pub use crate::cipherviews::cipherview::{AppCipher, CipherView};
 pub use crate::panels::EditingPanel;
 pub use app::App;
@@ -35,7 +39,7 @@ pub use crate::cipherviews::caesar_ui::CaesarView;
 pub use crate::cipherviews::rail_fence_ui::RailfenceView;
 pub use crate::cipherviews::vigenere_ui::VigenereView;
 
-use ratatui::{Terminal, run};
+use ratatui::Terminal;
 
 
 pub enum Message {
