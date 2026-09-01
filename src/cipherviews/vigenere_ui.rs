@@ -1,7 +1,6 @@
 use ratatui::{
-    buffer::Buffer,
     layout::Rect,
-    widgets::{Block, Paragraph, Widget},
+    widgets::{Block, Paragraph},
 };
 
 use crate::CipherView;

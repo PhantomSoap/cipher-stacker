@@ -1,5 +1,5 @@
 use ratatui::{
-    Frame, buffer::Buffer, layout::Rect, style::Stylize, text::{Line, Span, Text}, widgets::{Block, Paragraph, Widget},
+    Frame, layout::Rect, style::Stylize, text::{Line, Span, Text}, widgets::{Block, Paragraph},
 };
 
 use crate::CipherView;

@@ -1,6 +1,6 @@
 
 use ratatui::{
-    Frame, buffer::Buffer, layout::Rect, text::Text, widgets::{Block, Paragraph, Widget},
+    Frame, layout::Rect, text::Text, widgets::{Block, Paragraph},
 };
 use cifers::{cipher::Cipher,Caeser};
 

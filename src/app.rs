@@ -1,16 +1,10 @@
 
-use crate::{EditingPanel, Message};
+use crate::{AppCipher, CipherStack, Ciphertext, History, Message, Plaintext};
 
-use crate::CipherStack;
-use crate::Plaintext;
-use crate::Ciphertext;
-use crate::History;
-use crate::AppCipher;
 use crossterm::event::{self, Event};
-use ratatui::layout::{ Constraint, Direction, Layout};
-use ratatui::widgets::Block;
+use ratatui::{DefaultTerminal, Frame, layout::{ Constraint, Direction, Layout, Rect}, widgets::Block};
 
-use ratatui::{DefaultTerminal, Frame, layout::Rect};
+
 use std::io;
 
 
@@ -20,7 +14,6 @@ pub enum Focus {
     Plaintext,
     Ciphertext,
     CipherStack,
-    EditCipher,
     History,
 
 }
@@ -30,8 +23,7 @@ impl Focus {
         match self {
             Focus::Plaintext => Focus::CipherStack,
             Focus::Ciphertext => Focus::History,
-            Focus::CipherStack => Focus::EditCipher,
-            Focus::EditCipher => Focus::Ciphertext,
+            Focus::CipherStack => Focus::Ciphertext,
             Focus::History => Focus::Plaintext,
         }
     }
@@ -48,7 +40,6 @@ pub struct App {
     pub exit: bool,
     pub history: History,
     pub cipherview : Option<AppCipher>,
-    pub editing_panel : EditingPanel,
     pub focus : Focus,
     
 }
@@ -58,7 +49,7 @@ pub struct AppLayout {
     cipherstack : Rect,
     history : Rect,
     cipherview : Rect,
-    editing_panel : Rect,
+    
 }
 
 impl AppLayout {
@@ -106,7 +97,6 @@ impl AppLayout {
             cipherstack: bottoms[0],
             history: bottoms[2],
             cipherview : middles[1],
-            editing_panel : footer_lines[2]
         }
     }
 }
@@ -121,7 +111,7 @@ impl App {
             focus : Focus::Plaintext,
             cipherview : None,
             
-            editing_panel : EditingPanel::new(),
+            
         }
     }
 
@@ -159,7 +149,7 @@ impl App {
                         
                     },
                     Focus::History => Ok(self.history.handle_key_events(key_event)),
-                    Focus::EditCipher => Ok(self.editing_panel.handle_key_events(key_event))
+                    
                 }
             },
             Event::Mouse(mouse_event) => {
@@ -176,7 +166,6 @@ impl App {
                         self.stack.handle_mouse_events(mouse_event);
                         Ok(None)
                     },
-                    Focus::EditCipher => Ok(None),
                     Focus::History => {
                         self.history.handle_mouse_events(mouse_event);
                         Ok(None)
@@ -203,7 +192,6 @@ impl App {
         self.ciphertext.draw(frame,areas.ciphertext,if let Focus::Ciphertext = self.focus {true} else {false});
         self.stack.draw(frame,areas.cipherstack,if let Focus::CipherStack = self.focus {true} else {false});
         self.history.draw(frame,areas.history,&self.stack,if let Focus::History = self.focus {true} else {false});
-        self.editing_panel.draw(frame,areas.editing_panel,if let Focus::EditCipher = self.focus {true} else {false});
     }
 
 

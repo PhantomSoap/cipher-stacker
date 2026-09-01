@@ -3,8 +3,7 @@
 use cifers::{Cipher,Caeser,Vigenere,Railfence,Affine};
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, MouseEvent};
 use ratatui::{Frame, layout::{Constraint, Layout, Rect}, style::{Color, Style}, text::{Line, Span, Text}, widgets::{Block, List, ListItem, ListState, Paragraph}};
-use crate::{CipherType,CipherName};
-use crate::Message::{self, AddCipher, RemoveCipher};
+use crate::{CipherName, CipherType, Message::{self, AddCipher, RemoveCipher}};
 #[derive(Debug,Clone,Copy)]
 pub enum CipherEdit {
     PushChar(char),
@@ -97,21 +96,12 @@ impl CipherStack {
             Constraint::Length(3),
             Constraint::Length(8),
         ]).split(area);
-        let adding_panel = if focus {
-            Paragraph::new(
-                Text::from(
-                    Line::from(
-                        vec![
-                            Span::raw("| "),
-                            Span::styled(format!("{:?}",&self.cipher_to_add), Style::default().fg(Color::Black).bg(Color::White)),
-                            Span::raw(" |"),
-                            Span::styled("<+>",Color::Blue),
-                            Span::raw(" to add cipher |")
-                        ]
-                    )
-                )
-            ).block(Block::bordered().border_style(Color::Blue).title_top("Add Cipher"))
+        let style = if focus {
+            Style::default().fg(Color::Blue)
         } else {
+            Style::default()
+        };
+        let adding_panel = 
             Paragraph::new(
                 Text::from(
                     Line::from(
@@ -124,61 +114,83 @@ impl CipherStack {
                         ]
                     )
                 )
-            ).block(Block::bordered().title_top("Add Cipher"))
-        };
+            )
+            .block(
+                Block::bordered()
+                .border_style(style)
+                .title_top("Add Cipher")
+            );
+        
+       
+        let list = 
+            List::new(
+            self.ciphers
+            .iter()
+            .map(
+                |cipher| ListItem::from(format!("{:?}",cipher))
+            )
+            )
+            .highlight_style(Color::Blue)
+            .block(Block::bordered()
+            .border_style(style)
+            .title_top("Ciphers")
+            .title_bottom(format!("{:?}",self.selected)));
+        
         frame.render_widget(adding_panel, split[0]);
-        let mut state = ListState::default();
-        state.select(self.selected);
-        let list = if focus {
-            List::new(
-            self.ciphers
-            .iter()
-            .map(
-                |cipher| ListItem::from(format!("{:?}",cipher))
-            )
-            ).highlight_style(Color::Blue).block(Block::bordered().border_style(Color::Blue).title_top("Ciphers").title_bottom(format!("{:?}",self.selected)))
-        } else {
-            List::new(
-            self.ciphers
-            .iter()
-            .map(
-                |cipher| ListItem::from(format!("{:?}",cipher))
-            )
-            ).highlight_style(Color::Blue).block(Block::bordered().title_top("Ciphers").title_bottom(format!("{:?}",self.selected)))
-        };
-        frame.render_stateful_widget(list, split[1], &mut state);
+        frame.render_stateful_widget(list, split[1], &mut ListState::default().with_selected(self.selected));
     }
 
     pub fn handle_key_events(&mut self,key : KeyEvent)  -> Option<Message>{
         if let KeyEventKind::Release =  key.kind {
             return None
         }
+        if self.editing.is_none() {
+            match key.code {
+                KeyCode::Esc => {Some(Message::Exit)},
+                KeyCode::Tab => Some(Message::NextFocus),
+                KeyCode::Char('-') => {
+                    Some(RemoveCipher(self.selected))   
+                }
+                KeyCode::Char('+') => Some(AddCipher(self.cipher_to_add, self.selected)),
+                KeyCode::Up if let Some(index) = self.selected  => {
+                    if index !=0 {
+                        Some(Message::PreviousInStack)
+                    } else {
+                        None
+                    }
+                },
+                KeyCode::Down if let Some(index) = self.selected  => {
+                    if index !=self.ciphers.len()-1 {
+                        Some(Message::NextInStack)
+                    } else {
+                        None
+                    }
+                },
+                KeyCode::Right => {self.cipher_to_add.next(); None},
+                KeyCode::Left => {self.cipher_to_add.previous(); None},
+                KeyCode::Enter if let Some(index) = self.selected => {
+                    self.editing = Some(index);
+                    None
+                },
 
-        match key.code {
-            KeyCode::Esc => {Some(Message::Exit)},
-            KeyCode::Tab => Some(Message::NextFocus),
-            KeyCode::Char('-') => {
-                Some(RemoveCipher(self.selected))   
+                _ => None
             }
-            KeyCode::Char('+') => Some(AddCipher(self.cipher_to_add, self.selected)),
-            KeyCode::Up if let Some(index) = self.selected  => {
-                if index !=0 {
-                    Some(Message::PreviousInStack)
-                } else {
+        } else {
+            match key.code {
+                KeyCode::Esc => {Some(Message::Exit)},
+                KeyCode::Char(chr) => Some(Message::EditCipher(CipherEdit::PushChar(chr))),
+                KeyCode::Backspace => Some(Message::EditCipher(CipherEdit::Popchar)),
+                KeyCode::Up => Some(Message::EditCipher(CipherEdit::Up)),
+                KeyCode::Down => Some(Message::EditCipher(CipherEdit::Down)),
+                KeyCode::Left => Some(Message::EditCipher(CipherEdit::Left)),
+                KeyCode::Right => Some(Message::EditCipher(CipherEdit::Right)),
+                KeyCode::Tab => Some(Message::NextFocus),
+                KeyCode::Enter  => {
+                    self.editing = None;
                     None
-                }
-            },
-            KeyCode::Down if let Some(index) = self.selected  => {
-                if index !=self.ciphers.len()-1 {
-                    Some(Message::NextInStack)
-                } else {
-                    None
-                }
-            },
-            KeyCode::Right => {self.cipher_to_add.next(); None},
-            KeyCode::Left => {self.cipher_to_add.previous(); None},
-
-            _ => None
+                },
+                _ => {None}
+            }
         }
     }
 

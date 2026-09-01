@@ -1,7 +1,7 @@
 use std::fmt::Write;
 
 use ratatui::{
-    Frame, buffer::Buffer, layout::Rect, text::Text, widgets::{Block, Paragraph, Widget},
+    Frame, layout::Rect, text::Text, widgets::{Block, Paragraph},
 };
 
 use crate::CipherView;
