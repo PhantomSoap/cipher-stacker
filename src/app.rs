@@ -1,9 +1,9 @@
 
-use crate::{AppCipher, CipherStack, Ciphertext, History, Message, Plaintext};
+use crate::{AppCipher, CipherStack, Ciphertext, History, Message, Plaintext, layouts::AppLayout};
 
 use crossterm::event::{self, Event};
-use ratatui::{DefaultTerminal, Frame, layout::{ Constraint, Direction, Layout, Rect}, widgets::Block};
-
+use ratatui::{DefaultTerminal, Frame, widgets::Block};
+use crate::components::Component;
 
 use std::io;
 
@@ -43,62 +43,7 @@ pub struct App {
     pub focus : Focus,
     
 }
-pub struct AppLayout {
-    plaintext : Rect, 
-    ciphertext : Rect, 
-    cipherstack : Rect,
-    history : Rect,
-    cipherview : Rect,
-    
-}
 
-impl AppLayout {
-    pub fn build(area : Rect) -> Self {
-        let layouts = Layout::default()
-            .direction(Direction::Vertical)
-            .margin(1)
-            .constraints([
-                Constraint::Length(1),
-                Constraint::Length(30),
-                Constraint::Length(20),         
-            ]).split(area);
-
-        let middles = Layout::default()
-                .direction(Direction::Horizontal)
-                .margin(1)
-                .constraints([
-                    Constraint::Percentage(20),
-                    Constraint::Percentage(60),
-                    Constraint::Percentage(9),
-                ]).split(layouts[1]);
-
-        let bottoms = Layout::default()
-                    .direction(Direction::Horizontal)
-                    .margin(1)
-                    .constraints([
-                        Constraint::Percentage(20),
-                        Constraint::Percentage(60),
-                        Constraint::Percentage(20),
-                    ]).split(layouts[2]);
-
-        let footer_lines = Layout::default()
-                        .direction(Direction::Vertical)
-                        .margin(1)
-                        .constraints([
-                            Constraint::Length(4),
-                            Constraint::Length(1),
-                            Constraint::Length(4),
-                        ]).split(bottoms[1]);
-
-        Self {
-            plaintext: footer_lines[0],
-            ciphertext: footer_lines[2],
-            cipherstack: bottoms[0],
-            history: bottoms[2],
-            cipherview : middles[1],
-        }
-    }
-}
 impl App {
     pub fn new() -> App {
         App {
@@ -151,27 +96,6 @@ impl App {
                     
                 }
             },
-            Event::Mouse(mouse_event) => {
-                match self.focus {
-                    Focus::Plaintext => {
-                        self.plaintext.handle_mouse_events(mouse_event);
-                        Ok(None)
-                    },
-                    Focus::Ciphertext => {
-                        self.ciphertext.handle_mouse_events(mouse_event);
-                        Ok(None)
-                    },
-                    Focus::CipherStack => {
-                        self.stack.handle_mouse_events(mouse_event);
-                        Ok(None)
-                    },
-                    Focus::History => {
-                        self.history.handle_mouse_events(mouse_event);
-                        Ok(None)
-                    },
-        }
-            },
-            Event::Paste(_) => {Ok(None)}
             _ => {Ok(None)}
         }
         
@@ -212,11 +136,11 @@ impl App {
 
     pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            Message::AddCipher(_, _) => self.stack.update(&msg),
-            Message::RemoveCipher(_) => self.stack.update(&msg),
-            Message::EditCipher(_) => self.stack.update(&msg),
-            Message::NextInStack => self.stack.update(&msg),
-            Message::PreviousInStack => self.stack.update(&msg),
+            Message::AddCipher(_, _) => self.stack.update(msg),
+            Message::RemoveCipher(_) => self.stack.update(msg),
+            Message::EditCipher(_) => self.stack.update(msg),
+            Message::NextInStack => self.stack.update(msg),
+            Message::PreviousInStack => self.stack.update(msg),
             Message::CipherPlaintext => None,
             Message::DecipherCiphertext => None,
             Message::Exit => {self.exit(); None},

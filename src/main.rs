@@ -3,16 +3,13 @@
 
 use std::io;
 pub mod app;
-pub mod cipher_stack;
+
 
 pub mod cipherviews;
-pub mod plaintext;
-pub mod ciphertext;
-pub mod history;
-
-
 pub mod ciphertype;
 pub mod ciphername;
+pub mod components;
+pub mod layouts;
 
 
 
@@ -22,14 +19,14 @@ use crossterm::execute;
 use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode};
 
 
-pub use plaintext::Plaintext;
-pub use ciphertext::Ciphertext;
+pub use components::plaintext::Plaintext;
+pub use components::ciphertext::Ciphertext;
 
-pub use history::History;
+pub use components::history::History;
 
 pub use crate::ciphertype::CipherType;
 pub use crate::ciphername::CipherName;
-pub use crate::cipher_stack::{CipherEdit,CipherStack};
+pub use crate::components::cipher_stack::{CipherEdit,CipherStack};
 pub use crate::cipherviews::{affine_ui::AffineView, atbash_ui::AtbashView, caesar_ui::CaesarView, cipherview::{AppCipher, CipherView}, rail_fence_ui::RailfenceView, vigenere_ui::VigenereView};
 
 
