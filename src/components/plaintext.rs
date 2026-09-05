@@ -41,11 +41,7 @@ impl Component for Plaintext {
                 .wrap(Wrap { trim: false })
                 .block(Block::bordered().title_top("Plaintext"))
                 .scroll((
-                    if self.scroll == self.text.len() / 137 {
-                        self.scroll
-                    } else {
-                        self.scroll - 1
-                    } as u16 as u16,
+                    self.scroll as u16,
                     0,
                 ))
         };

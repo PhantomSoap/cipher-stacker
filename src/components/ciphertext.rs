@@ -72,7 +72,7 @@ impl Component for Ciphertext {
         }
     }
 
-    fn update(&mut self, msg: Message) -> Option<Message> {
+    fn update(&mut self, _msg: Message) -> Option<Message> {
         None
     }
 }

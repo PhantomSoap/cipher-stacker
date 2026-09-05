@@ -10,7 +10,7 @@ pub mod cipherviews;
 pub mod components;
 pub mod layouts;
 
-use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
+
 use crossterm::execute;
 use crossterm::terminal::{
     EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
@@ -51,7 +51,7 @@ pub enum Message {
 fn main() -> io::Result<()> {
     enable_raw_mode()?;
     let mut stdout = io::stdout();
-    execute!(stdout, EnableMouseCapture, EnterAlternateScreen)?;
+    execute!(stdout, EnterAlternateScreen)?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     let res = App::new().run(&mut terminal);
@@ -60,7 +60,6 @@ fn main() -> io::Result<()> {
     execute!(
         terminal.backend_mut(),
         LeaveAlternateScreen,
-        DisableMouseCapture,
     )?;
     res?;
 

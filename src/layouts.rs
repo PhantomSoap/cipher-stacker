@@ -9,51 +9,33 @@ pub struct AppLayout {
 
 impl AppLayout {
     pub fn build(area: Rect) -> Self {
-        let layouts = Layout::default()
-            .direction(Direction::Vertical)
-            .margin(1)
+        let vertical_split = Layout::default()
+            .direction(Direction::Horizontal)
             .constraints([
-                Constraint::Length(1),
+                Constraint::Ratio(3,5),
+                Constraint::Ratio(2,5),
+            ]).split(area);
+
+        let right_panel = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Ratio(3, 5),
+                Constraint::Ratio(2, 5),
+            ]).split(vertical_split[1]);
+
+        let pieces = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(4),
                 Constraint::Length(30),
-                Constraint::Length(20),
-            ])
-            .split(area);
-
-        let middles = Layout::default()
-            .direction(Direction::Horizontal)
-            .margin(1)
-            .constraints([
-                Constraint::Percentage(20),
-                Constraint::Percentage(60),
-                Constraint::Percentage(9),
-            ])
-            .split(layouts[1]);
-
-        let bottoms = Layout::default()
-            .direction(Direction::Horizontal)
-            .margin(1)
-            .constraints([
-                Constraint::Percentage(20),
-                Constraint::Percentage(60),
-                Constraint::Percentage(20),
-            ])
-            .split(layouts[2]);
-
-        let footer_lines = Layout::default()
-            .direction(Direction::Vertical)
-            .margin(1)
-            .constraints([
                 Constraint::Length(4),
-                Constraint::Length(1),
-                Constraint::Length(4),
-            ])
-            .split(bottoms[1]);
+            ]).split(vertical_split[0]);
 
         Self {
-            plaintext: footer_lines[0],
-            ciphertext: footer_lines[2],
-            cipherstack: bottoms[0],
-            cipherview: middles[1],
+            plaintext: pieces[0],
+            ciphertext: pieces[2],
+            cipherstack: right_panel[0],
+            cipherview: pieces[1],
         }
     }
 }

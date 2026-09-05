@@ -56,14 +56,13 @@ impl CipherStack {
         }
     }
 
-    pub fn stack_cipher(&mut self, text: &str, ciphertext: &mut String) -> Vec<String> {
+    pub fn stack_cipher(&mut self, text: &str, ciphertext: &mut String) {
         let mut history: Vec<String> = Vec::new();
-        history.push(text.to_string());
         let mut working_cipher = text.to_string();
         if self.ciphers.is_empty() {
             *ciphertext = working_cipher;
-            self.history = history.clone();
-            return history;
+            self.history = history;
+            return
         };
 
         for cipher in &self.ciphers {
@@ -96,8 +95,8 @@ impl CipherStack {
             };
         }
         *ciphertext = working_cipher;
-        self.history = history.clone();
-        history
+        self.history = history;
+        
     }
 }
 
@@ -136,7 +135,7 @@ impl Component for CipherStack {
                 ),
                 Span::raw(" |"),
                 Span::styled("<+>", Color::Blue),
-                Span::raw(" to add cipher |"),
+                Span::raw(" to add |"),
             ])))
             .block(
                 Block::bordered()
@@ -147,8 +146,8 @@ impl Component for CipherStack {
         frame.render_widget(panel, split[0]);
 
         let list = match self.state {
-            CipherStackState::Main => {
-                List::new(
+                CipherStackState::Main => {
+                    List::new(
                     self.ciphers
                         .iter()
                         .map(|cipher| ListItem::from(format!("{:?}", cipher))),
@@ -167,7 +166,7 @@ impl Component for CipherStack {
 
                 for (index, cipher) in self.ciphers.iter().enumerate() {
                     if let Some(hist_item) = self.history.get(index) {
-                        history_text.push(ListItem::from(format!("{cipher:?} -> {hist_item}")));
+                        history_text.push(ListItem::from(Text::from(format!("{cipher:?} -> {hist_item}"))));
                     }
                 }
                 List::new(history_text).block(Block::bordered().border_style(style))
