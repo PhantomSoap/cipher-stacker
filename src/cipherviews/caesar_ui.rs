@@ -1,29 +1,27 @@
-
+use cifers::{Caeser, cipher::Cipher};
 use ratatui::{
-    Frame, layout::Rect, text::Text, widgets::{Block, Paragraph},
+    Frame,
+    layout::Rect,
+    text::Text,
+    widgets::{Block, Paragraph},
 };
-use cifers::{cipher::Cipher,Caeser};
 
 use crate::CipherView;
 
 pub struct CaesarView {
-    pub shift : i8,
-    
+    pub shift: i8,
 }
 
 impl CaesarView {
-    pub fn new(shift : i8) -> Self {
-        Self {
-            shift,
-        }
+    pub fn new(shift: i8) -> Self {
+        Self { shift }
     }
 }
 impl CipherView for CaesarView {
-    fn draw(&self,frame : &mut Frame, area : Rect) {
+    fn draw(&self, frame: &mut Frame, area: Rect) {
         let shift = self.shift;
-        let ciphered_alphabet = Caeser::new(shift as i32)
-        .encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-        
+        let ciphered_alphabet = Caeser::new(shift as i32).encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
         let mut ciphered_boxed_alphabet = String::with_capacity(107);
         ciphered_boxed_alphabet.push('|');
         for c in ciphered_alphabet.chars() {
@@ -46,11 +44,11 @@ impl CipherView for CaesarView {
             "‾".repeat(105),  
         );
 
-        frame.render_widget(Paragraph::new(Text::from(caesar_shifter))
-            .centered()
-            .block(Block::bordered()),area)
-        
+        frame.render_widget(
+            Paragraph::new(Text::from(caesar_shifter))
+                .centered()
+                .block(Block::bordered()),
+            area,
+        )
     }
 }
-
-

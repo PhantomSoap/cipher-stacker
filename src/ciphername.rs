@@ -1,6 +1,6 @@
 use crate::CipherType;
 
-#[derive(Debug,Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum CipherName {
     Caesar,
     Vigenere,

@@ -1,12 +1,10 @@
+use crate::{AppCipher, CipherStack, Ciphertext, Message, Plaintext, layouts::AppLayout};
 
-use crate::{AppCipher, CipherStack, Ciphertext, History, Message, Plaintext, layouts::AppLayout};
-
+use crate::components::Component;
 use crossterm::event::{self, Event};
 use ratatui::{DefaultTerminal, Frame, widgets::Block};
-use crate::components::Component;
 
 use std::io;
-
 
 #[derive(Debug)]
 
@@ -14,34 +12,25 @@ pub enum Focus {
     Plaintext,
     Ciphertext,
     CipherStack,
-    History,
-
 }
 
 impl Focus {
     pub fn next(&self) -> Self {
         match self {
             Focus::Plaintext => Focus::CipherStack,
-            Focus::Ciphertext => Focus::History,
+            Focus::Ciphertext => Focus::Plaintext,
             Focus::CipherStack => Focus::Ciphertext,
-            Focus::History => Focus::Plaintext,
         }
     }
 }
-
-
-
-
 
 pub struct App {
     pub plaintext: Plaintext,
     pub ciphertext: Ciphertext,
     pub stack: CipherStack,
     pub exit: bool,
-    pub history: History,
-    pub cipherview : Option<AppCipher>,
-    pub focus : Focus,
-    
+    pub cipherview: Option<AppCipher>,
+    pub focus: Focus,
 }
 
 impl App {
@@ -51,11 +40,8 @@ impl App {
             ciphertext: Ciphertext::new(String::from("ExampleText")),
             stack: CipherStack::new(),
             exit: false,
-            history: History::default(),
-            focus : Focus::Plaintext,
-            cipherview : None,
-            
-            
+            focus: Focus::Plaintext,
+            cipherview: None,
         }
     }
 
@@ -66,73 +52,83 @@ impl App {
             if let Some(msg) = self.handle_input_events()? {
                 self.update(msg);
             }
-
-            self.history.list = self
-                .stack
+            self.stack
                 .stack_cipher(&self.plaintext.text, &mut self.ciphertext.text);
         }
 
         Ok(())
     }
 
-    pub fn handle_input_events(&mut self)  -> io::Result<Option<Message>>{
+    pub fn handle_input_events(&mut self) -> io::Result<Option<Message>> {
         match event::read()? {
-            
-            Event::Key(key_event) => {
-                match self.focus {
-                    Focus::Plaintext => {
-                        Ok(self.plaintext.handle_key_events(key_event))
-                        
-                    },
-                    Focus::Ciphertext => {
-                        Ok(self.ciphertext.handle_key_events(key_event))
-                        
-                    },
-                    Focus::CipherStack => {
-                        Ok(self.stack.handle_key_events(key_event))
-                        
-                    },
-                    Focus::History => Ok(self.history.handle_key_events(key_event)),
-                    
-                }
+            Event::Key(key_event) => match self.focus {
+                Focus::Plaintext => Ok(self.plaintext.handle_key_events(key_event)),
+                Focus::Ciphertext => Ok(self.ciphertext.handle_key_events(key_event)),
+                Focus::CipherStack => Ok(self.stack.handle_key_events(key_event)),
             },
-            _ => {Ok(None)}
+            _ => Ok(None),
         }
-        
     }
 
     pub fn draw(&mut self, frame: &mut Frame) {
-        let areas = AppLayout::build(frame.area()); 
-        frame.render_widget(Block::bordered().title(format!("{:?}",self.focus)), frame.area());
+        let areas = AppLayout::build(frame.area());
+        frame.render_widget(
+            Block::bordered().title(format!("{:?}", self.focus)),
+            frame.area(),
+        );
         self.update_cipherview();
         if let Some(cipherview) = &self.cipherview {
-            cipherview.draw(frame,areas.cipherview);
+            cipherview.draw(frame, areas.cipherview);
         } else {
-            frame.render_widget(Block::bordered(),areas.cipherview);
+            frame.render_widget(Block::bordered(), areas.cipherview);
         }
-        
-        self.plaintext.draw(frame,areas.plaintext,if let Focus::Plaintext = self.focus {true} else {false});
-        self.ciphertext.draw(frame,areas.ciphertext,if let Focus::Ciphertext = self.focus {true} else {false});
-        self.stack.draw(frame,areas.cipherstack,if let Focus::CipherStack = self.focus {true} else {false});
-        self.history.draw(frame,areas.history,&self.stack,if let Focus::History = self.focus {true} else {false});
-    }
 
+        self.plaintext.draw(
+            frame,
+            areas.plaintext,
+            if let Focus::Plaintext = self.focus {
+                true
+            } else {
+                false
+            },
+        );
+        self.ciphertext.draw(
+            frame,
+            areas.ciphertext,
+            if let Focus::Ciphertext = self.focus {
+                true
+            } else {
+                false
+            },
+        );
+        self.stack.draw(
+            frame,
+            areas.cipherstack,
+            if let Focus::CipherStack = self.focus {
+                true
+            } else {
+                false
+            },
+        );
+    }
 
     pub fn update_cipherview(&mut self) {
         if let Some(cipherview) = &mut self.cipherview {
             if let Some(index) = self.stack.selected {
-                cipherview.assign(index,&self.stack.ciphers[index],&self.plaintext.text)
+                cipherview.assign(index, &self.stack.ciphers[index], &self.plaintext.text)
             } else {
                 self.cipherview = None;
             }
         } else {
             if let Some(index) = self.stack.selected {
-                self.cipherview = Some(AppCipher::new(index,&self.stack.ciphers[index],&self.plaintext.text));
+                self.cipherview = Some(AppCipher::new(
+                    index,
+                    &self.stack.ciphers[index],
+                    &self.plaintext.text,
+                ));
             }
         }
     }
-
-    
 
     pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
@@ -143,10 +139,22 @@ impl App {
             Message::PreviousInStack => self.stack.update(msg),
             Message::CipherPlaintext => None,
             Message::DecipherCiphertext => None,
-            Message::Exit => {self.exit(); None},
-            Message::Reset => {self.exit(); None},
-            Message::GoHome => {self.exit(); None},
-            Message::NextFocus => {self.focus = self.focus.next(); None},
+            Message::Exit => {
+                self.exit();
+                None
+            }
+            Message::Reset => {
+                self.exit();
+                None
+            }
+            Message::GoHome => {
+                self.exit();
+                None
+            }
+            Message::NextFocus => {
+                self.focus = self.focus.next();
+                None
+            }
         }
     }
     pub fn exit(&mut self) {
@@ -159,4 +167,3 @@ impl Default for App {
         Self::new()
     }
 }
-

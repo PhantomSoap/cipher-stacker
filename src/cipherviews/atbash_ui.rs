@@ -1,12 +1,15 @@
 use ratatui::{
-    Frame, layout::Rect, text::Text, widgets::{Block, Paragraph },
+    Frame,
+    layout::Rect,
+    text::Text,
+    widgets::{Block, Paragraph},
 };
 
 use crate::CipherView;
 #[derive(Default)]
 pub struct AtbashView {}
 impl CipherView for AtbashView {
-    fn draw(&self,frame : &mut Frame, area : Rect) {
+    fn draw(&self, frame: &mut Frame, area: Rect) {
         let atbasher = format!(
         "Atbash Cipher
         {}
@@ -19,10 +22,11 @@ impl CipherView for AtbashView {
         "_".repeat(105),
         "‾".repeat(105),  
     );
-    frame.render_widget(Paragraph::new(Text::from(atbasher))
-        .centered()
-        .block(Block::bordered()),area)
-
-    
+        frame.render_widget(
+            Paragraph::new(Text::from(atbasher))
+                .centered()
+                .block(Block::bordered()),
+            area,
+        )
     }
 }
