@@ -169,7 +169,7 @@ impl Component for CipherStack {
                         history_text.push(ListItem::from(Text::from(format!("{cipher:?} -> {hist_item}"))));
                     }
                 }
-                List::new(history_text).block(Block::bordered().border_style(style))
+                List::new(history_text).block(Block::bordered().title_top("History").border_style(style))
                 
             }
         };

@@ -2,6 +2,7 @@ use crate::{AppCipher, CipherStack, Ciphertext, Message, Plaintext, layouts::App
 
 use crate::components::Component;
 use crossterm::event::{self, Event};
+use ratatui::text::Line;
 use ratatui::{DefaultTerminal, Frame, widgets::Block};
 
 use std::io;
@@ -73,7 +74,7 @@ impl App {
     pub fn draw(&mut self, frame: &mut Frame) {
         let areas = AppLayout::build(frame.area());
         frame.render_widget(
-            Block::bordered().title(format!("{:?}", self.focus)),
+            Block::bordered().title_bottom(Line::from(format!("{:?}", self.focus)).centered()),
             frame.area(),
         );
         self.update_cipherview();

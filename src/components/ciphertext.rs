@@ -20,7 +20,7 @@ impl Ciphertext {
 impl Component for Ciphertext {
     fn draw(&self, frame: &mut Frame, area: Rect, focus: bool) {
         let widget = if focus {
-            Paragraph::new(format!("Ciphertext: {}", self.text))
+            Paragraph::new(self.text.as_str())
                 .wrap(Wrap { trim: true })
                 .block(
                     Block::bordered()

@@ -4,6 +4,7 @@ pub struct AppLayout {
     pub plaintext: Rect,
     pub ciphertext: Rect,
     pub cipherstack: Rect,
+    pub instructions : Rect,
     pub cipherview: Rect,
 }
 
@@ -35,6 +36,7 @@ impl AppLayout {
             plaintext: pieces[0],
             ciphertext: pieces[2],
             cipherstack: right_panel[0],
+            instructions : right_panel[1],
             cipherview: pieces[1],
         }
     }

@@ -47,7 +47,22 @@ pub enum Message {
     GoHome,
     NextFocus,
 }
+const INSTRUCTIONS : [&'static str; 6] = [
+    "[Up/Down] scroll up/down",
+    "[Up/Down] scroll up/down\n[+] Add Cipher\n[Enter] Edit Selected\n[Space] Show History",
+    "",
+    "",
+    "",
+    ""
+];
 
+const CIPHER_INSTRUCTIONS : [&'static str; 5] = [
+    "",
+    "",
+    "",
+    "",
+    "",
+];
 fn main() -> io::Result<()> {
     enable_raw_mode()?;
     let mut stdout = io::stdout();
