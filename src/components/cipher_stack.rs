@@ -1,6 +1,6 @@
 use crate::{
     CipherName, CipherType,
-    Message::{self, AddCipher, RemoveCipher},
+    Message,
     components::Component,
 };
 use cifers::{Affine, Caeser, Cipher, Railfence, Vigenere};
@@ -24,7 +24,7 @@ pub enum CipherEdit {
 
 #[derive(Debug)]
 
-pub enum CipherStackState {
+pub enum StackState {
     Main,
     ShowHistory,
 }
@@ -39,7 +39,7 @@ pub struct CipherStack {
     pub ciphers: Vec<CipherType>,
     pub selected: Option<usize>,
     pub cipher_to_add: CipherName,
-    pub state: CipherStackState,
+    pub state: StackState,
     pub history: Vec<String>,
     pub task: Task,
 }
@@ -50,13 +50,13 @@ impl CipherStack {
             ciphers: Vec::new(),
             selected: None,
             cipher_to_add: CipherName::Caesar,
-            state: CipherStackState::Main,
+            state: StackState::Main,
             history: Vec::new(),
             task: Task::Adding,
         }
     }
 
-    pub fn stack_cipher(&mut self, text: &str, ciphertext: &mut String) {
+    pub fn stack_cipher(&mut self, text: &str, ciphertext: &mut String)  {
         let mut history: Vec<String> = Vec::new();
         let mut working_cipher = text.to_string();
         if self.ciphers.is_empty() {
@@ -146,7 +146,7 @@ impl Component for CipherStack {
         frame.render_widget(panel, split[0]);
 
         let list = match self.state {
-                CipherStackState::Main => {
+                StackState::Main => {
                     List::new(
                     self.ciphers
                         .iter()
@@ -161,7 +161,7 @@ impl Component for CipherStack {
                 )
                 
             }
-            CipherStackState::ShowHistory => {
+            StackState::ShowHistory => {
                 let mut history_text: Vec<ListItem> = Vec::new();
 
                 for (index, cipher) in self.ciphers.iter().enumerate() {
@@ -200,26 +200,52 @@ impl Component for CipherStack {
                 }
                 _ => None,
             }
-        } else if let CipherStackState::Main = self.state {
+        } else if let StackState::Main = self.state {
             match key.code {
                 KeyCode::Esc => Some(Message::Exit),
                 KeyCode::Tab => Some(Message::NextFocus),
-                KeyCode::Char('-') => Some(RemoveCipher(self.selected)),
-                KeyCode::Char('+') => Some(AddCipher(self.cipher_to_add, self.selected)),
-                KeyCode::Up if let Some(index) = self.selected => {
-                    if index != 0 {
-                        Some(Message::PreviousInStack)
+                KeyCode::Char('-') if let Some(index) = self.selected => {
+                    let _removed = self.ciphers.remove(index);
+                    self.selected = if self.ciphers.len() != 0 {
+                        Some(self.ciphers.len() - 1)
                     } else {
                         None
+                    };
+                    None
+                },
+                KeyCode::Char('-') => {
+                    if let Some(_removed) = self.ciphers.pop() {
+                        self.selected = if self.ciphers.len() != 0 {
+                            Some(self.ciphers.len() - 1)
+                        } else {
+                            None
+                        };
                     }
+                    None
                 }
-                KeyCode::Down if let Some(index) = self.selected => {
-                    if index != self.ciphers.len() - 1 {
-                        Some(Message::NextInStack)
-                    } else {
-                        None
+                KeyCode::Char('+') if let Some(index) = self.selected => {
+                    self.ciphers.insert(index, self.cipher_to_add.into_ciphertype());
+                    self.selected = Some(index);
+                    None
+                },
+                KeyCode::Char('+')  => {
+                   self.ciphers.push(self.cipher_to_add.into_ciphertype());
+                    self.selected = Some(self.ciphers.len() - 1);
+                    None
+                },
+                KeyCode::Up if let Some(index) = &mut self.selected => {
+                    if *index != 0 {
+                        *index -= 1;
                     }
+                    None
                 }
+                KeyCode::Down if let Some(index) = &mut self.selected => {
+                    if *index != self.ciphers.len() - 1 {
+                        *index += 1;
+                    }
+                    None
+
+                },
                 KeyCode::Right => {
                     self.cipher_to_add.next();
                     None
@@ -233,32 +259,31 @@ impl Component for CipherStack {
                     None
                 }
                 KeyCode::Char(' ') => {
-                    self.state = CipherStackState::ShowHistory;
+                    self.state = StackState::ShowHistory;
                     None
                 }
 
                 _ => None,
             }
-        } else if let CipherStackState::ShowHistory = self.state {
+        } else if let StackState::ShowHistory = self.state {
             match key.code {
                 KeyCode::Esc => Some(Message::Exit),
                 KeyCode::Tab => Some(Message::NextFocus),
-                KeyCode::Up if let Some(index) = self.selected => {
-                    if index != 0 {
-                        Some(Message::PreviousInStack)
-                    } else {
-                        None
+                KeyCode::Up if let Some(index) = &mut self.selected => {
+                    if *index != 0 {
+                        *index -= 1;
                     }
+                    None
                 }
-                KeyCode::Down if let Some(index) = self.selected => {
-                    if index != self.ciphers.len() - 1 {
-                        Some(Message::NextInStack)
-                    } else {
-                        None
+                KeyCode::Down if let Some(index) = &mut self.selected => {
+                    if *index != self.ciphers.len() - 1 {
+                        *index += 1;
                     }
+                    None
+
                 }
                 KeyCode::Char(' ') => {
-                    self.state = CipherStackState::Main;
+                    self.state = StackState::Main;
                     None
                 }
                 _ => None,
@@ -270,36 +295,6 @@ impl Component for CipherStack {
 
     fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            Message::AddCipher(ciphername, Some(index)) => {
-                self.ciphers.insert(index, ciphername.into_ciphertype());
-                self.selected = Some(index);
-                None
-            }
-            Message::AddCipher(ciphername, None) => {
-                self.ciphers.push(ciphername.into_ciphertype());
-                self.selected = Some(self.ciphers.len() - 1);
-                None
-            }
-
-            Message::RemoveCipher(Some(index)) => {
-                let _removed = self.ciphers.remove(index);
-                self.selected = if self.ciphers.len() != 0 {
-                    Some(self.ciphers.len() - 1)
-                } else {
-                    None
-                };
-                None
-            }
-            Message::RemoveCipher(None) => {
-                if let Some(_removed) = self.ciphers.pop() {
-                    self.selected = if self.ciphers.len() != 0 {
-                        Some(self.ciphers.len() - 1)
-                    } else {
-                        None
-                    };
-                }
-                None
-            }
             Message::EditCipher(edit) => {
                 if let Some(index) = self.selected {
                     match edit {
@@ -364,18 +359,6 @@ impl Component for CipherStack {
                         },
                         _ => {}
                     }
-                }
-                None
-            }
-            Message::NextInStack => {
-                if let Some(index) = &mut self.selected {
-                    *index += 1;
-                }
-                None
-            }
-            Message::PreviousInStack if let Some(index) = &mut self.selected => {
-                if *index != 0 {
-                    *index -= 1;
                 }
                 None
             }

@@ -13,14 +13,17 @@ pub enum Focus {
     Plaintext,
     Ciphertext,
     CipherStack,
+    View
 }
 
 impl Focus {
     pub fn next(&self) -> Self {
         match self {
             Focus::Plaintext => Focus::CipherStack,
-            Focus::Ciphertext => Focus::Plaintext,
             Focus::CipherStack => Focus::Ciphertext,
+            Focus::Ciphertext => Focus::View,
+            Focus::View => Focus::Plaintext,
+            
         }
     }
 }
@@ -66,6 +69,8 @@ impl App {
                 Focus::Plaintext => Ok(self.plaintext.handle_key_events(key_event)),
                 Focus::Ciphertext => Ok(self.ciphertext.handle_key_events(key_event)),
                 Focus::CipherStack => Ok(self.stack.handle_key_events(key_event)),
+                Focus::View if let Some(view) = &mut self.cipherview => Ok(view.handle_key_events(key_event)),
+                Focus::View => Ok(Some(Message::NextFocus)),
             },
             _ => Ok(None),
         }
@@ -79,7 +84,11 @@ impl App {
         );
         self.update_cipherview();
         if let Some(cipherview) = &self.cipherview {
-            cipherview.draw(frame, areas.cipherview);
+            cipherview.draw(frame, areas.cipherview,if let Focus::View = self.focus {
+                true
+            } else {
+                false
+            },);
         } else {
             frame.render_widget(Block::bordered(), areas.cipherview);
         }
@@ -133,13 +142,9 @@ impl App {
 
     pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            Message::AddCipher(_, _) => self.stack.update(msg),
-            Message::RemoveCipher(_) => self.stack.update(msg),
+            
             Message::EditCipher(_) => self.stack.update(msg),
-            Message::NextInStack => self.stack.update(msg),
-            Message::PreviousInStack => self.stack.update(msg),
             Message::CipherPlaintext => None,
-            Message::DecipherCiphertext => None,
             Message::Exit => {
                 self.exit();
                 None
@@ -153,7 +158,15 @@ impl App {
                 None
             }
             Message::NextFocus => {
-                self.focus = self.focus.next();
+                if let Focus::View = self.focus.next() {
+                    if let Some(_view) = &self.cipherview {
+                        self.focus = self.focus.next();
+                    } else {
+                        self.focus = self.focus.next().next();
+                    }
+                } else {
+                    self.focus = self.focus.next();
+                }
                 None
             }
         }

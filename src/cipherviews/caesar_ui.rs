@@ -1,9 +1,6 @@
 use cifers::{Caeser, cipher::Cipher};
 use ratatui::{
-    Frame,
-    layout::Rect,
-    text::Text,
-    widgets::{Block, Paragraph},
+    Frame, layout::Rect, style::{Color, Style}, text::Text, widgets::{Block, Paragraph},
 };
 
 use crate::CipherView;
@@ -18,7 +15,7 @@ impl CaesarView {
     }
 }
 impl CipherView for CaesarView {
-    fn draw(&self, frame: &mut Frame, area: Rect) {
+    fn draw(&self, frame: &mut Frame, area: Rect,focus : bool,scroll : (u16,u16)) {
         let shift = self.shift;
         let ciphered_alphabet = Caeser::new(shift as i32).encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
@@ -32,22 +29,23 @@ impl CipherView for CaesarView {
         }
 
         let caesar_shifter = format!(
-            "Caesar Shifter
-            {}
-            | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |
-            | ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |
-            {ciphered_boxed_alphabet}
-            {}
-            Shift: {shift}",
+"Caesar Shifter
+{}
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |
+| ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |
+{ciphered_boxed_alphabet}
+{}
+Shift: {shift}",
 
             "_".repeat(105),
             "‾".repeat(105),  
         );
+        let style = if focus {Style::default().fg(Color::Blue)} else {Style::default()};
 
         frame.render_widget(
             Paragraph::new(Text::from(caesar_shifter))
-                .centered()
-                .block(Block::bordered()),
+                .block(Block::bordered().border_style(style))
+                .scroll(scroll),
             area,
         )
     }

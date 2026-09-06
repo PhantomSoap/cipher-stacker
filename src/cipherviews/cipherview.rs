@@ -1,15 +1,15 @@
-use ratatui::{Frame, layout::Rect};
+use crossterm::event::{KeyCode, KeyEventKind};
+use ratatui::{Frame, layout::Rect, widgets::Block};
 
 use crate::{
-    CipherType,
-    cipherviews::{
+    CipherType, cipherviews::{
         affine_ui::AffineView, atbash_ui::AtbashView, caesar_ui::CaesarView,
         rail_fence_ui::RailfenceView, vigenere_ui::VigenereView,
-    },
+    }, components::Component,
 };
 
 pub trait CipherView {
-    fn draw(&self, frame: &mut Frame, area: Rect);
+    fn draw(&self, frame: &mut Frame, area: Rect,focus : bool,scroll : (u16,u16));
 }
 pub struct AppCipher {
     pub index: usize,
@@ -43,7 +43,44 @@ impl AppCipher {
         }
         self.index = index;
     }
-    pub fn draw(&self, frame: &mut Frame, area: Rect) {
-        self.cipher.draw(frame, area)
+    
+}
+
+impl Component for AppCipher {
+    fn draw(&self, frame: &mut Frame, area: Rect,focus : bool) {
+        self.cipher.draw(frame, area,focus,self.scroll);
+        
+    }
+    
+    fn handle_key_events(&mut self, key: crossterm::event::KeyEvent) -> Option<crate::Message> {
+        if key.kind == KeyEventKind::Release {
+            return None
+        }
+        match key.code {
+            KeyCode::Up => {
+                self.scroll.0 +=1;
+                None
+            },
+            KeyCode::Down if self.scroll.0 !=0 => {
+                self.scroll.0 -=1;
+                None
+            },
+            KeyCode::Left if self.scroll.1 !=0 => {
+                self.scroll.1 -=1;
+                None
+                
+            },
+            KeyCode::Right => {
+                self.scroll.1 +=1;
+                None
+            },
+            KeyCode::Esc => Some(crate::Message::Exit),
+            KeyCode::Tab => Some(crate::Message::NextFocus),
+            _ => None
+        }
+    }
+    
+    fn update(&mut self, _msg: crate::Message) -> Option<crate::Message> {
+        None
     }
 }

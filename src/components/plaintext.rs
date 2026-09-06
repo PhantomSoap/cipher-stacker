@@ -1,9 +1,6 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
-    Frame,
-    layout::Rect,
-    style::Color,
-    widgets::{Block, Paragraph, Wrap},
+    Frame, layout::Rect, style::{Color, Style}, widgets::{Block, Paragraph, Wrap},
 };
 
 use super::Component;
@@ -11,7 +8,7 @@ use crate::Message;
 
 pub struct Plaintext {
     pub text: String,
-    pub scroll: usize,
+    pub scroll: u16,
 }
 impl Plaintext {
     pub fn new(text: String) -> Self {
@@ -20,36 +17,24 @@ impl Plaintext {
 }
 impl Component for Plaintext {
     fn draw(&self, frame: &mut Frame, area: Rect, focus: bool) {
-        let widget = if focus {
+        let style = if focus {Style::default().fg(Color::Blue)} else {Style::default()};
+        let widget = 
             Paragraph::new(format!("{}", self.text))
                 .wrap(Wrap { trim: false })
                 .block(
                     Block::bordered()
                         .title_top("Plaintext")
-                        .border_style(Color::Blue),
+                        .border_style(style),
                 )
                 .scroll((
-                    if self.scroll == (self.text.len() / 137) || self.scroll == 0 {
-                        self.scroll
-                    } else {
-                        self.scroll - 1
-                    } as u16,
-                    0,
-                ))
-        } else {
-            Paragraph::new(format!("{}", self.text))
-                .wrap(Wrap { trim: false })
-                .block(Block::bordered().title_top("Plaintext"))
-                .scroll((
-                    self.scroll as u16,
-                    0,
-                ))
-        };
+                    0,self.scroll
+                ));
+        
         frame.render_widget(widget, area);
     }
 
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message> {
-        if let KeyEventKind::Release = key.kind {
+        if  key.kind == KeyEventKind::Release {
             return None;
         }
 

@@ -1,6 +1,5 @@
 use ratatui::{
-    layout::Rect,
-    widgets::{Block, Paragraph},
+    layout::Rect, style::{Color, Style}, widgets::{Block, Paragraph},
 };
 
 use crate::CipherView;
@@ -13,9 +12,10 @@ impl VigenereView {
     }
 }
 impl CipherView for VigenereView {
-    fn draw(&self, frame: &mut ratatui::prelude::Frame, area: Rect) {
+    fn draw(&self, frame: &mut ratatui::prelude::Frame, area: Rect,focus : bool,scroll : (u16,u16)) {
         let vigenere_grid = format!("Vigenere Cipher\nCode: '{}'\n", self.code);
+        let style = if focus {Style::default().fg(Color::Blue)} else {Style::default()};
 
-        frame.render_widget(Paragraph::new(vigenere_grid).block(Block::bordered()), area);
+        frame.render_widget(Paragraph::new(vigenere_grid).block(Block::bordered().border_style(style)).scroll(scroll), area);
     }
 }

@@ -1,10 +1,7 @@
 use std::fmt::Write;
 
 use ratatui::{
-    Frame,
-    layout::Rect,
-    text::Text,
-    widgets::{Block, Paragraph},
+    Frame, layout::Rect, style::{Color, Style}, text::Text, widgets::{Block, Paragraph},
 };
 
 use crate::CipherView;
@@ -22,7 +19,7 @@ impl RailfenceView {
     }
 }
 impl CipherView for RailfenceView {
-    fn draw(&self, frame: &mut Frame, area: Rect) {
+    fn draw(&self, frame: &mut Frame, area: Rect,focus : bool,scroll : (u16,u16)) {
         let rails = self.key as usize; //2
         let fences = self.text.len(); //11
         let mut railfence = format!("RailFence Cipher\nKey: {rails}\n");
@@ -55,10 +52,12 @@ impl CipherView for RailfenceView {
         }
 
         railfence.push_str(&"‾".repeat(fences * 4 + 1));
+        let style = if focus {Style::default().fg(Color::Blue)} else {Style::default()};
+
         frame.render_widget(
             Paragraph::new(Text::from(railfence))
-                .centered()
-                .block(Block::bordered()),
+                .block(Block::bordered().border_style(style))
+                .scroll(scroll),
             area,
         )
     }

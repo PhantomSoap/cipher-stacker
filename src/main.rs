@@ -35,13 +35,8 @@ pub use app::App;
 use ratatui::{Terminal, backend::CrosstermBackend};
 
 pub enum Message {
-    AddCipher(CipherName, Option<usize>),
-    RemoveCipher(Option<usize>),
     EditCipher(CipherEdit),
-    NextInStack,
-    PreviousInStack,
     CipherPlaintext,
-    DecipherCiphertext,
     Exit,
     Reset,
     GoHome,
