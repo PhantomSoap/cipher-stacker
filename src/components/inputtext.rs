@@ -2,29 +2,30 @@ use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     Frame, layout::Rect, style::{Color, Style}, widgets::{Block, Paragraph, Wrap},
 };
+use ratatui_themekit::{ThemeData, ThemeExt};
 
 use super::Component;
 use crate::Message;
 
-pub struct Plaintext {
+pub struct InputText {
     pub text: String,
     pub scroll: u16,
 }
-impl Plaintext {
+impl InputText {
     pub fn new(text: String) -> Self {
         Self { text, scroll: 0 }
     }
 }
-impl Component for Plaintext {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool) {
-        let style = if focus {Style::default().fg(Color::Blue)} else {Style::default()};
+impl Component for InputText {
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool,t : ThemeData) {
+
+        let block = t.block("Plaintext").focused(focus).build();
+
         let widget = 
             Paragraph::new(format!("{}", self.text))
                 .wrap(Wrap { trim: false })
                 .block(
-                    Block::bordered()
-                        .title_top("Plaintext")
-                        .border_style(style),
+                    block
                 )
                 .scroll((
                     0,self.scroll
@@ -50,11 +51,11 @@ impl Component for Plaintext {
             }
             KeyCode::Backspace => {
                 self.text.pop();
-                Some(Message::CipherPlaintext)
+                Some(Message::CipherInputText)
             }
             KeyCode::Char(c) => {
                 self.text.push(c);
-                Some(Message::CipherPlaintext)
+                Some(Message::CipherInputText)
             }
             KeyCode::Tab => Some(Message::NextFocus),
 

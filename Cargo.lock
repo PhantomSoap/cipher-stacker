@@ -155,6 +155,7 @@ dependencies = [
  "cifers",
  "crossterm",
  "ratatui",
+ "ratatui-themekit",
  "strum",
 ]
 
@@ -1072,6 +1073,15 @@ checksum = "faf03e0380b7744054d6cb74224fe3adf062a029754933f575ca1e3b4c2ce977"
 dependencies = [
  "ratatui-core",
  "termwiz",
+]
+
+[[package]]
+name = "ratatui-themekit"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "add55c1a2dce84b0fbc98bad03721a70a91213c27709986be3c31df912f47655"
+dependencies = [
+ "ratatui",
 ]
 
 [[package]]

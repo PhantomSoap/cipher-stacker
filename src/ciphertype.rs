@@ -1,7 +1,7 @@
 use core::fmt;
 use std::fmt::Formatter;
 
-use crate::CipherName;
+use crate::{CIPHER_INSTRUCTIONS, CipherName};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CipherType {
@@ -13,14 +13,14 @@ pub enum CipherType {
 }
 
 impl CipherType {
-    pub fn instructions(&self) -> String {
+    pub fn instructions(&self) -> &'static str {
         match self {
-            CipherType::Caeser(_) => String::from("<- Shift ->"),
-            CipherType::Vigenere(_) => String::from("Type a Keyword"),
-            CipherType::RailFence(_) => String::from("<Up> Increment Key <Down> Decrement Key"),
-            CipherType::Atbash => String::from(""),
+            CipherType::Caeser(_) => CIPHER_INSTRUCTIONS[0],
+            CipherType::Vigenere(_) => "Type a keyword",
+            CipherType::RailFence(_) => CIPHER_INSTRUCTIONS[2],
+            CipherType::Atbash => "",
             CipherType::Affine(_, _) => {
-                String::from("<- Shift -> | <Up> Increment Multiplyer <Down Decrement Multiplyer>")
+                CIPHER_INSTRUCTIONS[1]
             }
         }
     }

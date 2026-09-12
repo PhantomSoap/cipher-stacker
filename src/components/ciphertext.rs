@@ -2,6 +2,7 @@ use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     Frame, layout::Rect, style::{Color, Style}, widgets::{Block, Paragraph, Wrap},
 };
+use ratatui_themekit::{ThemeData, ThemeExt};
 
 use crate::{Message, components::Component};
 pub struct Ciphertext {
@@ -15,16 +16,14 @@ impl Ciphertext {
     }
 }
 impl Component for Ciphertext {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool) {
-        let style = if focus {Style::default().fg(Color::Blue)} else {Style::default()};
-    
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool,t : ThemeData) {
+        let block = t.block("Ciphertext").focused(focus).build();
+
         let widget = 
             Paragraph::new(self.text.as_str())
                 .wrap(Wrap { trim: true })
                 .block(
-                    Block::bordered()
-                        .title_top("Ciphertext")
-                        .border_style(style),
+                    block
                 )
                 .scroll((
                     self.scroll,
