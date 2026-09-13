@@ -10,6 +10,6 @@ pub mod inputtext;
 
 pub trait Component {
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message>;
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool,t: ThemeData);
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: ThemeData);
     fn update(&mut self, msg: Message) -> Option<Message>;
 }

@@ -1,6 +1,8 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
-    Frame, layout::Rect, style::{Color, Style}, widgets::{Block, Paragraph, Wrap},
+    Frame,
+    layout::Rect,
+    widgets::{Paragraph, Wrap},
 };
 use ratatui_themekit::{ThemeData, ThemeExt};
 
@@ -17,25 +19,19 @@ impl InputText {
     }
 }
 impl Component for InputText {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool,t : ThemeData) {
-
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: ThemeData) {
         let block = t.block("Plaintext").focused(focus).build();
 
-        let widget = 
-            Paragraph::new(format!("{}", self.text))
-                .wrap(Wrap { trim: false })
-                .block(
-                    block
-                )
-                .scroll((
-                    0,self.scroll
-                ));
-        
+        let widget = Paragraph::new(format!("{}", self.text))
+            .wrap(Wrap { trim: false })
+            .block(block)
+            .scroll((0, self.scroll));
+
         frame.render_widget(widget, area);
     }
 
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message> {
-        if  key.kind == KeyEventKind::Release {
+        if key.kind == KeyEventKind::Release {
             return None;
         }
 

@@ -1,6 +1,4 @@
-use crate::{
-    CipherName, CipherType, INSTRUCTIONS, Message, components::Component,
-};
+use crate::{CipherName, CipherType, INSTRUCTIONS, Message, components::Component};
 use cifers::{Affine, Caeser, Cipher, Railfence, Vigenere};
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
@@ -8,9 +6,9 @@ use ratatui::{
     layout::{Constraint, Layout, Rect},
     style::{Color, Style},
     text::{Line, Span, Text},
-    widgets::{Block, List, ListItem, ListState, Paragraph},
+    widgets::{List, ListItem, ListState, Paragraph},
 };
-use ratatui_themekit::{Theme, ThemeData, ThemeExt};
+use ratatui_themekit::{ThemeData, ThemeExt};
 #[derive(Debug, Clone, Copy)]
 pub enum CipherEdit {
     PushChar(char),
@@ -55,13 +53,13 @@ impl CipherStack {
         }
     }
 
-    pub fn stack_cipher(&mut self, text: &str, ciphertext: &mut String)  {
+    pub fn stack_cipher(&mut self, text: &str, ciphertext: &mut String) {
         let mut history: Vec<String> = Vec::new();
         let mut working_cipher = text.to_string();
         if self.ciphers.is_empty() {
             *ciphertext = working_cipher;
             self.history = history;
-            return
+            return;
         };
 
         for cipher in &self.ciphers {
@@ -95,18 +93,19 @@ impl CipherStack {
         }
         *ciphertext = working_cipher;
         self.history = history;
-        
     }
 }
 
 impl Component for CipherStack {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool,t : ThemeData) {
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: ThemeData) {
         let split = Layout::default()
             .direction(ratatui::layout::Direction::Vertical)
-            .constraints([Constraint::Length(3), Constraint::Length(8),Constraint::Length(8)])
+            .constraints([
+                Constraint::Length(3),
+                Constraint::Length(8),
+                Constraint::Length(8),
+            ])
             .split(area);
-
-        
 
         let panel = match self.task {
             Task::Editing => Paragraph::new(Text::from(Line::from(vec![
@@ -117,9 +116,7 @@ impl Component for CipherStack {
                 ),
                 Span::raw(" |"),
             ])))
-            .block(
-                t.block("Edit Cipher").focused(focus).build()
-            ),
+            .block(t.block("Edit Cipher").focused(focus).build()),
             Task::Adding => Paragraph::new(Text::from(Line::from(vec![
                 Span::raw("| "),
                 Span::styled(
@@ -130,48 +127,51 @@ impl Component for CipherStack {
                 Span::styled("<+>", Color::Blue),
                 Span::raw(" to add |"),
             ])))
-            .block(
-                t.block("Add Cipher").focused(focus).build()
-            ),
+            .block(t.block("Add Cipher").focused(focus).build()),
         };
         frame.render_widget(panel, split[0]);
 
         let list = match self.state {
-                StackState::Main => {
-                    List::new(
-                    self.ciphers
-                        .iter()
-                        .map(|cipher| ListItem::from(format!("{:?}", cipher))),
-                )
-                .highlight_style(Color::LightRed)
-                .block(
-                    t.block("Ciphers").focused(focus).build()
-                )
-                
-            }
+            StackState::Main => List::new(
+                self.ciphers
+                    .iter()
+                    .map(|cipher| ListItem::from(format!("{:?}", cipher))),
+            )
+            .highlight_style(Color::LightRed)
+            .block(t.block("Ciphers").focused(focus).build()),
             StackState::ShowHistory => {
                 let mut history_text: Vec<ListItem> = Vec::new();
 
                 for (index, cipher) in self.ciphers.iter().enumerate() {
                     if let Some(hist_item) = self.history.get(index) {
-                        history_text.push(ListItem::from(Text::from(format!("{cipher:?} -> {hist_item}"))));
+                        history_text.push(ListItem::from(Text::from(format!(
+                            "{cipher:?} -> {hist_item}"
+                        ))));
                     }
                 }
-                List::new(history_text).highlight_style(Color::LightRed).block(t.block("History").focused(focus).build())
-                
+                List::new(history_text)
+                    .highlight_style(Color::LightRed)
+                    .block(t.block("History").focused(focus).build())
             }
         };
         frame.render_stateful_widget(
-                    list,
-                    split[1],
-                    &mut ListState::default().with_selected(self.selected),
+            list,
+            split[1],
+            &mut ListState::default().with_selected(self.selected),
         );
 
         if let Task::Editing = self.task {
-            frame.render_widget(Paragraph::new(self.ciphers[self.selected.unwrap()].instructions()).block(t.block("Instructions").focused(focus).build()),split[2])
+            frame.render_widget(
+                Paragraph::new(self.ciphers[self.selected.unwrap()].instructions())
+                    .block(t.block("Instructions").focused(focus).build()),
+                split[2],
+            )
         } else {
-            frame.render_widget(Paragraph::new(INSTRUCTIONS[0]).block(t.block("Instructions").focused(focus).build()),split[2])
-
+            frame.render_widget(
+                Paragraph::new(INSTRUCTIONS[0])
+                    .block(t.block("Instructions").focused(focus).build()),
+                split[2],
+            )
         }
     }
 
@@ -207,7 +207,7 @@ impl Component for CipherStack {
                         None
                     };
                     None
-                },
+                }
                 KeyCode::Char('-') => {
                     if let Some(_removed) = self.ciphers.pop() {
                         self.selected = if self.ciphers.len() != 0 {
@@ -219,15 +219,16 @@ impl Component for CipherStack {
                     None
                 }
                 KeyCode::Char('+') if let Some(index) = self.selected => {
-                    self.ciphers.insert(index, self.cipher_to_add.into_ciphertype());
+                    self.ciphers
+                        .insert(index, self.cipher_to_add.into_ciphertype());
                     self.selected = Some(index);
                     None
-                },
-                KeyCode::Char('+')  => {
-                   self.ciphers.push(self.cipher_to_add.into_ciphertype());
+                }
+                KeyCode::Char('+') => {
+                    self.ciphers.push(self.cipher_to_add.into_ciphertype());
                     self.selected = Some(self.ciphers.len() - 1);
                     None
-                },
+                }
                 KeyCode::Up if let Some(index) = &mut self.selected => {
                     if *index != 0 {
                         *index -= 1;
@@ -239,8 +240,7 @@ impl Component for CipherStack {
                         *index += 1;
                     }
                     None
-
-                },
+                }
                 KeyCode::Right => {
                     self.cipher_to_add.next();
                     None
@@ -272,7 +272,7 @@ impl Component for CipherStack {
                         None
                     };
                     None
-                },
+                }
                 KeyCode::Char('-') => {
                     if let Some(_removed) = self.ciphers.pop() {
                         self.selected = if self.ciphers.len() != 0 {
@@ -284,15 +284,16 @@ impl Component for CipherStack {
                     None
                 }
                 KeyCode::Char('+') if let Some(index) = self.selected => {
-                    self.ciphers.insert(index, self.cipher_to_add.into_ciphertype());
+                    self.ciphers
+                        .insert(index, self.cipher_to_add.into_ciphertype());
                     self.selected = Some(index);
                     None
-                },
-                KeyCode::Char('+')  => {
-                   self.ciphers.push(self.cipher_to_add.into_ciphertype());
+                }
+                KeyCode::Char('+') => {
+                    self.ciphers.push(self.cipher_to_add.into_ciphertype());
                     self.selected = Some(self.ciphers.len() - 1);
                     None
-                },
+                }
                 KeyCode::Up if let Some(index) = &mut self.selected => {
                     if *index != 0 {
                         *index -= 1;
@@ -304,8 +305,7 @@ impl Component for CipherStack {
                         *index += 1;
                     }
                     None
-
-                },
+                }
                 KeyCode::Right => {
                     self.cipher_to_add.next();
                     None

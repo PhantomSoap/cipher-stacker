@@ -19,9 +19,7 @@ impl CipherType {
             CipherType::Vigenere(_) => "Type a keyword",
             CipherType::RailFence(_) => CIPHER_INSTRUCTIONS[2],
             CipherType::Atbash => "",
-            CipherType::Affine(_, _) => {
-                CIPHER_INSTRUCTIONS[1]
-            }
+            CipherType::Affine(_, _) => CIPHER_INSTRUCTIONS[1],
         }
     }
 

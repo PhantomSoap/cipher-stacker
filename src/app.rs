@@ -1,12 +1,11 @@
 use crate::contains;
-use crate::{AppCipher, CipherStack, Ciphertext, Message, InputText, layouts::AppLayout};
+use crate::{AppCipher, CipherStack, Ciphertext, InputText, Message, layouts::AppLayout};
 
 use crate::components::Component;
 use crossterm::event::{self, Event, MouseButton};
 use ratatui::layout::Rect;
-use ratatui::text::Line;
-use ratatui::{DefaultTerminal, Frame, widgets::Block};
-use ratatui_themekit::{GruvboxDark, Theme, ThemeData, ThemeExt};
+use ratatui::{DefaultTerminal, Frame};
+use ratatui_themekit::{GruvboxDark, ThemeData, ThemeExt};
 use std::io;
 
 #[derive(Debug)]
@@ -15,7 +14,7 @@ pub enum Focus {
     InputText,
     Ciphertext,
     CipherStack,
-    View
+    View,
 }
 
 impl Focus {
@@ -25,7 +24,6 @@ impl Focus {
             Focus::CipherStack => Focus::Ciphertext,
             Focus::Ciphertext => Focus::View,
             Focus::View => Focus::InputText,
-            
         }
     }
 }
@@ -37,13 +35,12 @@ pub struct App {
     pub exit: bool,
     pub cipherview: Option<AppCipher>,
     pub focus: Focus,
-    layouts : AppLayout,
-    pub theme : ThemeData,
+    pub layouts: AppLayout,
+    pub theme: ThemeData,
 }
 
 impl App {
     pub fn new() -> App {
-        
         App {
             input_text: InputText::new(String::from("ExampleText")),
             ciphertext: Ciphertext::new(String::from("ExampleText")),
@@ -51,9 +48,8 @@ impl App {
             exit: false,
             focus: Focus::InputText,
             cipherview: None,
-            layouts : AppLayout::build(Rect::new(0, 0, 0, 0)),
-            theme : GruvboxDark,
-
+            layouts: AppLayout::build(Rect::new(0, 0, 0, 0)),
+            theme: GruvboxDark,
         }
     }
 
@@ -77,49 +73,55 @@ impl App {
                 Focus::InputText => Ok(self.input_text.handle_key_events(key_event)),
                 Focus::Ciphertext => Ok(self.ciphertext.handle_key_events(key_event)),
                 Focus::CipherStack => Ok(self.stack.handle_key_events(key_event)),
-                Focus::View if let Some(view) = &mut self.cipherview => Ok(view.handle_key_events(key_event)),
+                Focus::View if let Some(view) = &mut self.cipherview => {
+                    Ok(view.handle_key_events(key_event))
+                }
                 Focus::View => Ok(Some(Message::NextFocus)),
             },
             Event::Mouse(m) => {
-                let (col,row) = match m.kind {
-                event::MouseEventKind::Down(MouseButton::Left) => {(m.column,m.row)},
-                _ => {return Ok(None)},
-            }; 
-            if contains(self.layouts.plaintext, col, row) {
-                Ok(Some(Message::Focus(Focus::InputText)))
-            } else if contains(self.layouts.cipherstack, col ,row) {
-                Ok(Some(Message::Focus(Focus::CipherStack)))
-                
-            } else if contains(self.layouts.cipherview, col, row) {
-                Ok(Some(Message::Focus(Focus::View)))
-            } else {
-                Ok(None)
+                let (col, row) = match m.kind {
+                    event::MouseEventKind::Down(MouseButton::Left) => (m.column, m.row),
+                    _ => return Ok(None),
+                };
+                if contains(self.layouts.plaintext, col, row) {
+                    Ok(Some(Message::Focus(Focus::InputText)))
+                } else if contains(self.layouts.cipherstack, col, row) {
+                    Ok(Some(Message::Focus(Focus::CipherStack)))
+                } else if contains(self.layouts.cipherview, col, row) {
+                    Ok(Some(Message::Focus(Focus::View)))
+                } else {
+                    Ok(None)
+                }
             }
-        
-            },
-            _ => Ok(None),       
+            _ => Ok(None),
         }
-            
-        
     }
 
     pub fn draw(&mut self, frame: &mut Frame) {
         self.layouts = AppLayout::build(frame.area());
-        frame.render_widget(self.theme.block(&format!("{:?}", self.focus)).focused(true).build(), frame.area()); 
+        frame.render_widget(
+            self.theme
+                .block(&format!("{:?}", self.focus))
+                .focused(true)
+                .build(),
+            frame.area(),
+        );
         let areas = AppLayout::build(frame.area());
-       
+
         self.update_cipherview();
         if let Some(cipherview) = &self.cipherview {
-            cipherview.draw(frame, areas.cipherview,if let Focus::View = self.focus {
-                true
-            } else {
-                false
-            },
-            self.theme,
-        );
+            cipherview.draw(
+                frame,
+                areas.cipherview,
+                if let Focus::View = self.focus {
+                    true
+                } else {
+                    false
+                },
+                self.theme,
+            );
         } else {
-            frame.render_widget(self.theme.block("").build(), areas.cipherview); 
-
+            frame.render_widget(self.theme.block("").build(), areas.cipherview);
         }
 
         self.input_text.draw(
@@ -174,7 +176,6 @@ impl App {
 
     pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            
             Message::EditCipher(_) => self.stack.update(msg),
             Message::CipherInputText => None,
             Message::Exit => {
@@ -201,7 +202,10 @@ impl App {
                 }
                 None
             }
-            Message::Focus(f) => {self.focus = f; None}
+            Message::Focus(f) => {
+                self.focus = f;
+                None
+            }
         }
     }
     pub fn exit(&mut self) {

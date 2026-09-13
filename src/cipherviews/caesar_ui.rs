@@ -1,6 +1,9 @@
 use cifers::{Caeser, cipher::Cipher};
 use ratatui::{
-    Frame, layout::Rect, style::{Color, Style}, text::Text, widgets::{Block, Paragraph},
+    Frame,
+    layout::Rect,
+    text::Text,
+    widgets::Paragraph,
 };
 use ratatui_themekit::{ThemeData, ThemeExt};
 
@@ -16,7 +19,7 @@ impl CaesarView {
     }
 }
 impl CipherView for CaesarView {
-    fn draw(&self, frame: &mut Frame, area: Rect,focus : bool,scroll : (u16,u16),t : ThemeData) {
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, scroll: (u16, u16), t: ThemeData) {
         let shift = self.shift;
         let ciphered_alphabet = Caeser::new(shift as i32).encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
