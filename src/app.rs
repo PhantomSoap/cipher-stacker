@@ -1,3 +1,4 @@
+use crate::components::theme_change::ThemeChanger;
 use crate::contains;
 use crate::{AppCipher, CipherStack, Ciphertext, InputText, Message, layouts::AppLayout};
 
@@ -14,6 +15,7 @@ pub enum Focus {
     InputText,
     Ciphertext,
     CipherStack,
+    Theme,
     View,
 }
 
@@ -22,7 +24,8 @@ impl Focus {
         match self {
             Focus::InputText => Focus::CipherStack,
             Focus::CipherStack => Focus::Ciphertext,
-            Focus::Ciphertext => Focus::View,
+            Focus::Ciphertext => Focus::Theme,
+            Focus::Theme => Focus::View,
             Focus::View => Focus::InputText,
         }
     }
@@ -36,7 +39,7 @@ pub struct App {
     pub cipherview: Option<AppCipher>,
     pub focus: Focus,
     pub layouts: AppLayout,
-    pub theme: ThemeData,
+    pub theme: ThemeChanger,
 }
 
 impl App {
@@ -49,7 +52,7 @@ impl App {
             focus: Focus::InputText,
             cipherview: None,
             layouts: AppLayout::build(Rect::new(0, 0, 0, 0)),
-            theme: GruvboxDark,
+            theme: ThemeChanger::new(),
         }
     }
 
@@ -77,6 +80,7 @@ impl App {
                     Ok(view.handle_key_events(key_event))
                 }
                 Focus::View => Ok(Some(Message::NextFocus)),
+                Focus::Theme => Ok(self.theme.handle_key_events(key_event))
             },
             Event::Mouse(m) => {
                 let (col, row) = match m.kind {
@@ -89,6 +93,8 @@ impl App {
                     Ok(Some(Message::Focus(Focus::CipherStack)))
                 } else if contains(self.layouts.cipherview, col, row) {
                     Ok(Some(Message::Focus(Focus::View)))
+                } else if contains(self.layouts.theme_editer, col, row) {
+                    Ok(Some(Message::Focus(Focus::Theme)))
                 } else {
                     Ok(None)
                 }
@@ -100,7 +106,7 @@ impl App {
     pub fn draw(&mut self, frame: &mut Frame) {
         self.layouts = AppLayout::build(frame.area());
         frame.render_widget(
-            self.theme
+            self.theme.get_theme()
                 .block(&format!("{:?}", self.focus))
                 .focused(true)
                 .build(),
@@ -118,10 +124,10 @@ impl App {
                 } else {
                     false
                 },
-                self.theme,
+                self.theme.get_theme(),
             );
         } else {
-            frame.render_widget(self.theme.block("").build(), areas.cipherview);
+            frame.render_widget(self.theme.get_theme().block("").build(), areas.cipherview);
         }
 
         self.input_text.draw(
@@ -132,7 +138,7 @@ impl App {
             } else {
                 false
             },
-            self.theme,
+            self.theme.get_theme(),
         );
         self.ciphertext.draw(
             frame,
@@ -142,7 +148,7 @@ impl App {
             } else {
                 false
             },
-            self.theme,
+            self.theme.get_theme(),
         );
         self.stack.draw(
             frame,
@@ -152,8 +158,18 @@ impl App {
             } else {
                 false
             },
-            self.theme,
+            self.theme.get_theme(),
         );
+        self.theme.draw(
+            frame,
+            areas.theme_editer,
+            if let Focus::Theme = self.focus {
+                true
+            } else {
+                false
+            },
+            self.theme.get_theme(),
+        )
     }
 
     pub fn update_cipherview(&mut self) {

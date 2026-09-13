@@ -7,6 +7,7 @@ use crate::Message;
 pub mod cipher_stack;
 pub mod ciphertext;
 pub mod inputtext;
+pub mod theme_change;
 
 pub trait Component {
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message>;
