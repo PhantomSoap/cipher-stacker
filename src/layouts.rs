@@ -23,9 +23,9 @@ impl AppLayout {
         let pieces = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(4),
-                Constraint::Length(30),
-                Constraint::Length(4),
+                Constraint::Percentage(10),
+                Constraint::Percentage(80),
+                Constraint::Percentage(10),
             ])
             .split(vertical_split[0]);
 
