@@ -1,18 +1,15 @@
 use crossterm::event::{KeyCode, KeyEventKind};
 use ratatui::{Frame, layout::Rect};
-use ratatui_themekit::ThemeData;
 
 use crate::{
-    CipherType,
-    cipherviews::{
+    CipherType, cipherviews::{
         affine_ui::AffineView, atbash_ui::AtbashView, caesar_ui::CaesarView,
         rail_fence_ui::RailfenceView, vigenere_ui::VigenereView,
-    },
-    components::Component,
+    }, components::Component, theme::Theme,
 };
 
 pub trait CipherView {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, scroll: (u16, u16), t: ThemeData);
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, scroll: (u16, u16), t: Theme);
 }
 pub struct AppCipher {
     pub index: usize,
@@ -49,7 +46,7 @@ impl AppCipher {
 }
 
 impl Component for AppCipher {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: ThemeData) {
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: Theme) {
         self.cipher.draw(frame, area, focus, self.scroll, t);
     }
 

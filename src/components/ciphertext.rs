@@ -1,12 +1,9 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
-    Frame,
-    layout::Rect,
-    widgets::{Paragraph, Wrap},
+    Frame, layout::Rect, widgets::{Block, Paragraph, Wrap},
 };
-use ratatui_themekit::{ThemeData, ThemeExt};
 
-use crate::{Message, components::Component};
+use crate::{Message, components::Component, theme::Theme};
 pub struct Ciphertext {
     pub text: String,
     pub scroll: u16,
@@ -18,8 +15,8 @@ impl Ciphertext {
     }
 }
 impl Component for Ciphertext {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: ThemeData) {
-        let block = t.block("Ciphertext").focused(focus).build();
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: Theme) {
+        let block = Block::bordered().title("Ciphertext").border_style(if focus {t.ring} else {t.border});
 
         let widget = Paragraph::new(self.text.as_str())
             .wrap(Wrap { trim: true })

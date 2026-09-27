@@ -1,8 +1,7 @@
 use crossterm::event::KeyEvent;
 use ratatui::{Frame, layout::Rect};
-use ratatui_themekit::ThemeData;
 
-use crate::Message;
+use crate::{Message, theme::Theme};
 
 pub mod cipher_stack;
 pub mod ciphertext;
@@ -11,6 +10,6 @@ pub mod theme_change;
 
 pub trait Component {
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message>;
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: ThemeData);
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: Theme);
     fn update(&mut self, msg: Message) -> Option<Message>;
 }

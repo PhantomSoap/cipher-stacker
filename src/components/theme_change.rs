@@ -1,8 +1,7 @@
 use crossterm::event::{KeyCode, KeyEventKind};
-use ratatui::{style::Modifier, widgets::{List, ListItem, ListState}};
-use ratatui_themekit::{BUILTIN_THEMES, ThemeData, ThemeExt, available_theme_ids};
+use ratatui::{style::Modifier, widgets::{Block, List, ListItem, ListState}};
 
-use crate::{Message, components::Component};
+use crate::{Message, components::Component,theme::{Theme,PRESETS}};
 
 pub struct ThemeChanger {
     list_state : Option<usize>
@@ -15,8 +14,8 @@ impl ThemeChanger {
         }
     }
 
-    pub fn get_theme(&self) -> ThemeData {
-        BUILTIN_THEMES[self.list_state.unwrap_or(3)]
+    pub fn get_theme(&self) -> Theme {
+        PRESETS[self.list_state.unwrap_or(3)]
 
         
     }
@@ -35,7 +34,7 @@ impl Component for ThemeChanger {
                 None
                 
             }
-            KeyCode::Down if let Some(i) = &mut self.list_state && *i !=BUILTIN_THEMES.len()-1 => {
+            KeyCode::Down if let Some(i) = &mut self.list_state && *i !=PRESETS.len()-1 => {
                 *i += 1;
                 None
                 
@@ -46,11 +45,11 @@ impl Component for ThemeChanger {
         }
     }
 
-    fn draw(&self, frame: &mut ratatui::prelude::Frame, area: ratatui::prelude::Rect, focus: bool, t: ThemeData) {
-       let block = t.block("Themes").focused(focus).build();
+    fn draw(&self, frame: &mut ratatui::prelude::Frame, area: ratatui::prelude::Rect, focus: bool, t: Theme) {
+       let block = Block::bordered().title("Themes").border_style(if focus {t.ring} else {t.border});
        frame.render_stateful_widget(
              List::new(
-                BUILTIN_THEMES.iter().map(|t| ListItem::new(t.name))
+                PRESETS.iter().map(|t| ListItem::new(t.name))
             )
             .highlight_style(Modifier::REVERSED)
             .highlight_symbol("> ")

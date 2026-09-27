@@ -5,8 +5,8 @@ use crate::{AppCipher, CipherStack, Ciphertext, InputText, Message, layouts::App
 use crate::components::Component;
 use crossterm::event::{self, Event, KeyEvent, MouseButton, MouseEvent};
 use ratatui::layout::Rect;
+use ratatui::widgets::Block;
 use ratatui::{DefaultTerminal, Frame};
-use ratatui_themekit::{GruvboxDark, ThemeData, ThemeExt};
 use std::io;
 
 #[derive(Debug)]
@@ -128,7 +128,7 @@ impl App {
                 self.theme.get_theme(),
             );
         } else {
-            frame.render_widget(self.theme.get_theme().block("").build(), areas.cipherview);
+            frame.render_widget(Block::bordered().title("").border_style(self.theme.get_theme().border), areas.cipherview);
         }
 
         self.input_text.draw(
@@ -193,8 +193,8 @@ impl App {
 
     pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            Message::EditCipher(_) => self.stack.update(msg),
-            Message::CipherInputText => None,
+            Message::CipherInputText(text) => None,
+            Message::SendCipherText(text) => None,
             Message::Exit => {
                 self.exit();
                 None

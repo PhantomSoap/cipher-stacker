@@ -1,13 +1,8 @@
 use ratatui::{
-    Frame,
-    layout::Rect,
-    style::{Stylize},
-    text::{Line, Span, Text},
-    widgets::Paragraph,
+    Frame, layout::Rect, style::Stylize, text::{Line, Span, Text}, widgets::{Block, Paragraph},
 };
-use ratatui_themekit::{ThemeData, ThemeExt};
 
-use crate::CipherView;
+use crate::{CipherView, theme::Theme};
 
 pub struct AffineView {
     pub a: u8,
@@ -25,7 +20,7 @@ impl AffineView {
     }
 }
 impl CipherView for AffineView {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, scroll: (u16, u16), t: ThemeData) {
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, scroll: (u16, u16), t: Theme) {
         let a = self.a;
         let b = self.b;
         let mut affine_table = Text::from(format!(
@@ -62,7 +57,7 @@ impl CipherView for AffineView {
 
         frame.render_widget(
             Paragraph::new(affine_table)
-                .block(t.block("").focused(focus).build())
+                .block(Block::bordered().title("Affine Cipher").border_style(if focus {t.ring} else {t.border}))
                 .scroll(scroll),
             area,
         )

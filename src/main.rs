@@ -9,6 +9,7 @@ pub mod ciphertype;
 pub mod cipherviews;
 pub mod components;
 pub mod layouts;
+pub mod theme;
 
 use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use crossterm::execute;
@@ -37,8 +38,8 @@ pub use app::App;
 use ratatui::{Terminal, backend::CrosstermBackend};
 
 pub enum Message {
-    EditCipher(CipherEdit),
-    CipherInputText,
+    CipherInputText(String),
+    SendCipherText(&'static str),
     Exit,
     Reset,
     GoHome,

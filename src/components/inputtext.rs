@@ -1,13 +1,10 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
-    Frame,
-    layout::Rect,
-    widgets::{Paragraph, Wrap},
+    Frame, layout::Rect, widgets::{Block, Paragraph, Wrap},
 };
-use ratatui_themekit::{ThemeData, ThemeExt};
 
 use super::Component;
-use crate::Message;
+use crate::{Message, theme::Theme};
 
 pub struct InputText {
     pub text: String,
@@ -19,8 +16,8 @@ impl InputText {
     }
 }
 impl Component for InputText {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: ThemeData) {
-        let block = t.block("Plaintext").focused(focus).build();
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: Theme) {
+        let block = Block::bordered().title("Plaintext").border_style(if focus {t.ring} else {t.border});
 
         let widget = Paragraph::new(format!("{}", self.text))
             .wrap(Wrap { trim: false })
@@ -47,11 +44,11 @@ impl Component for InputText {
             }
             KeyCode::Backspace => {
                 self.text.pop();
-                Some(Message::CipherInputText)
+                Some(Message::CipherInputText(self.text.clone()))
             }
             KeyCode::Char(c) => {
                 self.text.push(c);
-                Some(Message::CipherInputText)
+                Some(Message::CipherInputText(self.text.clone()))
             }
             KeyCode::Tab => Some(Message::NextFocus),
 

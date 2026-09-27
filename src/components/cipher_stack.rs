@@ -1,14 +1,9 @@
-use crate::{CipherName, CipherType, INSTRUCTIONS, Message, components::Component};
+use crate::{CipherName, CipherType, INSTRUCTIONS, Message, components::Component, theme::Theme};
 use cifers::{Affine, Caeser, Cipher, Railfence, Vigenere};
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
-    Frame,
-    layout::{Constraint, Layout, Rect},
-    style::{Color, Style},
-    text::{Line, Span, Text},
-    widgets::{List, ListItem, ListState, Paragraph},
+    Frame, layout::{Constraint, Layout, Rect}, style::{Color, Style}, text::{Line, Span, Text}, widgets::{Block, List, ListItem, ListState, Paragraph},
 };
-use ratatui_themekit::{ThemeData, ThemeExt};
 #[derive(Debug, Clone, Copy)]
 pub enum CipherEdit {
     PushChar(char),
@@ -51,6 +46,73 @@ impl CipherStack {
             history: Vec::new(),
             task: Task::Adding,
         }
+    }
+
+    pub fn edit_cipher(&mut self, edit : CipherEdit) {
+        if let Some(index) = self.selected {
+                    match edit {
+                        CipherEdit::PushChar(chr)
+                            if let CipherType::Vigenere(code) = &mut self.ciphers[index] =>
+                        {
+                            code.push(chr.to_ascii_uppercase());
+                        }
+                        CipherEdit::Popchar
+                            if let CipherType::Vigenere(code) = &mut self.ciphers[index] =>
+                        {
+                            code.pop();
+                        }
+                        CipherEdit::Up => match &mut self.ciphers[index] {
+                            CipherType::Affine(a, _b) => {
+                                let mut shift = *a;
+                                while !(*a == 26) && !(shift == 26) {
+                                    if !((shift + 1) % 2 == 0) && !((shift + 1) % 13 == 0) {
+                                        *a = shift + 1;
+                                        break;
+                                    } else {
+                                        shift += 1;
+                                    }
+                                }
+                            }
+                            CipherType::RailFence(key) => *key += 1,
+                            _ => {}
+                        },
+                        CipherEdit::Down => match &mut self.ciphers[index] {
+                            CipherType::Affine(a, _b) => {
+                                let mut shift = *a;
+                                while !(*a == 0) && !(shift == 0) {
+                                    if !((shift - 1) % 2 == 0) && !((shift - 1) % 13 == 0) {
+                                        *a = shift - 1;
+                                        break;
+                                    } else {
+                                        shift -= 1;
+                                    }
+                                }
+                            }
+                            CipherType::RailFence(key) if *key != 1 => *key -= 1,
+                            _ => {}
+                        },
+                        CipherEdit::Left => match &mut self.ciphers[index] {
+                            CipherType::Caeser(shift) => {
+                                *shift = ((*shift - 1) % 26 + 26) % 26;
+                            }
+                            CipherType::Affine(_a, b) if !(*b == 0) => {
+                                *b -= 1;
+                            }
+                            _ => {}
+                        },
+                        CipherEdit::Right => match &mut self.ciphers[index] {
+                            CipherType::Caeser(shift) => {
+                                *shift = ((*shift + 1) % 26 + 26) % 26;
+                            }
+                            CipherType::Affine(_a, b) if !(*b == 25) => {
+                                *b += 1;
+                            }
+
+                            _ => {}
+                        },
+                        _ => {}
+                    }
+                }
     }
 
     pub fn stack_cipher(&mut self, text: &str, ciphertext: &mut String) {
@@ -97,7 +159,7 @@ impl CipherStack {
 }
 
 impl Component for CipherStack {
-    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: ThemeData) {
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: Theme) {
         let split = Layout::default()
             .direction(ratatui::layout::Direction::Vertical)
             .constraints([
@@ -116,7 +178,7 @@ impl Component for CipherStack {
                 ),
                 Span::raw(" |"),
             ])))
-            .block(t.block("Edit Cipher").focused(focus).build()),
+            .block(Block::bordered().title("Edit Cipher").border_style(if focus {t.ring} else {t.border})),
             Task::Adding => Paragraph::new(Text::from(Line::from(vec![
                 Span::raw("| "),
                 Span::styled(
@@ -127,7 +189,7 @@ impl Component for CipherStack {
                 Span::styled("<+>", Color::Blue),
                 Span::raw(" to add |"),
             ])))
-            .block(t.block("Add Cipher").focused(focus).build()),
+            .block(Block::bordered().title("Add Cipher").border_style(if focus {t.ring} else {t.border})),
         };
         frame.render_widget(panel, split[0]);
 
@@ -138,7 +200,7 @@ impl Component for CipherStack {
                     .map(|cipher| ListItem::from(format!("{:?}", cipher))),
             )
             .highlight_style(Color::LightRed)
-            .block(t.block("Ciphers").focused(focus).build()),
+            .block(Block::bordered().title("Ciphers").border_style(if focus {t.ring} else {t.border})),
             StackState::ShowHistory => {
                 let mut history_text: Vec<ListItem> = Vec::new();
 
@@ -151,7 +213,7 @@ impl Component for CipherStack {
                 }
                 List::new(history_text)
                     .highlight_style(Color::LightRed)
-                    .block(t.block("History").focused(focus).build())
+                    .block(Block::bordered().title("History").border_style(if focus {t.ring} else {t.border}))
             }
         };
         frame.render_stateful_widget(
@@ -163,13 +225,13 @@ impl Component for CipherStack {
         if let Task::Editing = self.task {
             frame.render_widget(
                 Paragraph::new(self.ciphers[self.selected.unwrap()].instructions())
-                    .block(t.block("Instructions").focused(focus).build()),
+                    .block(Block::bordered().title("Instructions").border_style(if focus {t.ring} else {t.border})),
                 split[2],
             )
         } else {
             frame.render_widget(
                 Paragraph::new(INSTRUCTIONS[0])
-                    .block(t.block("Instructions").focused(focus).build()),
+                    .block(Block::bordered().title("Instructions").border_style(if focus {t.ring} else {t.border})),
                 split[2],
             )
         }
@@ -182,12 +244,12 @@ impl Component for CipherStack {
         if let Task::Editing = self.task {
             match key.code {
                 KeyCode::Esc => Some(Message::Exit),
-                KeyCode::Char(chr) => Some(Message::EditCipher(CipherEdit::PushChar(chr))),
-                KeyCode::Backspace => Some(Message::EditCipher(CipherEdit::Popchar)),
-                KeyCode::Up => Some(Message::EditCipher(CipherEdit::Up)),
-                KeyCode::Down => Some(Message::EditCipher(CipherEdit::Down)),
-                KeyCode::Left => Some(Message::EditCipher(CipherEdit::Left)),
-                KeyCode::Right => Some(Message::EditCipher(CipherEdit::Right)),
+                KeyCode::Char(chr) => {self.edit_cipher(CipherEdit::PushChar(chr)); None},
+                KeyCode::Backspace => {self.edit_cipher(CipherEdit::Popchar); None},
+                KeyCode::Up => {self.edit_cipher(CipherEdit::Up); None},
+                KeyCode::Down => {self.edit_cipher(CipherEdit::Down); None},
+                KeyCode::Left => {self.edit_cipher(CipherEdit::Left); None},
+                KeyCode::Right => {self.edit_cipher(CipherEdit::Right); None},
                 KeyCode::Tab => Some(Message::NextFocus),
                 KeyCode::Enter => {
                     self.task = Task::Adding;
@@ -331,74 +393,9 @@ impl Component for CipherStack {
 
     fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            Message::EditCipher(edit) => {
-                if let Some(index) = self.selected {
-                    match edit {
-                        CipherEdit::PushChar(chr)
-                            if let CipherType::Vigenere(code) = &mut self.ciphers[index] =>
-                        {
-                            code.push(chr.to_ascii_uppercase());
-                        }
-                        CipherEdit::Popchar
-                            if let CipherType::Vigenere(code) = &mut self.ciphers[index] =>
-                        {
-                            code.pop();
-                        }
-                        CipherEdit::Up => match &mut self.ciphers[index] {
-                            CipherType::Affine(a, _b) => {
-                                let mut shift = *a;
-                                while !(*a == 26) && !(shift == 26) {
-                                    if !((shift + 1) % 2 == 0) && !((shift + 1) % 13 == 0) {
-                                        *a = shift + 1;
-                                        break;
-                                    } else {
-                                        shift += 1;
-                                    }
-                                }
-                            }
-                            CipherType::RailFence(key) => *key += 1,
-                            _ => {}
-                        },
-                        CipherEdit::Down => match &mut self.ciphers[index] {
-                            CipherType::Affine(a, _b) => {
-                                let mut shift = *a;
-                                while !(*a == 0) && !(shift == 0) {
-                                    if !((shift - 1) % 2 == 0) && !((shift - 1) % 13 == 0) {
-                                        *a = shift - 1;
-                                        break;
-                                    } else {
-                                        shift -= 1;
-                                    }
-                                }
-                            }
-                            CipherType::RailFence(key) if *key != 1 => *key -= 1,
-                            _ => {}
-                        },
-                        CipherEdit::Left => match &mut self.ciphers[index] {
-                            CipherType::Caeser(shift) => {
-                                *shift = ((*shift - 1) % 26 + 26) % 26;
-                            }
-                            CipherType::Affine(_a, b) if !(*b == 0) => {
-                                *b -= 1;
-                            }
-                            _ => {}
-                        },
-                        CipherEdit::Right => match &mut self.ciphers[index] {
-                            CipherType::Caeser(shift) => {
-                                *shift = ((*shift + 1) % 26 + 26) % 26;
-                            }
-                            CipherType::Affine(_a, b) if !(*b == 25) => {
-                                *b += 1;
-                            }
-
-                            _ => {}
-                        },
-                        _ => {}
-                    }
-                }
-                None
-            }
+            
             _ => None,
         }
     }
+
 }
