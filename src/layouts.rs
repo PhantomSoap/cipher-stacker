@@ -1,4 +1,4 @@
-use ratatui::layout::{Constraint, Direction, Layout, Rect};
+use ratatui::layout::{Constraint, Direction, Layout, Margin, Rect};
 
 pub struct AppLayout {
     pub plaintext: Rect,
@@ -10,6 +10,7 @@ pub struct AppLayout {
 
 impl AppLayout {
     pub fn build(area: Rect) -> Self {
+        let area = area.inner(Margin::new(4,2));
         let vertical_split = Layout::default()
             .direction(Direction::Horizontal)
             .constraints([Constraint::Ratio(3, 5), Constraint::Ratio(2, 5)])

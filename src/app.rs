@@ -3,7 +3,7 @@ use crate::contains;
 use crate::{AppCipher, CipherStack, Ciphertext, InputText, Message, layouts::AppLayout};
 
 use crate::components::Component;
-use crossterm::event::{self, Event, MouseButton};
+use crossterm::event::{self, Event, KeyEvent, MouseButton, MouseEvent};
 use ratatui::layout::Rect;
 use ratatui::{DefaultTerminal, Frame};
 use ratatui_themekit::{GruvboxDark, ThemeData, ThemeExt};
@@ -72,46 +72,47 @@ impl App {
 
     pub fn handle_input_events(&mut self) -> io::Result<Option<Message>> {
         match event::read()? {
-            Event::Key(key_event) => match self.focus {
-                Focus::InputText => Ok(self.input_text.handle_key_events(key_event)),
-                Focus::Ciphertext => Ok(self.ciphertext.handle_key_events(key_event)),
-                Focus::CipherStack => Ok(self.stack.handle_key_events(key_event)),
-                Focus::View if let Some(view) = &mut self.cipherview => {
-                    Ok(view.handle_key_events(key_event))
-                }
-                Focus::View => Ok(Some(Message::NextFocus)),
-                Focus::Theme => Ok(self.theme.handle_key_events(key_event))
-            },
+            Event::Key(key_event) => Ok(self.handle_keys(key_event)),
             Event::Mouse(m) => {
-                let (col, row) = match m.kind {
-                    event::MouseEventKind::Down(MouseButton::Left) => (m.column, m.row),
-                    _ => return Ok(None),
-                };
-                if contains(self.layouts.plaintext, col, row) {
-                    Ok(Some(Message::Focus(Focus::InputText)))
-                } else if contains(self.layouts.cipherstack, col, row) {
-                    Ok(Some(Message::Focus(Focus::CipherStack)))
-                } else if contains(self.layouts.cipherview, col, row) {
-                    Ok(Some(Message::Focus(Focus::View)))
-                } else if contains(self.layouts.theme_editer, col, row) {
-                    Ok(Some(Message::Focus(Focus::Theme)))
-                } else {
-                    Ok(None)
-                }
+                Ok(self.handle_mouse(m))
             }
             _ => Ok(None),
         }
     }
 
+    pub fn handle_keys(&mut self,key_event : KeyEvent) -> Option<Message> {
+        match self.focus {
+                Focus::InputText => self.input_text.handle_key_events(key_event),
+                Focus::Ciphertext => self.ciphertext.handle_key_events(key_event),
+                Focus::CipherStack => self.stack.handle_key_events(key_event),
+                Focus::View if let Some(view) = &mut self.cipherview => {
+                    view.handle_key_events(key_event)
+                }
+                Focus::View => Some(Message::NextFocus),
+                Focus::Theme => self.theme.handle_key_events(key_event)
+            }
+    }
+
+    pub fn handle_mouse(&mut self,m : MouseEvent) -> Option<Message> {
+        let (col, row) = match m.kind {
+                    event::MouseEventKind::Down(MouseButton::Left) => (m.column, m.row),
+                    _ => return None,
+                };
+                if contains(self.layouts.plaintext, col, row) {
+                    Some(Message::Focus(Focus::InputText))
+                } else if contains(self.layouts.cipherstack, col, row) {
+                    Some(Message::Focus(Focus::CipherStack))
+                } else if contains(self.layouts.cipherview, col, row) {
+                    Some(Message::Focus(Focus::View))
+                } else if contains(self.layouts.theme_editer, col, row) {
+                    Some(Message::Focus(Focus::Theme))
+                } else {
+                    None
+                }
+    }
+
     pub fn draw(&mut self, frame: &mut Frame) {
         self.layouts = AppLayout::build(frame.area());
-        frame.render_widget(
-            self.theme.get_theme()
-                .block(&format!("{:?}", self.focus))
-                .focused(true)
-                .build(),
-            frame.area(),
-        );
         let areas = AppLayout::build(frame.area());
 
         self.update_cipherview();
