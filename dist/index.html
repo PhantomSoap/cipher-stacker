@@ -10,7 +10,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/fira_code.min.css"
     />
-    <title>Clipboard Example</title>
+    <title>Cipher Stacker</title>
     <style>
       body {
         margin: 0;
@@ -29,11 +29,11 @@
         margin: 0px;
       }
     </style>
-  <link rel="modulepreload" href="/cipherstacker-b8c453fc437eeb5d.js" crossorigin="anonymous" integrity="sha384-gZS12nRewWJvUDuzWEqYjCnyv43KSEDanlsIWqRj6fDJpbhH271KtOVucPx0Ow5f"><link rel="preload" href="/cipherstacker-b8c453fc437eeb5d_bg.wasm" crossorigin="anonymous" integrity="sha384-lZDp/5LgPXGy1aCPrVtJBQyTxhq1KlFqmiLyxQTj/DQKjmMTcvEEJFg4NZU3MG93" as="fetch" type="application/wasm"></head>
+  <link rel="modulepreload" href="/cipherstacker-b77412405b52ca50.js" crossorigin="anonymous" integrity="sha384-gZS12nRewWJvUDuzWEqYjCnyv43KSEDanlsIWqRj6fDJpbhH271KtOVucPx0Ow5f"><link rel="preload" href="/cipherstacker-b77412405b52ca50_bg.wasm" crossorigin="anonymous" integrity="sha384-bJN2ZU0y0GvSrXdw9rQkE7TvhdTWFq6TUHsvJ7+ykKXal6gEUgh5IAHa0xoSMQaR" as="fetch" type="application/wasm"></head>
   <body>
 <script type="module">
-import init, * as bindings from '/cipherstacker-b8c453fc437eeb5d.js';
-const wasm = await init({ module_or_path: '/cipherstacker-b8c453fc437eeb5d_bg.wasm' });
+import init, * as bindings from '/cipherstacker-b77412405b52ca50.js';
+const wasm = await init({ module_or_path: '/cipherstacker-b77412405b52ca50_bg.wasm' });
 
 
 window.wasmBindings = bindings;
@@ -171,4 +171,5 @@ dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
 
 })()
 </script></body>
+  
 </html>

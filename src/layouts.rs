@@ -18,15 +18,15 @@ impl AppLayout {
     .areas(area);
 
     let [plaintext, cipherview, ciphertext] = Layout::vertical([
-        Constraint::Length(3),
+        Constraint::Length(5),
         Constraint::Max(20),
-        Constraint::Length(3),
+        Constraint::Length(5),
     ])
     .areas(left_side);
 
     let [cipherstack, theme_editor] = Layout::vertical([
-        Constraint::Percentage(33),
-        Constraint::Percentage(34),
+        Constraint::Percentage(40),
+        Constraint::Percentage(40),
     ])
     .areas(right_side);
 
