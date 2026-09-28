@@ -1,4 +1,4 @@
-use cifers::{Caeser, cipher::Cipher};
+use cifers::{Caeser, Cipher};
 use ratatui::{
     Frame, layout::Rect, text::Text, widgets::{Block, Paragraph},
 };
@@ -17,7 +17,7 @@ impl CaesarView {
 impl CipherView for CaesarView {
     fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, scroll: (u16, u16), t: Theme) {
         let shift = self.shift;
-        let ciphered_alphabet = Caeser::new(shift as i32).encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        let ciphered_alphabet = Caeser::new().set_shift(shift as i32).encipher("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
         let mut ciphered_boxed_alphabet = String::with_capacity(107);
         ciphered_boxed_alphabet.push('|');

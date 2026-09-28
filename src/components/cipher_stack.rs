@@ -127,18 +127,18 @@ impl CipherStack {
         for cipher in &self.ciphers {
             match cipher {
                 CipherType::Caeser(shift) => {
-                    working_cipher = Caeser::new(*shift as i32).encipher(&working_cipher);
+                    working_cipher = Caeser::new().set_shift(*shift as i32).encipher(&working_cipher);
 
                     history.push(working_cipher.to_string());
                 }
                 CipherType::Vigenere(code) => {
                     if !code.is_empty() {
-                        working_cipher = Vigenere::new(code.clone()).encipher(&working_cipher)
+                        working_cipher = Vigenere::new().set_code(code.clone()).encipher(&working_cipher)
                     }
                     history.push(working_cipher.clone());
                 }
                 CipherType::RailFence(key) => {
-                    working_cipher = Railfence::new(*key as u8 % working_cipher.len() as u8)
+                    working_cipher = Railfence::new().set_key(*key as u8 % working_cipher.len() as u8)
                         .encipher(&working_cipher);
 
                     history.push(working_cipher.clone());
@@ -148,7 +148,7 @@ impl CipherStack {
                     history.push(working_cipher.clone());
                 }
                 CipherType::Affine(a, b) => {
-                    working_cipher = Affine::new(*a as i32, *b as i32).encipher(&working_cipher);
+                    working_cipher = Affine::new().set_a(*a as i32).set_b(*b as i32).encipher(&working_cipher);
                     history.push(working_cipher.clone());
                 }
             };

@@ -10,32 +10,44 @@ pub struct AppLayout {
 
 impl AppLayout {
     pub fn build(area: Rect) -> Self {
-        let area = area.inner(Margin::new(4,2));
-        let vertical_split = Layout::default()
+        // Apply your outer margin padding
+        let area = area.inner(Margin::new(4, 2));
+        
+        // 1. Split horizontally into a Left Main side and a Right Sidebar
+        let horizontal_split = Layout::default()
             .direction(Direction::Horizontal)
-            .constraints([Constraint::Ratio(3, 5), Constraint::Ratio(2, 5)])
+            .constraints([
+                Constraint::Percentage(60), // Left Side (3/5)
+                Constraint::Percentage(40), // Right Side (2/5)
+            ])
             .split(area);
 
+        // 2. Split the RIGHT side vertically into Cipherstack and Theme Editor
         let right_panel = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Ratio(3, 5), Constraint::Ratio(2, 5)])
-            .split(vertical_split[1]);
+            .constraints([
+                Constraint::Percentage(50), // Cipherstack (Upper right box)
+                Constraint::Percentage(50), // Theme Editor / Instructions (Lower right)
+            ])
+            .split(horizontal_split[1]);
 
-        let pieces = Layout::default()
+        // 3. Split the LEFT side vertically into Plaintext, Cipherview, and Ciphertext
+        // Fixed lengths for input/output boxes prevent terminal resize clipping
+        let left_panel = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Percentage(10),
-                Constraint::Percentage(80),
-                Constraint::Percentage(10),
+                Constraint::Length(3),       // Plaintext Box (Fixed height for top box)
+                Constraint::Min(3),          // Cipherview takes up all remaining middle space
+                Constraint::Length(3),       // Ciphertext Box (Fixed height for input box)
             ])
-            .split(vertical_split[0]);
+            .split(horizontal_split[0]);
 
         Self {
-            plaintext: pieces[0],
-            ciphertext: pieces[2],
+            plaintext: left_panel[0],
+            cipherview: left_panel[1],
+            ciphertext: left_panel[2],
             cipherstack: right_panel[0],
             theme_editer: right_panel[1],
-            cipherview: pieces[1],
         }
     }
 }

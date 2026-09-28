@@ -7,5 +7,6 @@ edition = "2024"
 cifers = "0.1.0"
 ratatui = { version = "0.30.2", default-features = false }
 ratzilla = "0.3.1"
+critical-section = { version = "1.2", features = ["std"] }
 
-strum = "0.28.0"
+
