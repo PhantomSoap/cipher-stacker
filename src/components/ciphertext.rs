@@ -1,7 +1,7 @@
-use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     Frame, layout::Rect, widgets::{Block, Paragraph, Wrap},
 };
+use ratzilla::event::{KeyCode, KeyEvent};
 
 use crate::{Message, components::Component, theme::Theme};
 pub struct Ciphertext {
@@ -27,9 +27,7 @@ impl Component for Ciphertext {
     }
 
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message> {
-        if let KeyEventKind::Release = key.kind {
-            return None;
-        }
+        
 
         match key.code {
             KeyCode::Esc => Some(Message::Exit),

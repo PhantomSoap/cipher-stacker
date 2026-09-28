@@ -1,5 +1,6 @@
-use crossterm::event::{KeyCode, KeyEventKind};
+
 use ratatui::{Frame, layout::Rect};
+use ratzilla::event::{KeyCode, KeyEvent};
 
 use crate::{
     CipherType, cipherviews::{
@@ -50,10 +51,8 @@ impl Component for AppCipher {
         self.cipher.draw(frame, area, focus, self.scroll, t);
     }
 
-    fn handle_key_events(&mut self, key: crossterm::event::KeyEvent) -> Option<crate::Message> {
-        if key.kind == KeyEventKind::Release {
-            return None;
-        }
+    fn handle_key_events(&mut self, key: KeyEvent) -> Option<crate::Message> {
+        
         match key.code {
             KeyCode::Up => {
                 self.scroll.0 += 1;

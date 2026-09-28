@@ -1,5 +1,5 @@
-use crossterm::event::{KeyCode, KeyEventKind};
 use ratatui::{style::Modifier, widgets::{Block, List, ListItem, ListState}};
+use ratzilla::event::{KeyCode, KeyEvent};
 
 use crate::{Message, components::Component,theme::{Theme,PRESETS}};
 
@@ -22,10 +22,8 @@ impl ThemeChanger {
 }
 
 impl Component for ThemeChanger {
-    fn handle_key_events(&mut self, key: crossterm::event::KeyEvent) -> Option<crate::Message> {
-        if key.kind == KeyEventKind::Release {
-            return None;
-        }
+    fn handle_key_events(&mut self, key: KeyEvent) -> Option<crate::Message> {
+        
 
         match key.code {
             KeyCode::Esc => Some(Message::Exit),

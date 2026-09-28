@@ -1,7 +1,9 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::nursery)]
 
+use std::cell::RefCell;
 use std::io;
+use std::rc::Rc;
 pub mod app;
 
 pub mod ciphername;
@@ -11,15 +13,13 @@ pub mod components;
 pub mod layouts;
 pub mod theme;
 
-use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
-use crossterm::execute;
-use crossterm::terminal::{
-    EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode,
-};
+
 
 pub use components::ciphertext::Ciphertext;
 pub use components::inputtext::InputText;
+use ratatui::Terminal;
 use ratatui::layout::Rect;
+use ratzilla::{ DomBackend, WebRenderer};
 
 use crate::app::Focus;
 pub use crate::ciphername::CipherName;
@@ -35,7 +35,6 @@ pub use crate::cipherviews::{
 pub use crate::components::cipher_stack::{CipherEdit, CipherStack};
 
 pub use app::App;
-use ratatui::{Terminal, backend::CrosstermBackend};
 
 pub enum Message {
     CipherText,
@@ -66,20 +65,40 @@ pub fn contains(area: Rect, x: u16, y: u16) -> bool {
     x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
 }
 fn main() -> io::Result<()> {
-    enable_raw_mode()?;
-    let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
-    let backend = CrosstermBackend::new(stdout);
+    let app = Rc::new(RefCell::new(App::new()));
+    let backend = DomBackend::new()?;
     let mut terminal = Terminal::new(backend)?;
-    let res = App::new().run(&mut terminal);
 
-    disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture,
-    )?;
-    res?;
+    terminal.on_key_event({
+        let app_clone_key = app.clone();
+        move |key_event| {
+            
+            let mut app = app_clone_key.borrow_mut();
+            if let Some(msg) = app.handle_keys(key_event) {
+                app.update(msg);
+            }
 
+            
+        }
+    })?;
+
+    terminal.on_mouse_event({
+        let app_clone_mouse = app.clone();
+        move |mouse_event| {
+            
+            let mut app = app_clone_mouse.borrow_mut();
+            if let Some(msg) = app.handle_mouse(mouse_event) {
+                app.update(msg);
+            }
+            
+        }
+    })?;
+
+    terminal.draw_web(move |f| {
+        let app_clone_draw = app.clone();
+        let mut app = app_clone_draw.borrow_mut();
+        app.draw(f)
+        
+    });
     Ok(())
 }

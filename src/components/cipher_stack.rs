@@ -1,9 +1,9 @@
 use crate::{CipherName, CipherType, INSTRUCTIONS, Message, components::Component, theme::Theme};
 use cifers::{Affine, Caeser, Cipher, Railfence, Vigenere};
-use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     Frame, layout::{Constraint, Layout, Rect}, style::{Color, Style}, text::{Line, Span, Text}, widgets::{Block, List, ListItem, ListState, Paragraph},
 };
+use ratzilla::event::{KeyCode, KeyEvent};
 #[derive(Debug, Clone, Copy)]
 pub enum CipherEdit {
     PushChar(char),
@@ -238,9 +238,7 @@ impl Component for CipherStack {
     }
 
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message> {
-        if let KeyEventKind::Release = key.kind {
-            return None;
-        }
+        
         if let Task::Editing = self.task {
             match key.code {
                 KeyCode::Esc => Some(Message::Exit),

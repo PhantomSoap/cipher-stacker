@@ -3,10 +3,10 @@ use crate::contains;
 use crate::{AppCipher, CipherStack, Ciphertext, InputText, Message, layouts::AppLayout};
 
 use crate::components::Component;
-use crossterm::event::{self, Event, KeyEvent, MouseButton, MouseEvent};
 use ratatui::layout::{Position, Rect};
 use ratatui::widgets::Block;
-use ratatui::{DefaultTerminal, Frame};
+use ratatui::{Frame};
+use ratzilla::event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind};
 use std::io;
 
 #[derive(Debug)]
@@ -56,28 +56,9 @@ impl App {
         }
     }
 
-    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
-        while !self.exit {
-            terminal.draw(|frame| self.draw(frame))?;
+    
 
-            if let Some(msg) = self.handle_input_events()? {
-                self.update(msg);
-            }
-            
-        }
-
-        Ok(())
-    }
-
-    pub fn handle_input_events(&mut self) -> io::Result<Option<Message>> {
-        match event::read()? {
-            Event::Key(key_event) => Ok(self.handle_keys(key_event)),
-            Event::Mouse(m) => {
-                Ok(self.handle_mouse(m))
-            }
-            _ => Ok(None),
-        }
-    }
+    
 
     pub fn handle_keys(&mut self,key_event : KeyEvent) -> Option<Message> {
         match self.focus {
@@ -94,7 +75,7 @@ impl App {
 
     pub fn handle_mouse(&mut self,m : MouseEvent) -> Option<Message> {
         let (col, row) = match m.kind {
-                    event::MouseEventKind::Down(MouseButton::Left) => (m.column, m.row),
+                    MouseEventKind::ButtonDown(MouseButton::Left) => (m.col, m.row),
                     _ => return None,
                 };
                 if contains(self.layouts.plaintext, col, row) {

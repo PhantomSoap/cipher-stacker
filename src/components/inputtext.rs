@@ -1,7 +1,7 @@
-use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     Frame, layout::Rect, widgets::{Block, Paragraph, Wrap},
 };
+use ratzilla::event::{KeyCode, KeyEvent};
 
 use super::Component;
 use crate::{Message, theme::Theme};
@@ -28,9 +28,7 @@ impl Component for InputText {
     }
 
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message> {
-        if key.kind == KeyEventKind::Release {
-            return None;
-        }
+        
 
         match key.code {
             KeyCode::Esc => Some(Message::Exit),

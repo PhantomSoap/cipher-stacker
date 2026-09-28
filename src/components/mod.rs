@@ -1,5 +1,5 @@
-use crossterm::event::KeyEvent;
 use ratatui::{Frame, layout::Rect};
+use ratzilla::event::KeyEvent;
 
 use crate::{Message, theme::Theme};
 
