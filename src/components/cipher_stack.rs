@@ -244,12 +244,12 @@ impl Component for CipherStack {
         if let Task::Editing = self.task {
             match key.code {
                 KeyCode::Esc => Some(Message::Exit),
-                KeyCode::Char(chr) => {self.edit_cipher(CipherEdit::PushChar(chr)); None},
-                KeyCode::Backspace => {self.edit_cipher(CipherEdit::Popchar); None},
-                KeyCode::Up => {self.edit_cipher(CipherEdit::Up); None},
-                KeyCode::Down => {self.edit_cipher(CipherEdit::Down); None},
-                KeyCode::Left => {self.edit_cipher(CipherEdit::Left); None},
-                KeyCode::Right => {self.edit_cipher(CipherEdit::Right); None},
+                KeyCode::Char(chr) => {self.edit_cipher(CipherEdit::PushChar(chr)); Some(Message::CipherText)},
+                KeyCode::Backspace => {self.edit_cipher(CipherEdit::Popchar); Some(Message::CipherText)},
+                KeyCode::Up => {self.edit_cipher(CipherEdit::Up); Some(Message::CipherText)},
+                KeyCode::Down => {self.edit_cipher(CipherEdit::Down); Some(Message::CipherText)},
+                KeyCode::Left => {self.edit_cipher(CipherEdit::Left); Some(Message::CipherText)},
+                KeyCode::Right => {self.edit_cipher(CipherEdit::Right); Some(Message::CipherText)},
                 KeyCode::Tab => Some(Message::NextFocus),
                 KeyCode::Enter => {
                     self.task = Task::Adding;
@@ -333,7 +333,7 @@ impl Component for CipherStack {
                     } else {
                         None
                     };
-                    None
+                    Some(Message::CipherText)
                 }
                 KeyCode::Char('-') => {
                     if let Some(_removed) = self.ciphers.pop() {
@@ -343,18 +343,18 @@ impl Component for CipherStack {
                             None
                         };
                     }
-                    None
+                    Some(Message::CipherText)
                 }
                 KeyCode::Char('+') if let Some(index) = self.selected => {
                     self.ciphers
                         .insert(index, self.cipher_to_add.into_ciphertype());
                     self.selected = Some(index);
-                    None
+                    Some(Message::CipherText)
                 }
                 KeyCode::Char('+') => {
                     self.ciphers.push(self.cipher_to_add.into_ciphertype());
                     self.selected = Some(self.ciphers.len() - 1);
-                    None
+                    Some(Message::CipherText)
                 }
                 KeyCode::Up if let Some(index) = &mut self.selected => {
                     if *index != 0 {

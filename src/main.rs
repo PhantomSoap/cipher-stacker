@@ -38,8 +38,7 @@ pub use app::App;
 use ratatui::{Terminal, backend::CrosstermBackend};
 
 pub enum Message {
-    CipherInputText(String),
-    SendCipherText(&'static str),
+    CipherText,
     Exit,
     Reset,
     GoHome,

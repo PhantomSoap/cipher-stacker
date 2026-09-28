@@ -4,7 +4,7 @@ use crate::{AppCipher, CipherStack, Ciphertext, InputText, Message, layouts::App
 
 use crate::components::Component;
 use crossterm::event::{self, Event, KeyEvent, MouseButton, MouseEvent};
-use ratatui::layout::Rect;
+use ratatui::layout::{Position, Rect};
 use ratatui::widgets::Block;
 use ratatui::{DefaultTerminal, Frame};
 use std::io;
@@ -63,8 +63,7 @@ impl App {
             if let Some(msg) = self.handle_input_events()? {
                 self.update(msg);
             }
-            self.stack
-                .stack_cipher(&self.input_text.text, &mut self.ciphertext.text);
+            
         }
 
         Ok(())
@@ -106,6 +105,8 @@ impl App {
                     Some(Message::Focus(Focus::View))
                 } else if contains(self.layouts.theme_editer, col, row) {
                     Some(Message::Focus(Focus::Theme))
+                } else if self.layouts.ciphertext.contains(Position {x : col,y : row}){
+                    Some(Message::Focus(Focus::Ciphertext))
                 } else {
                     None
                 }
@@ -193,8 +194,11 @@ impl App {
 
     pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            Message::CipherInputText(text) => None,
-            Message::SendCipherText(text) => None,
+            Message::CipherText => {
+                self.stack
+                .stack_cipher(&self.input_text.text, &mut self.ciphertext.text);
+                None
+            }
             Message::Exit => {
                 self.exit();
                 None

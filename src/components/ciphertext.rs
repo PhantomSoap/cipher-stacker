@@ -45,10 +45,6 @@ impl Component for Ciphertext {
                 self.text.pop();
                 None
             }
-            KeyCode::Char(c) => {
-                self.text.push(c);
-                None
-            }
             KeyCode::Tab => Some(Message::NextFocus),
             _ => None,
         }

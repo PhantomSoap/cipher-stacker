@@ -44,11 +44,11 @@ impl Component for InputText {
             }
             KeyCode::Backspace => {
                 self.text.pop();
-                Some(Message::CipherInputText(self.text.clone()))
+                Some(Message::CipherText)
             }
             KeyCode::Char(c) => {
                 self.text.push(c);
-                Some(Message::CipherInputText(self.text.clone()))
+                Some(Message::CipherText)
             }
             KeyCode::Tab => Some(Message::NextFocus),
 
