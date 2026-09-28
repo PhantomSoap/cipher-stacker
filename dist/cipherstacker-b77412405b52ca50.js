@@ -323,23 +323,23 @@ function __wbg_get_imports() {
             return ret;
         },
         __wbindgen_generic_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("Event")], shim_idx: 66, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_b395e8265147774___convert__closures_____invoke___web_sys_70a4f65947231e9f___features__gen_Event__Event______true_);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("Event")], shim_idx: 42, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_41cf52570eafc4c6___features__gen_Event__Event______true_);
             return ret;
         },
         __wbindgen_generic_0000000000000002: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("KeyboardEvent")], shim_idx: 44, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_b395e8265147774___convert__closures_____invoke___web_sys_70a4f65947231e9f___features__gen_KeyboardEvent__KeyboardEvent______true_);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("KeyboardEvent")], shim_idx: 21, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_41cf52570eafc4c6___features__gen_KeyboardEvent__KeyboardEvent______true_);
             return ret;
         },
         __wbindgen_generic_0000000000000003: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("MouseEvent")], shim_idx: 94, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_b395e8265147774___convert__closures_____invoke___web_sys_70a4f65947231e9f___features__gen_MouseEvent__MouseEvent______true_);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("MouseEvent")], shim_idx: 63, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_41cf52570eafc4c6___features__gen_MouseEvent__MouseEvent______true_);
             return ret;
         },
         __wbindgen_generic_0000000000000004: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [], shim_idx: 46, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_b395e8265147774___convert__closures_____invoke_______true_);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [], shim_idx: 20, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke_______true_);
             return ret;
         },
         __wbindgen_generic_0000000000000005: function(arg0) {
@@ -368,20 +368,20 @@ function __wbg_get_imports() {
     };
 }
 
-function wasm_bindgen_b395e8265147774___convert__closures_____invoke_______true_(arg0, arg1) {
-    wasm.wasm_bindgen_b395e8265147774___convert__closures_____invoke_______true_(arg0, arg1);
+function wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke_______true_(arg0, arg1) {
+    wasm.wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke_______true_(arg0, arg1);
 }
 
-function wasm_bindgen_b395e8265147774___convert__closures_____invoke___web_sys_70a4f65947231e9f___features__gen_Event__Event______true_(arg0, arg1, arg2) {
-    wasm.wasm_bindgen_b395e8265147774___convert__closures_____invoke___web_sys_70a4f65947231e9f___features__gen_Event__Event______true_(arg0, arg1, arg2);
+function wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_41cf52570eafc4c6___features__gen_Event__Event______true_(arg0, arg1, arg2) {
+    wasm.wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_41cf52570eafc4c6___features__gen_Event__Event______true_(arg0, arg1, arg2);
 }
 
-function wasm_bindgen_b395e8265147774___convert__closures_____invoke___web_sys_70a4f65947231e9f___features__gen_KeyboardEvent__KeyboardEvent______true_(arg0, arg1, arg2) {
-    wasm.wasm_bindgen_b395e8265147774___convert__closures_____invoke___web_sys_70a4f65947231e9f___features__gen_KeyboardEvent__KeyboardEvent______true_(arg0, arg1, arg2);
+function wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_41cf52570eafc4c6___features__gen_KeyboardEvent__KeyboardEvent______true_(arg0, arg1, arg2) {
+    wasm.wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_41cf52570eafc4c6___features__gen_KeyboardEvent__KeyboardEvent______true_(arg0, arg1, arg2);
 }
 
-function wasm_bindgen_b395e8265147774___convert__closures_____invoke___web_sys_70a4f65947231e9f___features__gen_MouseEvent__MouseEvent______true_(arg0, arg1, arg2) {
-    wasm.wasm_bindgen_b395e8265147774___convert__closures_____invoke___web_sys_70a4f65947231e9f___features__gen_MouseEvent__MouseEvent______true_(arg0, arg1, arg2);
+function wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_41cf52570eafc4c6___features__gen_MouseEvent__MouseEvent______true_(arg0, arg1, arg2) {
+    wasm.wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_41cf52570eafc4c6___features__gen_MouseEvent__MouseEvent______true_(arg0, arg1, arg2);
 }
 
 const TerminalDebugApiFinalization = (typeof FinalizationRegistry === 'undefined')
