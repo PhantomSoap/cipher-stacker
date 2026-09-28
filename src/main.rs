@@ -74,6 +74,7 @@ fn main() -> io::Result<()> {
         move |key_event| {
             
             let mut app = app_clone_key.borrow_mut();
+            
             if let Some(msg) = app.handle_keys(key_event) {
                 app.update(msg);
             }

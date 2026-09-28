@@ -78,13 +78,13 @@ impl App {
                     MouseEventKind::ButtonDown(MouseButton::Left) => (m.col, m.row),
                     _ => return None,
                 };
-                if contains(self.layouts.plaintext, col, row) {
+                if self.layouts.plaintext.contains(Position {x : col,y : row}) {
                     Some(Message::Focus(Focus::InputText))
-                } else if contains(self.layouts.cipherstack, col, row) {
+                } else if self.layouts.cipherstack.contains(Position {x : col,y : row}) {
                     Some(Message::Focus(Focus::CipherStack))
-                } else if contains(self.layouts.cipherview, col, row) {
+                } else if self.layouts.cipherview.contains(Position {x : col,y : row}) {
                     Some(Message::Focus(Focus::View))
-                } else if contains(self.layouts.theme_editor, col, row) {
+                } else if self.layouts.theme_editor.contains(Position {x : col,y : row}) {
                     Some(Message::Focus(Focus::Theme))
                 } else if self.layouts.ciphertext.contains(Position {x : col,y : row}){
                     Some(Message::Focus(Focus::Ciphertext))
@@ -95,13 +95,12 @@ impl App {
 
     pub fn draw(&mut self, frame: &mut Frame) {
         self.layouts = AppLayout::build(frame.area());
-        let areas = AppLayout::build(frame.area());
 
         self.update_cipherview();
         if let Some(cipherview) = &self.cipherview {
             cipherview.draw(
                 frame,
-                areas.cipherview,
+                self.layouts.cipherview,
                 if let Focus::View = self.focus {
                     true
                 } else {
@@ -110,12 +109,12 @@ impl App {
                 self.theme.get_theme(),
             );
         } else {
-            frame.render_widget(Block::bordered().title("").border_style(self.theme.get_theme().border), areas.cipherview);
+            frame.render_widget(Block::bordered().title("").border_style(self.theme.get_theme().border), self.layouts.cipherview);
         }
 
         self.input_text.draw(
             frame,
-            areas.plaintext,
+            self.layouts.plaintext,
             if let Focus::InputText = self.focus {
                 true
             } else {
@@ -125,7 +124,7 @@ impl App {
         );
         self.ciphertext.draw(
             frame,
-            areas.ciphertext,
+            self.layouts.ciphertext,
             if let Focus::Ciphertext = self.focus {
                 true
             } else {
@@ -135,7 +134,7 @@ impl App {
         );
         self.stack.draw(
             frame,
-            areas.cipherstack,
+            self.layouts.cipherstack,
             if let Focus::CipherStack = self.focus {
                 true
             } else {
@@ -145,7 +144,7 @@ impl App {
         );
         self.theme.draw(
             frame,
-            areas.theme_editor,
+            self.layouts.theme_editor,
             if let Focus::Theme = self.focus {
                 true
             } else {
