@@ -84,7 +84,7 @@ impl App {
                     Some(Message::Focus(Focus::CipherStack))
                 } else if contains(self.layouts.cipherview, col, row) {
                     Some(Message::Focus(Focus::View))
-                } else if contains(self.layouts.theme_editer, col, row) {
+                } else if contains(self.layouts.theme_editor, col, row) {
                     Some(Message::Focus(Focus::Theme))
                 } else if self.layouts.ciphertext.contains(Position {x : col,y : row}){
                     Some(Message::Focus(Focus::Ciphertext))
@@ -145,7 +145,7 @@ impl App {
         );
         self.theme.draw(
             frame,
-            areas.theme_editer,
+            areas.theme_editor,
             if let Focus::Theme = self.focus {
                 true
             } else {
