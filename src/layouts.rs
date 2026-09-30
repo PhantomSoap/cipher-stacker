@@ -18,9 +18,9 @@ impl AppLayout {
     .areas(area);
 
     let [plaintext, cipherview, ciphertext] = Layout::vertical([
-        Constraint::Length(5),
+        Constraint::Length(10),
         Constraint::Max(20),
-        Constraint::Length(5),
+        Constraint::Length(10),
     ])
     .areas(left_side);
 
