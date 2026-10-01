@@ -58,7 +58,11 @@ impl App {
 
     
 
-    
+    pub fn handle_paste(&mut self, text : &str) {
+        if let Focus::InputText = self.focus {
+            self.input_text.text.push_str(text);
+        }
+    }
 
     pub fn handle_keys(&mut self,key_event : KeyEvent) -> Option<Message> {
         match self.focus {

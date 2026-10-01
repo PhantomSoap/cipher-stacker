@@ -21,6 +21,10 @@ use ratatui::Terminal;
 use ratatui::layout::Rect;
 use ratzilla::{ DomBackend, WebRenderer};
 
+use wasm_bindgen::closure::Closure;
+use wasm_bindgen::JsCast;
+use web_sys::ClipboardEvent;
+
 use crate::app::Focus;
 pub use crate::ciphername::CipherName;
 pub use crate::ciphertype::CipherType;
