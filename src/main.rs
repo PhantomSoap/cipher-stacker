@@ -73,8 +73,9 @@ fn main() -> io::Result<()> {
     let backend = DomBackend::new()?;
     let mut terminal = Terminal::new(backend)?;
 
+    let app_clone_key = app.clone();
     terminal.on_key_event({
-        let app_clone_key = app.clone();
+        
         move |key_event| {
             
             let mut app = app_clone_key.borrow_mut();
@@ -86,9 +87,9 @@ fn main() -> io::Result<()> {
             
         }
     })?;
-
+    let app_clone_mouse = app.clone();
     terminal.on_mouse_event({
-        let app_clone_mouse = app.clone();
+        
         move |mouse_event| {
             
             let mut app = app_clone_mouse.borrow_mut();
@@ -98,13 +99,42 @@ fn main() -> io::Result<()> {
             
         }
     })?;
-
+    let app_clone_draw = app.clone();
     terminal.draw_web(move |f| {
-        let app_clone_draw = app.clone();
+        
         let mut app = app_clone_draw.borrow_mut();
         app.draw(f)
         
     });
+
+
+let app_clone_paste = app.clone();
+
+let paste_callback = Closure::<dyn FnMut(ClipboardEvent)>::new(
+    move |event: ClipboardEvent| {
+        
+        if let Some(clipboard_data) = event.clipboard_data() {
+            if let Ok(text) = clipboard_data.get_data("text/plain") {
+                let mut app = app_clone_paste.borrow_mut();
+
+                app.handle_paste(&text);
+            }
+        }
+
+        event.prevent_default();
+    },
+);
+
+let _jsvalue = web_sys::window()
+    .unwrap()
+    .add_event_listener_with_callback(
+        "paste",
+        paste_callback.as_ref().unchecked_ref(),
+    );
+
+paste_callback.forget();
+
+    
 
     
     Ok(())
