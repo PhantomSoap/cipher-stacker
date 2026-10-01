@@ -65,9 +65,7 @@ const CIPHER_INSTRUCTIONS: [&'static str; 5] = [
     "\n[Enter] return",
 ];
 
-pub fn contains(area: Rect, x: u16, y: u16) -> bool {
-    x >= area.x && x < area.x + area.width && y >= area.y && y < area.y + area.height
-}
+
 fn main() -> io::Result<()> {
     let app = Rc::new(RefCell::new(App::new()));
     let backend = DomBackend::new()?;

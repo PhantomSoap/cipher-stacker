@@ -1,5 +1,4 @@
 use crate::components::theme_change::ThemeChanger;
-use crate::contains;
 use crate::{AppCipher, CipherStack, Ciphertext, InputText, Message, layouts::AppLayout};
 
 use crate::components::Component;
