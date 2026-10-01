@@ -124,6 +124,7 @@ dependencies = [
  "critical-section",
  "ratatui",
  "ratzilla",
+ "web-sys",
 ]
 
 [[package]]

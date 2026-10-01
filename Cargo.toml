@@ -8,5 +8,12 @@ cifers = "0.1.0"
 ratatui = { version = "0.30.2", default-features = false }
 ratzilla = "0.3.1"
 critical-section = { version = "1.2", features = ["std"] }
-
+web-sys = { version = "0.3.81", features = [
+    "Window",
+    "Document",
+    "Event",
+    "EventTarget",
+    "ClipboardEvent",
+    "DataTransfer",
+] }
 
