@@ -115,7 +115,9 @@ let paste_callback = Closure::<dyn FnMut(ClipboardEvent)>::new(
             if let Ok(text) = clipboard_data.get_data("text/plain") {
                 let mut app = app_clone_paste.borrow_mut();
 
-                app.handle_paste(&text);
+                if let Some(msg) = app.handle_paste(&text) {
+                    app.update(msg);
+                }
             }
         }
 

@@ -57,10 +57,14 @@ impl App {
 
     
 
-    pub fn handle_paste(&mut self, text : &str) {
+    pub fn handle_paste(&mut self, text : &str) -> Option<Message> {
         if let Focus::InputText = self.focus {
             self.input_text.text.push_str(text);
+            Some(Message::CipherText)
+        } else {
+            None
         }
+
     }
 
     pub fn handle_keys(&mut self,key_event : KeyEvent) -> Option<Message> {
