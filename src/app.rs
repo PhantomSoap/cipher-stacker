@@ -1,5 +1,5 @@
 use crate::components::theme_change::ThemeChanger;
-use crate::{AppCipher, CipherStack, Ciphertext, InputText, Message, layouts::AppLayout};
+use crate::{AppCipher, CipherStack, OutputText, InputText, Message, layouts::AppLayout};
 
 use crate::components::Component;
 use ratatui::layout::{Position, Rect};
@@ -11,7 +11,7 @@ use ratzilla::event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind};
 
 pub enum Focus {
     InputText,
-    Ciphertext,
+    OutputText,
     CipherStack,
     Theme,
     View,
@@ -21,8 +21,8 @@ impl Focus {
     pub fn next(&self) -> Self {
         match self {
             Focus::InputText => Focus::CipherStack,
-            Focus::CipherStack => Focus::Ciphertext,
-            Focus::Ciphertext => Focus::Theme,
+            Focus::CipherStack => Focus::OutputText,
+            Focus::OutputText => Focus::Theme,
             Focus::Theme => Focus::View,
             Focus::View => Focus::InputText,
         }
@@ -31,7 +31,7 @@ impl Focus {
 
 pub struct App {
     pub input_text: InputText,
-    pub ciphertext: Ciphertext,
+    pub output_text: OutputText,
     pub stack: CipherStack,
     pub exit: bool,
     pub cipherview: Option<AppCipher>,
@@ -44,7 +44,7 @@ impl App {
     pub fn new() -> App {
         App {
             input_text: InputText::new(String::from("ExampleText")),
-            ciphertext: Ciphertext::new(String::from("ExampleText")),
+            output_text: OutputText::new(String::from("ExampleText")),
             stack: CipherStack::new(),
             exit: false,
             focus: Focus::InputText,
@@ -69,7 +69,7 @@ impl App {
     pub fn handle_keys(&mut self,key_event : KeyEvent) -> Option<Message> {
         match self.focus {
                 Focus::InputText => self.input_text.handle_key_events(key_event),
-                Focus::Ciphertext => self.ciphertext.handle_key_events(key_event),
+                Focus::OutputText => self.output_text.handle_key_events(key_event),
                 Focus::CipherStack => self.stack.handle_key_events(key_event),
                 Focus::View if let Some(view) = &mut self.cipherview => {
                     view.handle_key_events(key_event)
@@ -92,8 +92,8 @@ impl App {
                     Some(Message::Focus(Focus::View))
                 } else if self.layouts.theme_editor.contains(Position {x : col,y : row}) {
                     Some(Message::Focus(Focus::Theme))
-                } else if self.layouts.ciphertext.contains(Position {x : col,y : row}){
-                    Some(Message::Focus(Focus::Ciphertext))
+                } else if self.layouts.output_text.contains(Position {x : col,y : row}){
+                    Some(Message::Focus(Focus::OutputText))
                 } else {
                     None
                 }
@@ -128,10 +128,10 @@ impl App {
             },
             self.theme.get_theme(),
         );
-        self.ciphertext.draw(
+        self.output_text.draw(
             frame,
-            self.layouts.ciphertext,
-            if let Focus::Ciphertext = self.focus {
+            self.layouts.output_text,
+            if let Focus::OutputText = self.focus {
                 true
             } else {
                 false
@@ -182,7 +182,7 @@ impl App {
         match msg {
             Message::CipherText => {
                 self.stack
-                .stack_cipher(&self.input_text.text, &mut self.ciphertext.text);
+                .stack_cipher(&self.input_text.text, &mut self.output_text.text);
                 None
             }
             Message::Exit => {

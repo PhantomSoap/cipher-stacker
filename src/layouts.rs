@@ -2,7 +2,7 @@ use ratatui::layout::{Constraint, Layout, Margin, Rect};
 
 pub struct AppLayout {
     pub plaintext: Rect,
-    pub ciphertext: Rect,
+    pub output_text: Rect,
     pub cipherview: Rect,
     pub cipherstack: Rect,
     pub theme_editor: Rect,
@@ -17,7 +17,7 @@ impl AppLayout {
     ])
     .areas(area);
 
-    let [plaintext, cipherview, ciphertext] = Layout::vertical([
+    let [plaintext, cipherview, output_text] = Layout::vertical([
         Constraint::Length(10),
         Constraint::Max(20),
         Constraint::Length(10),
@@ -33,7 +33,7 @@ impl AppLayout {
     Self {
         plaintext,
         cipherview,
-        ciphertext,
+        output_text,
         cipherstack,
         theme_editor,
     }

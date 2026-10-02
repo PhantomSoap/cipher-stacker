@@ -15,7 +15,7 @@ pub mod theme;
 
 
 
-pub use components::ciphertext::Ciphertext;
+pub use components::output_text::OutputText;
 pub use components::inputtext::InputText;
 use ratatui::Terminal;
 use ratzilla::{ DomBackend, WebRenderer};

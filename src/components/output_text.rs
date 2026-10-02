@@ -4,17 +4,17 @@ use ratatui::{
 use ratzilla::event::{KeyCode, KeyEvent};
 
 use crate::{Message, components::Component, theme::Theme};
-pub struct Ciphertext {
+pub struct OutputText {
     pub text: String,
     pub scroll: u16,
 }
 
-impl Ciphertext {
+impl OutputText {
     pub fn new(text: String) -> Self {
         Self { text, scroll: 0 }
     }
 }
-impl Component for Ciphertext {
+impl Component for OutputText {
     fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: Theme) {
         let block = Block::bordered().title("Ciphertext").border_style(if focus {t.ring} else {t.border});
 
