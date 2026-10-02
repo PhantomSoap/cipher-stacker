@@ -36,7 +36,13 @@ pub struct CipherStack {
     pub task: Task,
     pub process : Process,
 }
+fn apply_cipher(text : &str,cipher : impl Cipher,process : Process) -> String {
+    match process {
+        Process::Encrypt => cipher.encipher(text),
+        Process::Decrypt => cipher.decipher(text),
+    }
 
+}
 impl CipherStack {
     pub fn new(process : Process) -> CipherStack {
         CipherStack {
