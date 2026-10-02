@@ -38,6 +38,8 @@ pub use crate::cipherviews::{
 pub use crate::components::cipher_stack::{CipherEdit, CipherStack};
 
 pub use app::App;
+#[derive(Debug, Clone, Copy)]
+
 pub enum Process {
     Encrypt,
     Decrypt,

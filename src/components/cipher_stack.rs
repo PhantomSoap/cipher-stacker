@@ -41,7 +41,6 @@ fn apply_cipher(text : &str,cipher : impl Cipher,process : Process) -> String {
         Process::Encrypt => cipher.encipher(text),
         Process::Decrypt => cipher.decipher(text),
     }
-
 }
 impl CipherStack {
     pub fn new(process : Process) -> CipherStack {
@@ -132,31 +131,35 @@ impl CipherStack {
             return;
         };
 
-        for cipher in &self.ciphers {
-            match cipher {
+        for cphr in &self.ciphers {
+            match cphr {
                 CipherType::Caeser(shift) => {
-                    working_cipher = Caeser::new().set_shift(*shift as i32).encipher(&working_cipher);
+                    let cipher = Caeser::new().set_shift(*shift as i32);
+                    working_cipher = apply_cipher(&working_cipher, cipher, self.process);
 
                     history.push(working_cipher.to_string());
                 }
                 CipherType::Vigenere(code) => {
                     if !code.is_empty() {
-                        working_cipher = Vigenere::new().set_code(code.clone()).encipher(&working_cipher)
+                        let cipher = Vigenere::new().set_code(code.clone());
+                        working_cipher = apply_cipher(&working_cipher, cipher, self.process);
                     }
                     history.push(working_cipher.clone());
                 }
                 CipherType::RailFence(key) => {
-                    working_cipher = Railfence::new().set_key(*key as u8 % working_cipher.len() as u8)
-                        .encipher(&working_cipher);
+                    let cipher = Railfence::new().set_key(*key as u8 % working_cipher.len() as u8);
+                    working_cipher = apply_cipher(&working_cipher, cipher, self.process);
 
                     history.push(working_cipher.clone());
                 }
                 CipherType::Atbash => {
-                    working_cipher = Affine::atbash().encipher(&working_cipher);
+                    let cipher = Affine::atbash();
+                    working_cipher = apply_cipher(&working_cipher, cipher, self.process);
                     history.push(working_cipher.clone());
                 }
                 CipherType::Affine(a, b) => {
-                    working_cipher = Affine::new().set_a(*a as i32).set_b(*b as i32).encipher(&working_cipher);
+                    let cipher =  Affine::new().set_a(*a as i32).set_b(*b as i32);
+                    working_cipher = apply_cipher(&working_cipher, cipher, self.process);
                     history.push(working_cipher.clone());
                 }
             };
