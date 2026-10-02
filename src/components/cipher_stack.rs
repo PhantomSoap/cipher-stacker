@@ -1,4 +1,4 @@
-use crate::{CipherName, CipherType, INSTRUCTIONS, Message, components::Component, theme::Theme};
+use crate::{CipherName, CipherType, INSTRUCTIONS, Message, Process, components::Component, theme::Theme};
 use cifers::{Affine, Caeser, Cipher, Railfence, Vigenere};
 use ratatui::{
     Frame, layout::{Constraint, Layout, Rect}, style::{Color, Style}, text::{Line, Span, Text}, widgets::{Block, List, ListItem, ListState, Paragraph},
@@ -26,7 +26,7 @@ pub enum Task {
     Adding,
 }
 
-#[derive(Debug)]
+
 pub struct CipherStack {
     pub ciphers: Vec<CipherType>,
     pub selected: Option<usize>,
@@ -34,10 +34,11 @@ pub struct CipherStack {
     pub state: StackState,
     pub history: Vec<String>,
     pub task: Task,
+    pub process : Process,
 }
 
 impl CipherStack {
-    pub fn new() -> CipherStack {
+    pub fn new(process : Process) -> CipherStack {
         CipherStack {
             ciphers: Vec::new(),
             selected: None,
@@ -45,6 +46,7 @@ impl CipherStack {
             state: StackState::Main,
             history: Vec::new(),
             task: Task::Adding,
+            process,
         }
     }
 

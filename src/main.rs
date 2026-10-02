@@ -38,7 +38,10 @@ pub use crate::cipherviews::{
 pub use crate::components::cipher_stack::{CipherEdit, CipherStack};
 
 pub use app::App;
-
+pub enum Process {
+    Encrypt,
+    Decrypt,
+}
 pub enum Message {
     CipherText,
     Exit,

@@ -45,7 +45,7 @@ impl App {
         App {
             input_text: InputText::new(String::from("ExampleText")),
             output_text: OutputText::new(String::from("ExampleText")),
-            stack: CipherStack::new(),
+            stack: CipherStack::new(crate::Process::Encrypt),
             exit: false,
             focus: Focus::InputText,
             cipherview: None,
