@@ -1,5 +1,4 @@
-use core::fmt;
-use std::fmt::Formatter;
+
 
 use crate::{CIPHER_INSTRUCTIONS, CipherName};
 
@@ -44,21 +43,4 @@ impl CipherType {
     }
 }
 
-impl fmt::Display for CipherType {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            CipherType::Caeser(shift) => {
-                write!(f, "Caeser Cipher; Shift: {}", shift)
-            }
-            CipherType::Vigenere(code) if !code.is_empty() => {
-                write!(f, "Vigenere Cipher; Keyword: {}", code)
-            }
-            CipherType::Vigenere(_code) => write!(f, "Vigenere Cipher;"),
-            CipherType::RailFence(key) => {
-                write!(f, "RailFence Cipher; Key: {}", key)
-            }
-            CipherType::Atbash => write!(f, "Atbash Cipher"),
-            CipherType::Affine(a, b) => write!(f, "Affine Cipher; Multiplyer: {}, Shift: {}", a, b),
-        }
-    }
-}
+

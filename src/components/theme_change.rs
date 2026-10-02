@@ -57,7 +57,7 @@ impl Component for ThemeChanger {
         );
     }
 
-    fn update(&mut self, msg: crate::Message) -> Option<crate::Message> {
+    fn update(&mut self, _msg: crate::Message) -> Option<crate::Message> {
         None
     }
 }

@@ -1,4 +1,4 @@
-use ratatui::layout::{Constraint, Direction, Layout, Margin, Rect};
+use ratatui::layout::{Constraint, Layout, Margin, Rect};
 
 pub struct AppLayout {
     pub plaintext: Rect,

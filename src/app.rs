@@ -6,7 +6,6 @@ use ratatui::layout::{Position, Rect};
 use ratatui::widgets::Block;
 use ratatui::{Frame};
 use ratzilla::event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind};
-use std::io;
 
 #[derive(Debug)]
 

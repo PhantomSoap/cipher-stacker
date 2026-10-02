@@ -18,7 +18,6 @@ pub mod theme;
 pub use components::ciphertext::Ciphertext;
 pub use components::inputtext::InputText;
 use ratatui::Terminal;
-use ratatui::layout::Rect;
 use ratzilla::{ DomBackend, WebRenderer};
 
 use wasm_bindgen::closure::Closure;
