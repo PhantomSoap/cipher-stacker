@@ -51,6 +51,7 @@ pub enum Message {
     GoHome,
     NextFocus,
     Focus(Focus),
+    SwitchProcess(Process),
 }
 const INSTRUCTIONS: [&'static str; 6] = [
     "[Up/Down] scroll up/down\n[Left/Right] Next Cipher to add\n[+] Add Cipher\n[Enter] Edit Selected\n[Space] Toggle History",

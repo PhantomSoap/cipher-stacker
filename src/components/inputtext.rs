@@ -4,20 +4,29 @@ use ratatui::{
 use ratzilla::event::{KeyCode, KeyEvent};
 
 use super::Component;
-use crate::{Message, theme::Theme};
+use crate::{Message, Process, theme::Theme};
 
 pub struct InputText {
     pub text: String,
     pub scroll: u16,
+    pub process : Process
 }
 impl InputText {
-    pub fn new(text: String) -> Self {
-        Self { text, scroll: 0 }
+    pub fn new(text: String,process : Process) -> Self {
+        Self { text, scroll: 0 ,process,}
     }
 }
 impl Component for InputText {
     fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: Theme) {
-        let block = Block::bordered().title("Plaintext").border_style(if focus {t.ring} else {t.border});
+        let block = Block::bordered()
+            .title(
+                if let  Process::Encrypt = self.process  {
+                    "Plaintext"
+                } else {
+                    "Ciphertext"
+                }
+            )
+            .border_style(if focus {t.ring} else {t.border});
 
         let widget = Paragraph::new(format!("{}", self.text))
             .wrap(Wrap { trim: false })

@@ -1,3 +1,4 @@
+use crate::Process;
 use crate::components::theme_change::ThemeChanger;
 use crate::{AppCipher, CipherStack, OutputText, InputText, Message, layouts::AppLayout};
 
@@ -38,13 +39,15 @@ pub struct App {
     pub focus: Focus,
     pub layouts: AppLayout,
     pub theme: ThemeChanger,
+    pub process : Process
 }
 
 impl App {
     pub fn new() -> App {
         App {
-            input_text: InputText::new(String::from("ExampleText")),
-            output_text: OutputText::new(String::from("ExampleText")),
+            process : Process::Encrypt,
+            input_text: InputText::new(String::from("ExampleText"),Process::Encrypt),
+            output_text: OutputText::new(String::from("ExampleText"),Process::Decrypt),
             stack: CipherStack::new(crate::Process::Encrypt),
             exit: false,
             focus: Focus::InputText,
@@ -180,6 +183,7 @@ impl App {
 
     pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
+            Message::SwitchProcess(p) => {self.process = p; None}
             Message::CipherText => {
                 self.stack
                 .stack_cipher(&self.input_text.text, &mut self.output_text.text);
