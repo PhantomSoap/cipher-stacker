@@ -47,7 +47,7 @@ impl App {
         App {
             process : Process::Encrypt,
             input_text: InputText::new(String::from("ExampleText"),Process::Encrypt),
-            output_text: OutputText::new(String::from("ExampleText"),Process::Decrypt),
+            output_text: OutputText::new(String::from("ExampleText"),Process::Encrypt),
             stack: CipherStack::new(crate::Process::Encrypt),
             exit: false,
             focus: Focus::InputText,
