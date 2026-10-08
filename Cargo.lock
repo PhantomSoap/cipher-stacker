@@ -214,6 +214,7 @@ name = "cipher-stacker-tui"
 version = "0.1.0"
 dependencies = [
  "cifers",
+ "crossterm",
  "ratatui",
 ]
 

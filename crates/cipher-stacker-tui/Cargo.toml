@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 cifers = {workspace = true}
+crossterm = "0.29.0"
 ratatui = "0.30.2"
 
 
