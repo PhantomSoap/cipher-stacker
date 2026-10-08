@@ -1,3 +1,4 @@
 [build]
 target = "crates/cipher-stacker-web/index.html"
+dist = "docs"
 public_url = "/cipher-stacker/"
