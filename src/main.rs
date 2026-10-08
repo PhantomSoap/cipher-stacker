@@ -13,15 +13,13 @@ pub mod components;
 pub mod layouts;
 pub mod theme;
 
-
-
-pub use components::output_text::OutputText;
 pub use components::inputtext::InputText;
+pub use components::output_text::OutputText;
 use ratatui::Terminal;
-use ratzilla::{ DomBackend, WebRenderer};
+use ratzilla::{DomBackend, WebRenderer};
 
-use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::closure::Closure;
 use web_sys::ClipboardEvent;
 
 use crate::app::Focus;
@@ -70,7 +68,6 @@ const CIPHER_INSTRUCTIONS: [&'static str; 5] = [
     "\n[Enter] return",
 ];
 
-
 fn main() -> io::Result<()> {
     let app = Rc::new(RefCell::new(App::new()));
     let backend = DomBackend::new()?;
@@ -78,44 +75,32 @@ fn main() -> io::Result<()> {
 
     let app_clone_key = app.clone();
     terminal.on_key_event({
-        
         move |key_event| {
-            
             let mut app = app_clone_key.borrow_mut();
-            
+
             if let Some(msg) = app.handle_keys(key_event) {
                 app.update(msg);
             }
-
-            
         }
     })?;
     let app_clone_mouse = app.clone();
     terminal.on_mouse_event({
-        
         move |mouse_event| {
-            
             let mut app = app_clone_mouse.borrow_mut();
             if let Some(msg) = app.handle_mouse(mouse_event) {
                 app.update(msg);
             }
-            
         }
     })?;
     let app_clone_draw = app.clone();
     terminal.draw_web(move |f| {
-        
         let mut app = app_clone_draw.borrow_mut();
         app.draw(f)
-        
     });
 
+    let app_clone_paste = app.clone();
 
-let app_clone_paste = app.clone();
-
-let paste_callback = Closure::<dyn FnMut(ClipboardEvent)>::new(
-    move |event: ClipboardEvent| {
-        
+    let paste_callback = Closure::<dyn FnMut(ClipboardEvent)>::new(move |event: ClipboardEvent| {
         if let Some(clipboard_data) = event.clipboard_data() {
             if let Ok(text) = clipboard_data.get_data("text/plain") {
                 let mut app = app_clone_paste.borrow_mut();
@@ -127,20 +112,13 @@ let paste_callback = Closure::<dyn FnMut(ClipboardEvent)>::new(
         }
 
         event.prevent_default();
-    },
-);
+    });
 
-let _jsvalue = web_sys::window()
-    .unwrap()
-    .add_event_listener_with_callback(
-        "paste",
-        paste_callback.as_ref().unchecked_ref(),
-    );
+    let _jsvalue = web_sys::window()
+        .unwrap()
+        .add_event_listener_with_callback("paste", paste_callback.as_ref().unchecked_ref());
 
-paste_callback.forget();
+    paste_callback.forget();
 
-    
-
-    
     Ok(())
 }

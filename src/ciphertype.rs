@@ -1,5 +1,3 @@
-
-
 use crate::{CIPHER_INSTRUCTIONS, CipherName};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -42,5 +40,3 @@ impl CipherType {
         }
     }
 }
-
-

@@ -1,5 +1,6 @@
 use ratatui::{
-    layout::Rect, widgets::{Block, Paragraph},
+    layout::Rect,
+    widgets::{Block, Paragraph},
 };
 
 use crate::{CipherView, theme::Theme};
@@ -24,7 +25,11 @@ impl CipherView for VigenereView {
 
         frame.render_widget(
             Paragraph::new(vigenere_grid)
-                .block(Block::bordered().title("Vignere Cipher").border_style(if focus {t.ring} else {t.border}))
+                .block(
+                    Block::bordered()
+                        .title("Vignere Cipher")
+                        .border_style(if focus { t.ring } else { t.border }),
+                )
                 .scroll(scroll),
             area,
         );

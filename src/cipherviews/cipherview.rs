@@ -1,12 +1,14 @@
-
 use ratatui::{Frame, layout::Rect};
 use ratzilla::event::{KeyCode, KeyEvent};
 
 use crate::{
-    CipherType, cipherviews::{
+    CipherType,
+    cipherviews::{
         affine_ui::AffineView, atbash_ui::AtbashView, caesar_ui::CaesarView,
         rail_fence_ui::RailfenceView, vigenere_ui::VigenereView,
-    }, components::Component, theme::Theme,
+    },
+    components::Component,
+    theme::Theme,
 };
 
 pub trait CipherView {
@@ -52,7 +54,6 @@ impl Component for AppCipher {
     }
 
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<crate::Message> {
-        
         match key.code {
             KeyCode::Up => {
                 self.scroll.0 += 1;

@@ -1,5 +1,9 @@
 use ratatui::{
-    Frame, layout::Rect, style::Stylize, text::{Line, Span, Text}, widgets::{Block, Paragraph},
+    Frame,
+    layout::Rect,
+    style::Stylize,
+    text::{Line, Span, Text},
+    widgets::{Block, Paragraph},
 };
 
 use crate::{CipherView, theme::Theme};
@@ -57,7 +61,11 @@ impl CipherView for AffineView {
 
         frame.render_widget(
             Paragraph::new(affine_table)
-                .block(Block::bordered().title("Affine Cipher").border_style(if focus {t.ring} else {t.border}))
+                .block(
+                    Block::bordered()
+                        .title("Affine Cipher")
+                        .border_style(if focus { t.ring } else { t.border }),
+                )
                 .scroll(scroll),
             area,
         )

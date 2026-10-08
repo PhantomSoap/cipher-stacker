@@ -1,5 +1,7 @@
 use ratatui::{
-    Frame, layout::Rect, widgets::{Block, Paragraph, Wrap},
+    Frame,
+    layout::Rect,
+    widgets::{Block, Paragraph, Wrap},
 };
 use ratzilla::event::{KeyCode, KeyEvent};
 
@@ -9,24 +11,26 @@ use crate::{Message, Process, theme::Theme};
 pub struct InputText {
     pub text: String,
     pub scroll: u16,
-    pub process : Process
+    pub process: Process,
 }
 impl InputText {
-    pub fn new(text: String,process : Process) -> Self {
-        Self { text, scroll: 0 ,process,}
+    pub fn new(text: String, process: Process) -> Self {
+        Self {
+            text,
+            scroll: 0,
+            process,
+        }
     }
 }
 impl Component for InputText {
     fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: Theme) {
         let block = Block::bordered()
-            .title(
-                if let  Process::Encrypt = self.process  {
-                    "Plaintext"
-                } else {
-                    "Ciphertext"
-                }
-            )
-            .border_style(if focus {t.ring} else {t.border});
+            .title(if let Process::Encrypt = self.process {
+                "Plaintext"
+            } else {
+                "Ciphertext"
+            })
+            .border_style(if focus { t.ring } else { t.border });
 
         let widget = Paragraph::new(format!("{}", self.text))
             .wrap(Wrap { trim: false })
@@ -37,8 +41,6 @@ impl Component for InputText {
     }
 
     fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message> {
-        
-
         match key.code {
             KeyCode::Esc => Some(Message::Exit),
             KeyCode::Up if self.scroll != 0 => {

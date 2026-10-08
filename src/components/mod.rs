@@ -4,8 +4,8 @@ use ratzilla::event::KeyEvent;
 use crate::{Message, theme::Theme};
 
 pub mod cipher_stack;
-pub mod output_text;
 pub mod inputtext;
+pub mod output_text;
 pub mod theme_change;
 
 pub trait Component {

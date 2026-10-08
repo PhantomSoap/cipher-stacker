@@ -1,11 +1,11 @@
 use crate::Process;
 use crate::components::theme_change::ThemeChanger;
-use crate::{AppCipher, CipherStack, OutputText, InputText, Message, layouts::AppLayout};
+use crate::{AppCipher, CipherStack, InputText, Message, OutputText, layouts::AppLayout};
 
 use crate::components::Component;
+use ratatui::Frame;
 use ratatui::layout::{Position, Rect};
 use ratatui::widgets::Block;
-use ratatui::{Frame};
 use ratzilla::event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind};
 
 #[derive(Debug)]
@@ -39,15 +39,15 @@ pub struct App {
     pub focus: Focus,
     pub layouts: AppLayout,
     pub theme: ThemeChanger,
-    pub process : Process
+    pub process: Process,
 }
 
 impl App {
     pub fn new() -> App {
         App {
-            process : Process::Encrypt,
-            input_text: InputText::new(String::from("ExampleText"),Process::Encrypt),
-            output_text: OutputText::new(String::from("ExampleText"),Process::Encrypt),
+            process: Process::Encrypt,
+            input_text: InputText::new(String::from("ExampleText"), Process::Encrypt),
+            output_text: OutputText::new(String::from("ExampleText"), Process::Encrypt),
             stack: CipherStack::new(crate::Process::Encrypt),
             exit: false,
             focus: Focus::InputText,
@@ -57,54 +57,66 @@ impl App {
         }
     }
 
-    
-
-    pub fn handle_paste(&mut self, text : &str) -> Option<Message> {
+    pub fn handle_paste(&mut self, text: &str) -> Option<Message> {
         if let Focus::InputText = self.focus {
             self.input_text.text.push_str(text);
             Some(Message::CipherText)
         } else {
             None
         }
-
     }
 
-    pub fn handle_keys(&mut self,key_event : KeyEvent) -> Option<Message> {
+    pub fn handle_keys(&mut self, key_event: KeyEvent) -> Option<Message> {
         match self.focus {
-                Focus::InputText => self.input_text.handle_key_events(key_event),
-                Focus::OutputText => self.output_text.handle_key_events(key_event),
-                Focus::CipherStack => self.stack.handle_key_events(key_event),
-                Focus::View if let Some(view) = &mut self.cipherview => {
-                    view.handle_key_events(key_event)
-                }
-                Focus::View => Some(Message::NextFocus),
-                Focus::Theme => self.theme.handle_key_events(key_event)
+            Focus::InputText => self.input_text.handle_key_events(key_event),
+            Focus::OutputText => self.output_text.handle_key_events(key_event),
+            Focus::CipherStack => self.stack.handle_key_events(key_event),
+            Focus::View if let Some(view) = &mut self.cipherview => {
+                view.handle_key_events(key_event)
             }
+            Focus::View => Some(Message::NextFocus),
+            Focus::Theme => self.theme.handle_key_events(key_event),
+        }
     }
 
-    pub fn handle_mouse(&mut self,m : MouseEvent) -> Option<Message> {
+    pub fn handle_mouse(&mut self, m: MouseEvent) -> Option<Message> {
         let (col, row) = match m.kind {
-                    MouseEventKind::ButtonDown(MouseButton::Left) => (m.col, m.row),
-                    _ => return None,
-                };
-                if self.layouts.plaintext.contains(Position {x : col,y : row}) {
-                    Some(Message::Focus(Focus::InputText))
-                } else if self.layouts.cipherstack.contains(Position {x : col,y : row}) {
-                    Some(Message::Focus(Focus::CipherStack))
-                } else if self.layouts.cipherview.contains(Position {x : col,y : row}) {
-                    Some(Message::Focus(Focus::View))
-                } else if self.layouts.theme_editor.contains(Position {x : col,y : row}) {
-                    Some(Message::Focus(Focus::Theme))
-                } else if self.layouts.output_text.contains(Position {x : col,y : row}){
-                    Some(Message::Focus(Focus::OutputText))
-                } else {
-                    None
-                }
+            MouseEventKind::ButtonDown(MouseButton::Left) => (m.col, m.row),
+            _ => return None,
+        };
+        if self.layouts.plaintext.contains(Position { x: col, y: row }) {
+            Some(Message::Focus(Focus::InputText))
+        } else if self
+            .layouts
+            .cipherstack
+            .contains(Position { x: col, y: row })
+        {
+            Some(Message::Focus(Focus::CipherStack))
+        } else if self
+            .layouts
+            .cipherview
+            .contains(Position { x: col, y: row })
+        {
+            Some(Message::Focus(Focus::View))
+        } else if self
+            .layouts
+            .theme_editor
+            .contains(Position { x: col, y: row })
+        {
+            Some(Message::Focus(Focus::Theme))
+        } else if self
+            .layouts
+            .output_text
+            .contains(Position { x: col, y: row })
+        {
+            Some(Message::Focus(Focus::OutputText))
+        } else {
+            None
+        }
     }
 
     pub fn draw(&mut self, frame: &mut Frame) {
         self.layouts = AppLayout::build(frame.area());
-
         self.update_cipherview();
         if let Some(cipherview) = &self.cipherview {
             cipherview.draw(
@@ -118,7 +130,12 @@ impl App {
                 self.theme.get_theme(),
             );
         } else {
-            frame.render_widget(Block::bordered().title("").border_style(self.theme.get_theme().border), self.layouts.cipherview);
+            frame.render_widget(
+                Block::bordered()
+                    .title("")
+                    .border_style(self.theme.get_theme().border),
+                self.layouts.cipherview,
+            );
         }
 
         self.input_text.draw(
@@ -183,10 +200,13 @@ impl App {
 
     pub fn update(&mut self, msg: Message) -> Option<Message> {
         match msg {
-            Message::SwitchProcess(p) => {self.process = p; None}
+            Message::SwitchProcess(p) => {
+                self.process = p;
+                None
+            }
             Message::CipherText => {
                 self.stack
-                .stack_cipher(&self.input_text.text, &mut self.output_text.text);
+                    .stack_cipher(&self.input_text.text, &mut self.output_text.text);
                 None
             }
             Message::Exit => {
