@@ -1,2 +1,3 @@
 [build]
 public_url = "/cipher-stacker-web/"
+dist = "docs"
