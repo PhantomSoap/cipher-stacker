@@ -1,5 +1,5 @@
 use ratatui::{Frame, layout::Rect};
-use ratzilla::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent};
 
 use crate::{
     CipherType,

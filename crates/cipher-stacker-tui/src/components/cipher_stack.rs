@@ -9,7 +9,7 @@ use ratatui::{
     text::{Line, Span, Text},
     widgets::{Block, List, ListItem, ListState, Paragraph},
 };
-use ratzilla::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent};
 #[derive(Debug, Clone, Copy)]
 pub enum CipherEdit {
     PushChar(char),

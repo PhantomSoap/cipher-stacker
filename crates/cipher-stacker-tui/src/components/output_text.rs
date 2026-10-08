@@ -3,7 +3,7 @@ use ratatui::{
     layout::Rect,
     widgets::{Block, Paragraph, Wrap},
 };
-use ratzilla::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent};
 
 use crate::{Message, Process, components::Component, theme::Theme};
 pub struct OutputText {

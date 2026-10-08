@@ -1,12 +1,15 @@
+
+use std::io;
+
 use crate::Process;
 use crate::components::theme_change::ThemeChanger;
 use crate::{AppCipher, CipherStack, InputText, Message, OutputText, layouts::AppLayout};
 
 use crate::components::Component;
-use ratatui::Frame;
+use ratatui::{DefaultTerminal, Frame};
 use ratatui::layout::{Position, Rect};
 use ratatui::widgets::Block;
-use ratzilla::event::{KeyEvent, MouseButton, MouseEvent, MouseEventKind};
+use crossterm::event::{self, Event, KeyEvent, MouseButton, MouseEvent, MouseEventKind};
 
 #[derive(Debug)]
 
@@ -57,6 +60,28 @@ impl App {
         }
     }
 
+    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> io::Result<()> {
+        while !self.exit {
+            terminal.draw(|frame| self.draw(frame))?;
+
+            if let Some(msg) = self.handle_input_events()? {
+                self.update(msg);
+            }
+            
+        }
+
+        Ok(())
+    }
+
+    pub fn handle_input_events(&mut self) -> io::Result<Option<Message>> {
+        match event::read()? {
+            Event::Key(key_event) => Ok(self.handle_keys(key_event)),
+            Event::Mouse(m) => Ok(self.handle_mouse(m)),
+            Event::Paste(text) => Ok(self.handle_paste(&text)),
+            _ => Ok(None),
+        }
+    }
+
     pub fn handle_paste(&mut self, text: &str) -> Option<Message> {
         if let Focus::InputText = self.focus {
             self.input_text.text.push_str(text);
@@ -81,7 +106,7 @@ impl App {
 
     pub fn handle_mouse(&mut self, m: MouseEvent) -> Option<Message> {
         let (col, row) = match m.kind {
-            MouseEventKind::ButtonDown(MouseButton::Left) => (m.col, m.row),
+            MouseEventKind::Down(MouseButton::Left) => (m.column, m.row),
             _ => return None,
         };
         if self.layouts.plaintext.contains(Position { x: col, y: row }) {

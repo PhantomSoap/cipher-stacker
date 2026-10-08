@@ -3,7 +3,7 @@ use ratatui::{
     layout::Rect,
     widgets::{Block, Paragraph, Wrap},
 };
-use ratzilla::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent};
 
 use super::Component;
 use crate::{Message, Process, theme::Theme};

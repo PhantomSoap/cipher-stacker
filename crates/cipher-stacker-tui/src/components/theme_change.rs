@@ -2,7 +2,7 @@ use ratatui::{
     style::Modifier,
     widgets::{Block, List, ListItem, ListState},
 };
-use ratzilla::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent};
 
 use crate::{
     Message,

@@ -1,9 +1,8 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::nursery)]
 
-use std::cell::RefCell;
+
 use std::io;
-use std::rc::Rc;
 pub mod app;
 
 pub mod ciphername;
@@ -15,12 +14,12 @@ pub mod theme;
 
 pub use components::inputtext::InputText;
 pub use components::output_text::OutputText;
+use crossterm::event::{DisableMouseCapture, EnableMouseCapture};
+use crossterm::execute;
+use crossterm::terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode};
 use ratatui::Terminal;
-use ratzilla::{DomBackend, WebRenderer};
+use ratatui::backend::CrosstermBackend;
 
-use wasm_bindgen::JsCast;
-use wasm_bindgen::closure::Closure;
-use web_sys::ClipboardEvent;
 
 use crate::app::Focus;
 pub use crate::ciphername::CipherName;
@@ -69,56 +68,22 @@ const CIPHER_INSTRUCTIONS: [&'static str; 5] = [
 ];
 
 fn main() -> io::Result<()> {
-    let app = Rc::new(RefCell::new(App::new()));
-    let backend = DomBackend::new()?;
+    enable_raw_mode()?;
+    let mut stdout = io::stdout();
+    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
+    let res = App::new().run(&mut terminal);
 
-    let app_clone_key = app.clone();
-    terminal.on_key_event({
-        move |key_event| {
-            let mut app = app_clone_key.borrow_mut();
+    disable_raw_mode()?;
+    execute!(
+        terminal.backend_mut(),
+        LeaveAlternateScreen,
+        DisableMouseCapture,
+    )?;
+    res?;
 
-            if let Some(msg) = app.handle_keys(key_event) {
-                app.update(msg);
-            }
-        }
-    })?;
-    let app_clone_mouse = app.clone();
-    terminal.on_mouse_event({
-        move |mouse_event| {
-            let mut app = app_clone_mouse.borrow_mut();
-            if let Some(msg) = app.handle_mouse(mouse_event) {
-                app.update(msg);
-            }
-        }
-    })?;
-    let app_clone_draw = app.clone();
-    terminal.draw_web(move |f| {
-        let mut app = app_clone_draw.borrow_mut();
-        app.draw(f)
-    });
-
-    let app_clone_paste = app.clone();
-
-    let paste_callback = Closure::<dyn FnMut(ClipboardEvent)>::new(move |event: ClipboardEvent| {
-        if let Some(clipboard_data) = event.clipboard_data() {
-            if let Ok(text) = clipboard_data.get_data("text/plain") {
-                let mut app = app_clone_paste.borrow_mut();
-
-                if let Some(msg) = app.handle_paste(&text) {
-                    app.update(msg);
-                }
-            }
-        }
-
-        event.prevent_default();
-    });
-
-    let _jsvalue = web_sys::window()
-        .unwrap()
-        .add_event_listener_with_callback("paste", paste_callback.as_ref().unchecked_ref());
-
-    paste_callback.forget();
+    
 
     Ok(())
 }
