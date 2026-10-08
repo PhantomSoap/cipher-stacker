@@ -117,7 +117,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6566f0111846111df720548e3fa0003349e432d8eb8daef9ee378f88a77d1393"
 
 [[package]]
-name = "cipherstacker"
+name = "cipher-stacker-web"
 version = "0.1.0"
 dependencies = [
  "cifers",

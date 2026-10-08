@@ -337,7 +337,7 @@ function __wbg_get_imports() {
             return ret;
         },
         __wbindgen_generic_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("ClipboardEvent")], shim_idx: 4, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("ClipboardEvent")], shim_idx: 3, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_5e08628c7b6d8ab2___features__gen_ClipboardEvent__ClipboardEvent______true_);
             return ret;
         },
@@ -347,7 +347,7 @@ function __wbg_get_imports() {
             return ret;
         },
         __wbindgen_generic_0000000000000003: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("KeyboardEvent")], shim_idx: 3, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [NamedExternref("KeyboardEvent")], shim_idx: 2, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke___web_sys_5e08628c7b6d8ab2___features__gen_KeyboardEvent__KeyboardEvent______true_);
             return ret;
         },
@@ -357,7 +357,7 @@ function __wbg_get_imports() {
             return ret;
         },
         __wbindgen_generic_0000000000000005: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [], shim_idx: 2, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [], shim_idx: 1, ret: Unit, inner_ret: Some(Unit) }, mutable: true }) -> Externref`.
             const ret = makeMutClosure(arg0, arg1, wasm_bindgen_9d20f42616e8ddc2___convert__closures_____invoke_______true_);
             return ret;
         },
@@ -383,7 +383,7 @@ function __wbg_get_imports() {
     };
     return {
         __proto__: null,
-        "./cipherstacker_bg.js": import0,
+        "./cipher-stacker-web_bg.js": import0,
     };
 }
 
@@ -696,7 +696,7 @@ async function __wbg_init(module_or_path) {
     }
 
     if (module_or_path === undefined) {
-        module_or_path = new URL('cipherstacker_bg.wasm', import.meta.url);
+        module_or_path = new URL('cipher-stacker-web_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 
