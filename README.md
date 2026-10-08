@@ -13,4 +13,5 @@ run with cargo run --bin cipher-stacker-tui
 ## Build
 
 Ratzilla App (Requires trunk) - trunk build
+
 Ratatui tui - cargo build --bin cipher-stacker-tui
