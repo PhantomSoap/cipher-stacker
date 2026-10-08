@@ -1,0 +1,452 @@
+use crate::{
+    CipherName, CipherType, INSTRUCTIONS, Message, Process, components::Component, theme::Theme,
+};
+use cifers::{Affine, Caeser, Cipher, Railfence, Vigenere};
+use ratatui::{
+    Frame,
+    layout::{Constraint, Layout, Rect},
+    style::{Color, Style},
+    text::{Line, Span, Text},
+    widgets::{Block, List, ListItem, ListState, Paragraph},
+};
+use ratzilla::event::{KeyCode, KeyEvent};
+#[derive(Debug, Clone, Copy)]
+pub enum CipherEdit {
+    PushChar(char),
+    Popchar,
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+#[derive(Debug)]
+
+pub enum StackState {
+    Main,
+    ShowHistory,
+}
+#[derive(Debug)]
+pub enum Task {
+    Editing,
+    Adding,
+}
+
+pub struct CipherStack {
+    pub ciphers: Vec<CipherType>,
+    pub selected: Option<usize>,
+    pub cipher_to_add: CipherName,
+    pub state: StackState,
+    pub history: Vec<String>,
+    pub task: Task,
+    pub process: Process,
+}
+fn apply_cipher(text: &str, cipher: impl Cipher, process: Process) -> String {
+    match process {
+        Process::Encrypt => cipher.encipher(text),
+        Process::Decrypt => cipher.decipher(text),
+    }
+}
+impl CipherStack {
+    pub fn new(process: Process) -> CipherStack {
+        CipherStack {
+            ciphers: Vec::new(),
+            selected: None,
+            cipher_to_add: CipherName::Caesar,
+            state: StackState::Main,
+            history: Vec::new(),
+            task: Task::Adding,
+            process,
+        }
+    }
+
+    pub fn edit_cipher(&mut self, edit: CipherEdit) {
+        if let Some(index) = self.selected {
+            match edit {
+                CipherEdit::PushChar(chr)
+                    if let CipherType::Vigenere(code) = &mut self.ciphers[index] =>
+                {
+                    code.push(chr.to_ascii_uppercase());
+                }
+                CipherEdit::Popchar
+                    if let CipherType::Vigenere(code) = &mut self.ciphers[index] =>
+                {
+                    code.pop();
+                }
+                CipherEdit::Up => match &mut self.ciphers[index] {
+                    CipherType::Affine(a, _b) => {
+                        let mut shift = *a;
+                        while !(*a == 26) && !(shift == 26) {
+                            if !((shift + 1) % 2 == 0) && !((shift + 1) % 13 == 0) {
+                                *a = shift + 1;
+                                break;
+                            } else {
+                                shift += 1;
+                            }
+                        }
+                    }
+                    CipherType::RailFence(key) => *key += 1,
+                    _ => {}
+                },
+                CipherEdit::Down => match &mut self.ciphers[index] {
+                    CipherType::Affine(a, _b) => {
+                        let mut shift = *a;
+                        while !(*a == 0) && !(shift == 0) {
+                            if !((shift - 1) % 2 == 0) && !((shift - 1) % 13 == 0) {
+                                *a = shift - 1;
+                                break;
+                            } else {
+                                shift -= 1;
+                            }
+                        }
+                    }
+                    CipherType::RailFence(key) if *key != 1 => *key -= 1,
+                    _ => {}
+                },
+                CipherEdit::Left => match &mut self.ciphers[index] {
+                    CipherType::Caeser(shift) => {
+                        *shift = ((*shift - 1) % 26 + 26) % 26;
+                    }
+                    CipherType::Affine(_a, b) if !(*b == 0) => {
+                        *b -= 1;
+                    }
+                    _ => {}
+                },
+                CipherEdit::Right => match &mut self.ciphers[index] {
+                    CipherType::Caeser(shift) => {
+                        *shift = ((*shift + 1) % 26 + 26) % 26;
+                    }
+                    CipherType::Affine(_a, b) if !(*b == 25) => {
+                        *b += 1;
+                    }
+
+                    _ => {}
+                },
+                _ => {}
+            }
+        }
+    }
+
+    pub fn stack_cipher(&mut self, text: &str, ciphertext: &mut String) {
+        let mut history: Vec<String> = Vec::new();
+        let mut working_cipher = text.to_string();
+        if self.ciphers.is_empty() {
+            *ciphertext = working_cipher;
+            self.history = history;
+            return;
+        };
+
+        for cphr in &self.ciphers {
+            match cphr {
+                CipherType::Caeser(shift) => {
+                    let cipher = Caeser::new().set_shift(*shift as i32);
+                    working_cipher = apply_cipher(&working_cipher, cipher, self.process);
+
+                    history.push(working_cipher.to_string());
+                }
+                CipherType::Vigenere(code) => {
+                    if !code.is_empty() {
+                        let cipher = Vigenere::new().set_code(code.clone());
+                        working_cipher = apply_cipher(&working_cipher, cipher, self.process);
+                    }
+                    history.push(working_cipher.clone());
+                }
+                CipherType::RailFence(key) => {
+                    let cipher = Railfence::new().set_key(*key as u8 % working_cipher.len() as u8);
+                    working_cipher = apply_cipher(&working_cipher, cipher, self.process);
+
+                    history.push(working_cipher.clone());
+                }
+                CipherType::Atbash => {
+                    let cipher = Affine::atbash();
+                    working_cipher = apply_cipher(&working_cipher, cipher, self.process);
+                    history.push(working_cipher.clone());
+                }
+                CipherType::Affine(a, b) => {
+                    let cipher = Affine::new().set_a(*a as i32).set_b(*b as i32);
+                    working_cipher = apply_cipher(&working_cipher, cipher, self.process);
+                    history.push(working_cipher.clone());
+                }
+            };
+        }
+        *ciphertext = working_cipher;
+        self.history = history;
+    }
+}
+
+impl Component for CipherStack {
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, t: Theme) {
+        let split = Layout::default()
+            .direction(ratatui::layout::Direction::Vertical)
+            .constraints([
+                Constraint::Length(3),
+                Constraint::Length(8),
+                Constraint::Length(8),
+            ])
+            .split(area);
+
+        let panel = match self.task {
+            Task::Editing => Paragraph::new(Text::from(Line::from(vec![
+                Span::raw("| "),
+                Span::styled(
+                    format!("{:?}", self.ciphers[self.selected.unwrap()]),
+                    Style::default().fg(Color::Black).bg(Color::White),
+                ),
+                Span::raw(" |"),
+            ])))
+            .block(
+                Block::bordered()
+                    .title("Edit Cipher")
+                    .border_style(if focus { t.ring } else { t.border }),
+            ),
+            Task::Adding => Paragraph::new(Text::from(Line::from(vec![
+                Span::raw("| "),
+                Span::styled(
+                    format!("{:?}", &self.cipher_to_add),
+                    Style::default().fg(Color::Black).bg(Color::White),
+                ),
+                Span::raw(" |"),
+                Span::styled("<+>", Color::Blue),
+                Span::raw(" to add |"),
+            ])))
+            .block(
+                Block::bordered()
+                    .title("Add Cipher")
+                    .border_style(if focus { t.ring } else { t.border }),
+            ),
+        };
+        frame.render_widget(panel, split[0]);
+
+        let list = match self.state {
+            StackState::Main => List::new(
+                self.ciphers
+                    .iter()
+                    .map(|cipher| ListItem::from(format!("{:?}", cipher))),
+            )
+            .highlight_style(Color::LightRed)
+            .block(Block::bordered().title("Ciphers").border_style(if focus {
+                t.ring
+            } else {
+                t.border
+            })),
+            StackState::ShowHistory => {
+                let mut history_text: Vec<ListItem> = Vec::new();
+
+                for (index, cipher) in self.ciphers.iter().enumerate() {
+                    if let Some(hist_item) = self.history.get(index) {
+                        history_text.push(ListItem::from(Text::from(format!(
+                            "{cipher:?} -> {hist_item}"
+                        ))));
+                    }
+                }
+                List::new(history_text)
+                    .highlight_style(Color::LightRed)
+                    .block(Block::bordered().title("History").border_style(if focus {
+                        t.ring
+                    } else {
+                        t.border
+                    }))
+            }
+        };
+        frame.render_stateful_widget(
+            list,
+            split[1],
+            &mut ListState::default().with_selected(self.selected),
+        );
+
+        if let Task::Editing = self.task {
+            frame.render_widget(
+                Paragraph::new(self.ciphers[self.selected.unwrap()].instructions()).block(
+                    Block::bordered()
+                        .title("Instructions")
+                        .border_style(if focus { t.ring } else { t.border }),
+                ),
+                split[2],
+            )
+        } else {
+            frame.render_widget(
+                Paragraph::new(INSTRUCTIONS[0]).block(
+                    Block::bordered()
+                        .title("Instructions")
+                        .border_style(if focus { t.ring } else { t.border }),
+                ),
+                split[2],
+            )
+        }
+    }
+
+    fn handle_key_events(&mut self, key: KeyEvent) -> Option<Message> {
+        if let Task::Editing = self.task {
+            match key.code {
+                KeyCode::Esc => Some(Message::Exit),
+                KeyCode::Char(chr) => {
+                    self.edit_cipher(CipherEdit::PushChar(chr));
+                    Some(Message::CipherText)
+                }
+                KeyCode::Backspace => {
+                    self.edit_cipher(CipherEdit::Popchar);
+                    Some(Message::CipherText)
+                }
+                KeyCode::Up => {
+                    self.edit_cipher(CipherEdit::Up);
+                    Some(Message::CipherText)
+                }
+                KeyCode::Down => {
+                    self.edit_cipher(CipherEdit::Down);
+                    Some(Message::CipherText)
+                }
+                KeyCode::Left => {
+                    self.edit_cipher(CipherEdit::Left);
+                    Some(Message::CipherText)
+                }
+                KeyCode::Right => {
+                    self.edit_cipher(CipherEdit::Right);
+                    Some(Message::CipherText)
+                }
+                KeyCode::Tab => Some(Message::NextFocus),
+                KeyCode::Enter => {
+                    self.task = Task::Adding;
+                    None
+                }
+                _ => None,
+            }
+        } else if let StackState::Main = self.state {
+            match key.code {
+                KeyCode::Esc => Some(Message::Exit),
+                KeyCode::Tab => Some(Message::NextFocus),
+                KeyCode::Char('-') if let Some(index) = self.selected => {
+                    let _removed = self.ciphers.remove(index);
+                    self.selected = if self.ciphers.len() != 0 {
+                        Some(self.ciphers.len() - 1)
+                    } else {
+                        None
+                    };
+                    None
+                }
+                KeyCode::Char('-') => {
+                    if let Some(_removed) = self.ciphers.pop() {
+                        self.selected = if self.ciphers.len() != 0 {
+                            Some(self.ciphers.len() - 1)
+                        } else {
+                            None
+                        };
+                    }
+                    None
+                }
+                KeyCode::Char('+') if let Some(index) = self.selected => {
+                    self.ciphers
+                        .insert(index, self.cipher_to_add.into_ciphertype());
+                    self.selected = Some(index);
+                    None
+                }
+                KeyCode::Char('+') => {
+                    self.ciphers.push(self.cipher_to_add.into_ciphertype());
+                    self.selected = Some(self.ciphers.len() - 1);
+                    None
+                }
+                KeyCode::Up if let Some(index) = &mut self.selected => {
+                    if *index != 0 {
+                        *index -= 1;
+                    }
+                    None
+                }
+                KeyCode::Down if let Some(index) = &mut self.selected => {
+                    if *index != self.ciphers.len() - 1 {
+                        *index += 1;
+                    }
+                    None
+                }
+                KeyCode::Right => {
+                    self.cipher_to_add.next();
+                    None
+                }
+                KeyCode::Left => {
+                    self.cipher_to_add.previous();
+                    None
+                }
+                KeyCode::Enter if let Some(_) = self.selected => {
+                    self.task = Task::Editing;
+                    None
+                }
+                KeyCode::Char(' ') => {
+                    self.state = StackState::ShowHistory;
+                    None
+                }
+
+                _ => None,
+            }
+        } else if let StackState::ShowHistory = self.state {
+            match key.code {
+                KeyCode::Esc => Some(Message::Exit),
+                KeyCode::Tab => Some(Message::NextFocus),
+                KeyCode::Char('-') if let Some(index) = self.selected => {
+                    let _removed = self.ciphers.remove(index);
+                    self.selected = if self.ciphers.len() != 0 {
+                        Some(self.ciphers.len() - 1)
+                    } else {
+                        None
+                    };
+                    Some(Message::CipherText)
+                }
+                KeyCode::Char('-') => {
+                    if let Some(_removed) = self.ciphers.pop() {
+                        self.selected = if self.ciphers.len() != 0 {
+                            Some(self.ciphers.len() - 1)
+                        } else {
+                            None
+                        };
+                    }
+                    Some(Message::CipherText)
+                }
+                KeyCode::Char('+') if let Some(index) = self.selected => {
+                    self.ciphers
+                        .insert(index, self.cipher_to_add.into_ciphertype());
+                    self.selected = Some(index);
+                    Some(Message::CipherText)
+                }
+                KeyCode::Char('+') => {
+                    self.ciphers.push(self.cipher_to_add.into_ciphertype());
+                    self.selected = Some(self.ciphers.len() - 1);
+                    Some(Message::CipherText)
+                }
+                KeyCode::Up if let Some(index) = &mut self.selected => {
+                    if *index != 0 {
+                        *index -= 1;
+                    }
+                    None
+                }
+                KeyCode::Down if let Some(index) = &mut self.selected => {
+                    if *index != self.ciphers.len() - 1 {
+                        *index += 1;
+                    }
+                    None
+                }
+                KeyCode::Right => {
+                    self.cipher_to_add.next();
+                    None
+                }
+                KeyCode::Left => {
+                    self.cipher_to_add.previous();
+                    None
+                }
+                KeyCode::Enter if let Some(_) = self.selected => {
+                    self.task = Task::Editing;
+                    None
+                }
+                KeyCode::Char(' ') => {
+                    self.state = StackState::Main;
+                    None
+                }
+                _ => None,
+            }
+        } else {
+            None
+        }
+    }
+
+    fn update(&mut self, msg: Message) -> Option<Message> {
+        match msg {
+            _ => None,
+        }
+    }
+}

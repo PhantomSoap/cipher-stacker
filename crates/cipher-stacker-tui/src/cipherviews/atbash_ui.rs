@@ -1,0 +1,37 @@
+use ratatui::{
+    Frame,
+    layout::Rect,
+    text::Text,
+    widgets::{Block, Paragraph},
+};
+
+use crate::{CipherView, theme::Theme};
+#[derive(Default)]
+pub struct AtbashView {}
+impl CipherView for AtbashView {
+    fn draw(&self, frame: &mut Frame, area: Rect, focus: bool, scroll: (u16, u16), t: Theme) {
+        let atbasher = format!(
+"Atbash Cipher
+{}
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z |
+| ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓   ↓ |
+| Z | Y | X | W | V | U | T | S | R | Q | P | O | N | M | L | K | J | I | H | G | F | E | D | C | B | A |
+{}
+",
+
+"_".repeat(105),
+"‾".repeat(105),  
+    );
+
+        frame.render_widget(
+            Paragraph::new(Text::from(atbasher))
+                .block(
+                    Block::bordered()
+                        .title("Atbash Cipher")
+                        .border_style(if focus { t.ring } else { t.border }),
+                )
+                .scroll(scroll),
+            area,
+        )
+    }
+}
