@@ -2,7 +2,7 @@
 #![warn(clippy::nursery)]
 
 use std::cell::RefCell;
-use std::io;
+
 use std::rc::Rc;
 pub mod app;
 
@@ -18,8 +18,9 @@ pub use components::output_text::OutputText;
 use ratatui::Terminal;
 use ratzilla::{DomBackend, WebRenderer};
 
-use wasm_bindgen::JsCast;
+use wasm_bindgen::{JsCast, JsError, JsValue};
 use wasm_bindgen::closure::Closure;
+use wasm_bindgen::prelude::wasm_bindgen;
 use web_sys::ClipboardEvent;
 
 use crate::app::Focus;
@@ -67,11 +68,11 @@ const CIPHER_INSTRUCTIONS: [&'static str; 5] = [
     "\n[Enter] return",
     "\n[Enter] return",
 ];
-
-fn main() -> io::Result<()> {
+#[wasm_bindgen(start)]
+fn run() -> Result<(), JsValue> {
     let app = Rc::new(RefCell::new(App::new()));
-    let backend = DomBackend::new()?;
-    let mut terminal = Terminal::new(backend)?;
+    let backend = DomBackend::new().map_err(|e| JsError::new(&e.to_string()))?;
+    let mut terminal = Terminal::new(backend).map_err(|e| JsError::new(&e.to_string()))?;
 
     let app_clone_key = app.clone();
     terminal.on_key_event({
@@ -82,7 +83,7 @@ fn main() -> io::Result<()> {
                 app.update(msg);
             }
         }
-    })?;
+    }).map_err(|e| JsError::new(&e.to_string()))?;
     let app_clone_mouse = app.clone();
     terminal.on_mouse_event({
         move |mouse_event| {
@@ -91,7 +92,7 @@ fn main() -> io::Result<()> {
                 app.update(msg);
             }
         }
-    })?;
+    }).map_err(|e| JsError::new(&e.to_string()))?;
     let app_clone_draw = app.clone();
     terminal.draw_web(move |f| {
         let mut app = app_clone_draw.borrow_mut();

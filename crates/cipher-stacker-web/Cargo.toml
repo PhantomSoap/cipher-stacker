@@ -3,6 +3,9 @@ name = "cipher-stacker-web"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 cifers = {workspace = true}
 ratatui = { version = "0.30.2", default-features = false }
